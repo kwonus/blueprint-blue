@@ -1,0 +1,176 @@
+syntax = "proto3";
+package avx_quelle;
+
+message QStatement {
+  string Text = 1;
+  bool IsValid = 2;
+  string Message = 3; // error message
+  repeated QCommand commands = 4;
+}
+
+message QCommand {
+  string Text = 1;
+  string Verb = 2;
+  string Help = 3;  // each command has a string identifier for help context (e.g. QSet & QClear & QGet all have the same help page of VAR)
+  bool IsExplicit = 4;
+  oneof CommandVector  {
+    QImplicitCommand Items = 5;  // one or more
+    QExplicitCommand Item  = 6;  // singleton
+  }
+}
+
+message QExplicitCommand {
+  oneof Item {
+    QHelp    Help    = 1;
+    QGet     Set     = 2;
+    QDelete  Delete  = 3;
+    QExpand  Expand  = 4;
+    QVersion Version = 5;
+    QReview  Review  = 6;
+    QExit    Exit    = 7;
+  }
+  message QHelp {
+    string Topic = 1;
+  }
+
+  message QGet {
+    string Key = 1;
+  }
+
+  message QDelete {
+    string Label = 1;
+  }
+
+  message QExpand {
+    string Label = 1;
+  }
+
+  message QVersion {
+    repeated string Args = 1;
+  }
+
+  message QReview {
+    repeated string Args = 1;
+    repeated QHistory History = 2;
+    
+    message QHistory {
+      uint32 id = 1;
+      string statement = 2;
+    }
+  }
+
+  message QExit {
+    repeated string Args = 1;
+  }
+}
+
+message QImplicitCommand {
+  oneof Item {
+    QFind    Find    = 1;
+    QFilter  Filter  = 2;
+    QSet     Set     = 3;
+    QClear   Clear   = 4;
+    QMacro   Macro   = 5; // aka QLabel
+    QExport  Export  = 6;
+    QDisplay Display = 7;
+    QInvoke  Invoke  = 8;
+    QExec    Exec    = 9;
+  }
+  message QFind {
+    bool IsQuoted = 1;
+    repeated QSearchSegment Segments = 2;
+
+    message QSearchSegment {
+      QSearchFragment Fragments = 1;
+    }
+    message QSearchFragment {
+      QTerm Terms = 1;
+    }
+    message QTerm {
+      string Text = 1;
+
+      oneof Term {
+        QWord    Lex     = 2;
+        QMatch   Match   = 3; // Wildcard
+        QLemma   Lemma   = 4;
+        QPunc    Punc    = 5;
+        QDecor   Decor   = 6;
+        QPos     Pos     = 7;
+        QLoc     Loc     = 8; // Positional/Location
+      }
+    }
+    message QWord {
+      uint32 WordKey = 1;
+    }
+    message QMatch {
+      string Beginning = 1;
+      string Ending = 2;
+    }
+    message QLemma {
+      uint32 LemmaKey = 1;
+    }
+    message QPunc {
+      uint32 Punctuation = 1;
+    }
+    message QDecor {
+      uint32 Decoration = 1;
+    }
+    message QPos { // Part-of-Speech
+      uint32 PnPos12 = 1;
+      uint32 Pos32 = 2;
+    }
+    message QLoc { // Positional/Location
+      uint32 Position = 1;
+    }
+  }
+
+  message QFilter {
+    string Scope = 1;
+  }
+
+  message QSet {
+    string Key = 1;
+    string Value = 2;
+  }
+
+  message QClear {
+    string Key = 1;
+  }
+
+  message QMacro {
+    string Label = 1;
+  }
+
+  message QExport {
+  }
+
+  message QDisplay {
+    repeated uint32 Fields = 1;
+  }
+
+  message QInvoke {
+    string Label = 1;
+  }
+
+  message QExec {
+    uint32 command = 1;
+  }
+}
+
+// The greeter service definition.
+service ParseStatement {
+  // Sends a greeting
+  rpc Parse (ParseRequest) returns (ParseResponse) {}
+}
+
+// The request message containing the user's name.
+message ParseRequest {
+  string StatementText = 1;
+}
+
+// The response message containing the greetings
+message ParseResponse {
+  string Input = 1;
+  QStatement Output = 2;
+  repeated string ErrorLines = 3;
+}
