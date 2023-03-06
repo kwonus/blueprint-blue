@@ -1,0 +1,32 @@
+[package]
+name = "blueprint-blue"
+version = "0.1.0"
+authors = ["Kevin Wonus <kevin@wonus.com>"]
+edition = "2021"
+
+[dependencies]
+prost = "0.11.6"
+tonic = {version= "0.8.3",features = ["tls"]}
+tokio = {version="1.19.2",features = ["macros", "rt-multi-thread"]}
+#tokio = {version="1.26.0",features = ["stream", "macros"]}
+futures = "0.3"
+
+[build-dependencies]
+tonic-build = "0.8.4"
+
+#[dependencies]
+#prost = "0.6.1"
+#tonic = {version="0.2.0",features = ["tls"]}
+#tokio = {version="0.2.18",features = ["stream", "macros"]}
+#futures = "0.3"
+#
+#[build-dependencies]
+#tonic-build = "0.2.0"
+
+[[bin]]
+name = "server"
+path = "src/server.rs"
+
+[[bin]]
+name = "client"
+path = "src/client.rs"
