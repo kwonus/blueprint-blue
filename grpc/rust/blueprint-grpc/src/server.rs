@@ -33,7 +33,8 @@ impl ParseStatement for BlueprintBlueService {
                 })),
             }),
             error_lines: vec![],
-        }
+        }));
+        result
     }
 }
 
