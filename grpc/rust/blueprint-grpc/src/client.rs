@@ -8,7 +8,6 @@ mod blueprint;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut client = parse_statement_client::ParseStatementClient::connect("http://[::1]:8080").await?;
     loop {
-        println!("\nPlease vote for a particular url");
         let mut u = String::new();
         println!("Please type a statement: ");
         stdin().read_line(&mut u).unwrap();
