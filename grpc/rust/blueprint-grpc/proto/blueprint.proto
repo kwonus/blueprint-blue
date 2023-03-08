@@ -161,8 +161,8 @@ message QImplicitCommands {
   repeated QImplicitCommand Items = 1;
 }
 
-// The service definition.
-service ParseStatement {
+// Blueprint service definition.
+service BlueprintBlue {
   rpc Parse(ParseRequest) returns (ParseResponse) {}
 }
 

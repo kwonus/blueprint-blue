@@ -1,12 +1,12 @@
 use std::io::stdin;
-use crate::blueprint::parse_statement_server::ParseStatement;
-use crate::blueprint::{ParseRequest, ParseResponse, QStatement, QExplicitCommand, parse_statement_client};
+use crate::blueprint::blueprint_blue_server::BlueprintBlue;
+use crate::blueprint::{ParseRequest, ParseResponse, QStatement, QExplicitCommand, blueprint_blue_client};
 
 mod blueprint;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut client = parse_statement_client::ParseStatementClient::connect("http://[::1]:8080").await?;
+    let mut client = blueprint_blue_client::BlueprintBlueClient::connect("http://[::1]:8080").await?;
     loop {
         let mut u = String::new();
         println!("Please type a statement: ");

@@ -12,7 +12,7 @@
                 int paren = parse.rule.IndexOf('(');
                 string rule = paren > 0 ? parse.rule.Substring(0, paren).Trim() : parse.rule.Trim();
                 for (int i = 0; i < level; i++)
-                    Console.Write('\t');
+                    Console.Write("  ");
 
                 Console.WriteLine(rule + ":\t" + parse.text.Trim());
 
