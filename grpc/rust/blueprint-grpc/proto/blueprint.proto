@@ -175,3 +175,22 @@ message ParseResponse {
   QStatement Output = 2;
   repeated string ErrorLines = 3;
 }
+
+// pinshot-rpc definitions
+message Pinshot {
+  string Rule = 1;
+  string Text = 2;
+  repeated Pinshot Children = 3;
+}
+
+message PinshotRoot {// RootParse
+  string Input = 1;
+  bool Success = 2;
+  string Message = 3;
+  repeated Pinshot Result = 4;
+}
+
+// Pinshot service definition.
+service PinshotBlue {
+  rpc Parse(ParseRequest) returns (PinshotRoot) {}
+}
