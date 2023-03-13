@@ -7,6 +7,7 @@ extern crate pest;
 extern crate pest_derive;
 
 use std::any::Any;
+use std::borrow::Borrow;
 use pest::Parser;
 use pest::iterators::Pairs;
 
@@ -31,7 +32,7 @@ struct RootParse {
 ///////////////
 use blueprint::blueprint_blue_server::BlueprintBlue;
 use tonic::{transport::Server, Request, Response, Status};
-use crate::blueprint::{ParseRequest, ParseResponse, QStatement, QExplicitCommand, QHelp, q_statement, q_explicit_command, QImplicitCommands};
+use crate::blueprint::{ParseRequest, ParseResponse, QStatement, QImplicitCommand, QExplicitCommand, QHelp, q_statement, q_explicit_command, QImplicitCommands, QExit, QVersion, QReview, QSet, QGet, QExpand, QDelete, QFind, q_implicit_command, QFilter, QInvoke, QExec, QExport, QDisplay, QMacro, QClear};
 use crate::blueprint::blueprint_blue_server::BlueprintBlueServer;
 
 mod blueprint;
@@ -49,7 +50,7 @@ impl BlueprintBlue for BlueprintBlueService {
         let stmt = req.statement_text.clone();
 
         let mut pinshot = RootParse {
-            input: req.statement_text,
+            input: req.statement_text.clone(),
             result: vec![],
             error: "".to_string(),
         };
@@ -65,35 +66,28 @@ impl BlueprintBlue for BlueprintBlueService {
             pinshot.error = "internal error".to_string();
         }
 
-        let mut result = Ok(Response::new(ParseResponse {
-            input: String::from("foo"),
+        let mut result: ParseResponse = ParseResponse {
+            input: req.statement_text.clone(),
             output: None,
             error_lines: vec![],
-        }),
-        );
+        };
+        if pinshot.error.is_empty() {
+            result.output = pinshot_extract_statement(&pinshot.result);
+        }
+
         if !pinshot.error.is_empty() {
             let lines = pinshot.error.split("\n");
-            /*for mut line in lines {
-                if Some(line) {
-                    result.unwrap().into_inner().error_lines.append(Ok(line).to_string());
+            let mut i = 0;
+            for mut line in lines {
+                if !line.is_empty() {
+                    result.error_lines.insert(i, line.to_string());
+                    i = i + 1;
                 }
-            }*/
-        } else {
-            result.unwrap().into_inner().output = pinshot_extract_statement(&pinshot.result);
+            }
         }
-        result
+        return Ok(Response::new(result));
     }
 }
-/*
-                directives: Some(q_statement::Directives::Explicit(QExplicitCommand {
-                    text: String::from("foo"),
-                    verb: String::from("@Help"),
-                    topic: String::from("help"),
-                    command: Some(q_explicit_command::Command::Help(QHelp {
-                        topic: String::from("bar"),
-                    })),
-                })),
- */
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -127,50 +121,181 @@ fn pinshot_recurse(children: Pairs<Rule>, items: &mut Vec<Parsed>)
 
 fn pinshot_extract_statement(items: &Vec<Parsed>) -> Option<QStatement>
 {
-    let mut i: u8 = 0;
-    let mut stmt: Option<QStatement> = None;
-    for candidate in items {
-        i = i + 1;
+    for i in 0 .. items.len() {
+        let candidate = items[i].borrow();
         if i == 1 {
             let mut is_explicit = candidate.children.len() == 1;
             if is_explicit {
-                for child in candidate.children {
-                    is_explicit = candidate.rule.starts_with("@");
-                    break;
-                }
+                is_explicit = candidate.children[0].rule.starts_with("@");
             }
             if candidate.rule == "statement" {
-                stmt = Some(QStatement {
+                let mut stmt = QStatement {
                     text: candidate.text.clone(),
                     is_valid: true,
                     is_explicit: is_explicit,
                     message: "".to_string(),
                     directives: None,
-                });
+                };
                 if !candidate.children.is_empty() {
                     let children = &candidate.children;
                     if is_explicit {
-                        stmt.unwrap().directives = Some(q_statement::Directives::Explicit(pinshot_extract_explcit_command(&children).unwrap()));
+                        stmt.directives = Some(q_statement::Directives::Explicit(pinshot_extract_explcit_command(&children).unwrap()));
                     }
                     else if candidate.children.len() >= 1 {
-                        stmt.unwrap().directives = Some(q_statement::Directives::Implicit(pinshot_extract_implicit_commands(&children).unwrap()));
+                        stmt.directives = Some(q_statement::Directives::Implicit(pinshot_extract_implicit_commands(&children).unwrap()));
                     }
                 }
+                return Some(stmt);
             }
         }
-        else {
-            return None;
-        }
     }
-    stmt
+    None
 }
 
 fn pinshot_extract_implicit_commands(items: &Vec<Parsed>) -> Option<QImplicitCommands>
 {
-    None
+    let mut commands: Vec<QImplicitCommand> = vec![];
+
+    let mut cnt = 0;
+    for i in 0 .. items.len() {
+        let implicit = items[i].borrow();
+
+        let mut icommand = QImplicitCommand {
+            text: implicit.text.clone(),
+            verb: implicit.rule.clone(),
+            topic: implicit.text.clone(),
+            command: None,
+        };
+        if implicit.rule.eq_ignore_ascii_case("find") && implicit.children.len() >= 1 {
+            icommand.command = Option::from(q_implicit_command::Command::Find(QFind {
+                is_quoted: false,
+                segments: vec![],
+            }));
+            commands.insert(cnt, icommand);
+            cnt = cnt + 1;
+        } else if implicit.rule.eq_ignore_ascii_case("filter") && implicit.children.len() >= 1 {
+            let mut scopes: Vec<String> = vec![];
+            for f in 0 .. implicit.children.len() {
+                scopes.insert(i, implicit.children[f].text.clone())
+            }
+            icommand.command = Option::from(q_implicit_command::Command::Filter(QFilter {
+                scope: scopes,
+            }));
+            commands.insert(cnt, icommand);
+            cnt = cnt + 1;
+        } else if implicit.rule.eq_ignore_ascii_case("set") && implicit.children.len() >= 2 {
+            icommand.command = Option::from(q_implicit_command::Command::Set(QSet {
+                key: implicit.children[0].text.clone(),
+                value: implicit.children[1].text.clone(),
+            }));
+            commands.insert(cnt, icommand);
+            cnt = cnt + 1;
+        } else if implicit.rule.eq_ignore_ascii_case("clear") && implicit.children.len() >= 1 {
+            icommand.command = Option::from(q_implicit_command::Command::Clear(QClear {
+                key: implicit.children[0].text.clone(),
+            }));
+            commands.insert(cnt, icommand);
+            cnt = cnt + 1;
+        } else if implicit.rule.eq_ignore_ascii_case("macro") && implicit.children.len() >= 1 {
+            icommand.command = Option::from(q_implicit_command::Command::Macro(QMacro {
+                label: implicit.children[0].text.clone(),
+            }));
+            commands.insert(cnt, icommand);
+            cnt = cnt + 1;
+        } else if implicit.rule.eq_ignore_ascii_case("export") && implicit.children.len() >= 1 {
+            icommand.command = Option::from(q_implicit_command::Command::Export(QExport {
+                pathspec: implicit.children[0].text.clone(),
+            }));
+            commands.insert(cnt, icommand);
+            cnt = cnt + 1;
+        } else if implicit.rule.eq_ignore_ascii_case("display") && implicit.children.len() >= 1 {
+            let mut fields: Vec<u32> = vec![];
+            for f in 0 .. implicit.children.len() {
+                let f = u32::from_str_radix(&implicit.children[f].text, 10);
+                fields.insert(i, f.unwrap())
+            }
+            icommand.command = Option::from(q_implicit_command::Command::Display(QDisplay {
+                fields,
+            }));
+            commands.insert(cnt, icommand);
+            cnt = cnt + 1;
+        } else if implicit.rule.eq_ignore_ascii_case("exec") && implicit.children.len() >= 1 {
+            icommand.command = Option::from(q_implicit_command::Command::Exec(QExec {
+                command: u32::from_str_radix(&implicit.children[0].text, 10).unwrap(),
+            }));
+            commands.insert(cnt, icommand);
+            cnt = cnt + 1;
+        } else if implicit.rule.eq_ignore_ascii_case("invoke") && implicit.children.len() >= 1 {
+            icommand.command = Option::from(q_implicit_command::Command::Invoke(QInvoke {
+                label: implicit.children[0].text.clone(),
+            }));
+            commands.insert(cnt, icommand);
+            cnt = cnt + 1;
+        }
+    }
+    Some(QImplicitCommands { items: commands })
 }
 
 fn pinshot_extract_explcit_command(items: &Vec<Parsed>) -> Option<QExplicitCommand>
 {
+    if items.len() == 1 {
+        let mut command = QExplicitCommand {
+            text: items[0].text.clone(),
+            verb: items[0].rule.clone(),
+            topic: items[0].text.clone(),
+            command: None,
+        };
+        if items[0].rule.eq_ignore_ascii_case("help") && items[0].children.len() >= 1 {
+            command.command = Option::from(q_explicit_command::Command::Help(QHelp {
+                topic: items[0].children[0].text.clone(),
+            }));
+        }
+        else if items[0].rule.eq_ignore_ascii_case("exit") {
+            let mut arguments: Vec<String> = vec![];
+            for i in 0 .. items[0].children.len() {
+                arguments.insert(i, items[0].children[i].text.clone())
+            }
+            let explicit = q_explicit_command::Command::Exit(QExit {
+                args: arguments,
+            });
+            command.command = Option::from(explicit);
+        }
+        else if items[0].rule.eq_ignore_ascii_case("version") {
+            let mut arguments: Vec<String> = vec![];
+            for i in 0 .. items[0].children.len() {
+                arguments.insert(i, items[0].children[i].text.clone())
+            }
+            let explicit = q_explicit_command::Command::Version(QVersion {
+                args: arguments,
+            });
+            command.command = Option::from(explicit);
+        }
+        else if items[0].rule.eq_ignore_ascii_case("expand") {
+            let explicit = q_explicit_command::Command::Expand(QExpand {
+                label: if items[0].children.len() == 1 && items[0].children[0].rule.eq_ignore_ascii_case("label") { items[0].children[0].text.clone() } else { "".to_string() },
+            });
+            command.command = Option::from(explicit);
+        }
+        else if items[0].rule.eq_ignore_ascii_case("delete") {
+            let explicit = q_explicit_command::Command::Delete(QDelete {
+                label: if items[0].children.len() == 1 && items[0].children[0].rule.eq_ignore_ascii_case("label") { items[0].children[0].text.clone() } else { "".to_string() },
+            });
+            command.command = Option::from(explicit);
+        }
+        else if items[0].rule.eq_ignore_ascii_case("get") {
+            let mut arguments: Vec<String> = vec![];
+            for i in 0 .. items[0].children.len() {
+                arguments.insert(i, items[0].children[i].text.clone())
+            }
+            let explicit = q_explicit_command::Command::Get(QGet {
+                keys: arguments,
+            });
+            command.command = Option::from(explicit);
+        }
+        else {
+            return None;
+        }
+        return Some(command);
+    }
     None
 }

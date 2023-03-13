@@ -14,7 +14,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let u = u.trim();
         let request = blueprint::ParseRequest { statement_text: String::from(u) };
         let response = client.parse(request).await?;
-        println!("Got: '{}' from service", response.into_inner().output.unwrap().text);
+        let output = response.into_inner().output;
+        if output.is_some() {
+            println!("Got: '{}' from service", output.unwrap().text);
+        }
     }
     Ok(())
 }

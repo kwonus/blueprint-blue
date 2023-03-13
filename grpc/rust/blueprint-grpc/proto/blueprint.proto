@@ -19,7 +19,7 @@ message QExplicitCommand {
 
   oneof Command {
     QHelp    Help    = 4;
-    QGet     Set     = 5;
+    QGet     Get     = 5;
     QDelete  Delete  = 6;
     QExpand  Expand  = 7;
     QVersion Version = 8;
@@ -32,7 +32,7 @@ message QHelp {
 }
 
 message QGet {
-  string Key = 1;
+  repeated string Keys = 1;
 }
 
 message QDelete {
@@ -49,13 +49,14 @@ message QVersion {
 
 message QReview {
   repeated string Args = 1;
-  repeated QHistory History = 2;
-
-  message QHistory {
-    uint32 id = 1;
-    string statement = 2;
-  }
 }
+
+/*
+message QHistory {  // response from a QReview command // not used in blueprint-blue interface
+uint32 id = 1;
+string statement = 2;
+}
+*/
 
 message QExit {
   repeated string Args = 1;
@@ -126,7 +127,7 @@ message QFind {
   }
 }
 message QFilter {
-  string Scope = 1;
+  repeated string Scope = 1;
 }
 
 message QSet {
@@ -143,6 +144,7 @@ message QMacro {
 }
 
 message QExport {
+  string pathspec = 1;
 }
 
 message QDisplay {
