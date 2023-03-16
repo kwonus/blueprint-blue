@@ -1,0 +1,249 @@
+﻿type QStatement {
+    Session: String!
+    Text: String!
+    IsValid: Boolean!
+    Message: [String!] # error messages, when applicable
+    Singleton: TExplicitCommand
+    CommandVector: [TImplicitCommand!]
+}
+
+union TExplicitCommand = QHelp | QGet | QDelete | QExpand | QVersion | QReview | QExit
+union TImplicitCommand = QFind | QFilter | QSet | QClear | QMacro | QExport | QDisplay | QInvoke | QExec
+
+
+interface ICommand {
+    Text: String!
+    Verb: String!
+    Help: String! # each command has a string identifier for help context (e.g. QSet & QClear & QGet all have the same help page of VAR)
+    IsExplicit: Boolean!    
+}
+
+type QHelp implements ICommand {
+    Topic: String
+    
+    Text: String!
+    Verb: String!
+    Help: String! # each command has a string identifier for help context (e.g. QSet & QClear & QGet all have the same help page of VAR)
+    IsExplicit: Boolean!
+}
+
+type QGet implements ICommand {
+    Key: String!
+
+    Text: String!
+    Verb: String!
+    Help: String! # each command has a string identifier for help context (e.g. QSet & QClear & QGet all have the same help page of VAR)
+    IsExplicit: Boolean!
+}
+
+type QDelete implements ICommand {
+    Label: String!
+
+    Text: String!
+    Verb: String!
+    Help: String! # each command has a string identifier for help context (e.g. QSet & QClear & QGet all have the same help page of VAR)
+    IsExplicit: Boolean!
+}
+
+type QExpand implements ICommand {
+    Label: String!
+
+    Text: String!
+    Verb: String!
+    Help: String! # each command has a string identifier for help context (e.g. QSet & QClear & QGet all have the same help page of VAR)
+    IsExplicit: Boolean!
+}
+
+type QVersion implements ICommand {
+    Verbose: Boolean!
+
+    Text: String!
+    Verb: String!
+    Help: String! # each command has a string identifier for help context (e.g. QSet & QClear & QGet all have the same help page of VAR)
+    IsExplicit: Boolean!
+}
+
+type QReview implements ICommand {
+    Count: Int
+    Since: String # Date/Time spec
+
+    Text: String!
+    Verb: String!
+    Help: String! # each command has a string identifier for help context (e.g. QSet & QClear & QGet all have the same help page of VAR)
+    IsExplicit: Boolean!
+}
+
+type QHistory { # this is the return value vector for a QReview command
+    Id: Int!
+    Statement: String
+}
+
+type QExit implements ICommand {
+    Arguments: [String!]
+
+    Text: String!
+    Verb: String!
+    Help: String! # each command has a string identifier for help context (e.g. QSet & QClear & QGet all have the same help page of VAR)
+    IsExplicit: Boolean!
+}
+
+type QFind implements ICommand {
+    IsQuoted: Boolean
+    Segments: [QSearchSegment!]!
+
+    Text: String!
+    Verb: String!
+    Help: String! # each command has a string identifier for help context (e.g. QSet & QClear & QGet all have the same help page of VAR)
+    IsExplicit: Boolean!
+}
+
+type QSearchSegment {
+    Fragments: [QSearchFragment]
+}
+type QSearchFragment {
+    Terms: [ TTerm ]
+}
+
+interface ITerm {
+    Text: String!
+}
+
+union TTerm = QWord || QMatch | QLemma | QPunc | QDecor | QPos | QLoc
+
+type QWord implements ITerm {
+    WordKey: Int!
+
+    Text: String!
+}
+type QMatch implements ITerm {
+    Beginning: String!
+    Ending: String!
+
+    Text: String!
+}
+type QLemma implements ITerm {
+    LemmaKey: Int!
+
+    Text: String!
+}
+type QPunc implements ITerm {
+    Punctuation: Int!
+
+    Text: String!
+}
+type QDecor implements ITerm {
+    Decoration: Int!
+
+    Text: String!
+}
+type QPos implements ITerm { # Part-of-Speech
+    PnPos12: Int!
+    Pos32: Int!
+
+    Text: String!
+}
+type QLoc implements ITerm { # Positional/Location
+    Position: Int
+
+    Text: String!
+}
+
+type QFilter implements ICommand {
+    Scope: String
+
+    Text: String!
+    Verb: String!
+    Help: String! # each command has a string identifier for help context (e.g. QSet & QClear & QGet all have the same help page of VAR)
+    IsExplicit: Boolean!
+}
+
+type QSet implements ICommand {
+    Key: String!
+    Value: String!
+    
+    Text: String!
+    Verb: String!
+    Help: String! # each command has a string identifier for help context (e.g. QSet & QClear & QGet all have the same help page of VAR)
+    IsExplicit: Boolean!
+}
+
+type QClear implements ICommand {
+    Key: String!
+
+    Text: String!
+    Verb: String!
+    Help: String! # each command has a string identifier for help context (e.g. QSet & QClear & QGet all have the same help page of VAR)
+    IsExplicit: Boolean!
+}
+
+type QMacro implements ICommand {
+    Label: String!
+    
+    Text: String!
+    Verb: String!
+    Help: String! # each command has a string identifier for help context (e.g. QSet & QClear & QGet all have the same help page of VAR)
+    IsExplicit: Boolean!
+}
+
+type QExport implements ICommand {
+    FileSpec: String!
+
+    Text: String!
+    Verb: String!
+    Help: String! # each command has a string identifier for help context (e.g. QSet & QClear & QGet all have the same help page of VAR)
+    IsExplicit: Boolean!
+}
+
+type QDisplay implements ICommand {
+    Fields: [Int]
+    
+    Text: String!
+    Verb: String!
+    Help: String! # each command has a string identifier for help context (e.g. QSet & QClear & QGet all have the same help page of VAR)
+    IsExplicit: Boolean!
+}
+
+type QInvoke implements ICommand {
+    Label: String!
+    
+    Text: String!
+    Verb: String!
+    Help: String! # each command has a string identifier for help context (e.g. QSet & QClear & QGet all have the same help page of VAR)
+    IsExplicit: Boolean!
+}
+
+type QExec implements ICommand {
+    command: Int!
+
+    Text: String!
+    Verb: String!
+    Help: String! # each command has a string identifier for help context (e.g. QSet & QClear & QGet all have the same help page of VAR)
+    IsExplicit: Boolean!
+}
+
+schema {
+    query: Parse
+    mutation: Manage
+}
+
+type Parse {
+    Result(statement: String): QStatement
+}
+
+enum ManagementOperation {
+    ESTABLISH_SESSION
+    RESUME_SESSION # this is not a required operation, but an app can verify that the session is known by the server with this opeeration
+    REVOKE_SESSION
+    CLEAR_SESSION_HISTORY
+    RESET_SESSION
+}
+type ManagementResult {
+    Success: Boolean
+    Warnings: [String!]
+    Errors: [String!]
+    Session: String!  # This is how to obtain a session. Sessions are valid until revoked. This is always non-empty, with the exception of a REVOKE_SESSION operation
+}
+type Manage {
+    Status(session: String!, op: ManagementOperation!, passcode: String!): ManagementResult # for es
+}
+
