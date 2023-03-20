@@ -1,9 +1,10 @@
 namespace Blueprint.Blue
 {
-    public class QDelete : QExplicitCommand, ICommand
+    public class QMacro : QImplicitCommand, ICommand
     {
         public string Label { get; set; }
-        public QDelete(QEnvironment env, string text, string label) : base(env, text)
+
+        public QMacro(QEnvironment env, string text, string label) : base(env, text)
         {
             this.Label = label;
         }

@@ -1,7 +1,8 @@
 ﻿namespace BlueprintConsoleApp
 {
-    using BlueprintBlue;
-    using BlueprintBlue.PEG;
+    using Pinshot.Blue;
+    using Pinshot.PEG;
+    using Blueprint.Blue;
 
     internal class Program
     {
@@ -22,27 +23,42 @@
                 }
             }
         }
+//      const string TestStmt = "\"\\foo\\ ... [he said] ... /pronoun/&/3p/\" + bar + x|y&z a&b&c > xfile < genesis 1:1";
+        const string TestStmt = "@Help find";
+
         static void Main(string[] args)
         {
-            var blueprint = new Blueprint("http://127.0.0.1:3000/quelle");
-            var task = blueprint.Parse("\"\\foo\\ ... [he said] ... /pronoun/&/3p/\" + bar + x|y&z a&b&c > xfile < genesis 1:1");
+            string? url = (args != null) && (args.Count() >= 1) && (args[0] != null) ? args[0] : null; // e.g. "http://127.0.0.1:3000/quelle"
 
-            if (task.IsCompleted)
+            RootParse? root = null;
+            
+            if ((url != null) && url.ToLower().StartsWith("http", StringComparison.InvariantCultureIgnoreCase))
             {
-                var result = task.Result;
+                var svc = new PinshotSvc("http://127.0.0.1:3000/quelle");
+                var task = svc.Parse(TestStmt);
 
-                if (result != null)
+                if (task.IsCompleted)
                 {
-                    var error = result.error;
-                    if (!string.IsNullOrEmpty(error))
-                    {
-                        Console.WriteLine(error);
-                    }
-                    else
-                    {
-                        var list = result.result;
-                        Program.Print(list, 0);
-                    }
+                    root = task.Result;
+                }
+            }
+            else
+            {
+                var lib = new PinshotLib();
+                var result = lib.Parse(TestStmt);
+                root = result.root;
+            }
+            if (root != null)
+            {
+                var error = root.error;
+                if (!string.IsNullOrEmpty(error))
+                {
+                    Console.WriteLine(error);
+                }
+                else
+                {
+                    var list = root.result;
+                    Program.Print(list, 0);
                 }
             }
         }

@@ -2,7 +2,9 @@
     Session: String!
     Text: String!
     IsValid: Boolean!
-    Message: [String!] # error messages, when applicable
+    Diagnostic: String  # syntax diagnostic message, when applicable
+    Errors: [String!]   # error messages, when applicable
+    Warnings: [String!] # warning messages, when applicable
     Singleton: TExplicitCommand
     CommandVector: [TImplicitCommand!]
 }
@@ -227,7 +229,7 @@ schema {
 }
 
 type Parse {
-    Result(statement: String): QStatement
+    Result(statement: String): QStatement!
 }
 
 enum ManagementOperation {
