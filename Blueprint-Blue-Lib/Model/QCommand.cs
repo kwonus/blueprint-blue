@@ -4,7 +4,7 @@ namespace Blueprint.Blue
     {
         public string Text { get; set; }
         public string Verb { get; set; }
-        public string Help { get; set; }
+        public string HelpDoc { get; set; }
         public bool IsExplicit { get; }
     }
 
@@ -12,10 +12,10 @@ namespace Blueprint.Blue
     {
         public string Text { get; set; }
         public string Verb { get; set; }
-        public string Help { get; set; }
+        public string HelpDoc { get; set; }
         public QEnvironment Env { get; protected set; }
 
-        public QCommand(QEnvironment env, string text)
+        protected QCommand(QEnvironment env, string text)
         {
             this.Env = env;
             this.Text = text;

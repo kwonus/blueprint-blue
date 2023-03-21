@@ -32,7 +32,7 @@ namespace Pinshot.PEG
             {
                 ;
             }
-            return (new RootParse(), false);
+            return (new RootParse() { error = "Exception thrown during deserialization", input = "", result = new Parsed[0] }, false);
         }
     }
     [DataContract]

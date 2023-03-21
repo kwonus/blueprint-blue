@@ -31,7 +31,10 @@
             string? url = (args != null) && (args.Count() >= 1) && (args[0] != null) ? args[0] : null; // e.g. "http://127.0.0.1:3000/quelle"
 
             RootParse? root = null;
-            
+
+            var blueprint = new Blueprint("");
+
+
             if ((url != null) && url.ToLower().StartsWith("http", StringComparison.InvariantCultureIgnoreCase))
             {
                 var svc = new PinshotSvc("http://127.0.0.1:3000/quelle");
@@ -48,6 +51,7 @@
                 var result = lib.Parse(TestStmt);
                 root = result.root;
             }
+            var blue = blueprint.Create(root);
             if (root != null)
             {
                 var error = root.error;
