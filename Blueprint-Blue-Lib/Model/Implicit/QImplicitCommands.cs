@@ -1,5 +1,7 @@
 ﻿namespace Blueprint.Blue
 {
+    using Pinshot.PEG;
+
     public class QImplicitCommands
     {
         public QEnvironment Environment { get; set; }
@@ -81,12 +83,45 @@
                 return null;
             }
         }
-        public QImplicitCommands(QEnvironment env, string stmtText)
+        private QImplicitCommands(QEnvironment env, string stmtText)
         {
             this.Environment = new QEnvironment();
             this.ExpandedText = stmtText;
             this.Parts = new List<QImplicitCommand>();
+
             this.ExpandedParts = new List<QImplicitCommand>();
+        }
+
+        public static QImplicitCommands? Create(QEnvironment env, Parsed stmt, IStatement diagnostics)
+        {
+            bool valid = false;
+            var commandSet = new QImplicitCommands(env, stmt.text);
+
+            if (stmt.rule.Equals("statement", StringComparison.InvariantCultureIgnoreCase))
+            {
+                var commands = stmt.children;
+                foreach (var command in commands)
+                {
+                    if (command.rule.Equals("explicit"))
+                    {
+                        valid = false;
+                        diagnostics.AddError("Implicit commands cannot be interpersed with explicit commands");
+                        break;
+                    }
+                    var child = QImplicitCommand.Create(env, command);
+                    valid = (child != null);
+                    if (!valid)
+                    {
+                        diagnostics.AddError("An command induced an unexpected error");
+                        break;
+                    }
+                    valid = true;
+                    commandSet.Parts.Add(child);
+                }
+                // TO DO: Expand macros and invocations (cheat for now)
+                commandSet.ExpandedParts = commandSet.Parts;
+            }
+            return valid ? commandSet : null;
         }
     }
 }

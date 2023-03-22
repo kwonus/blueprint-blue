@@ -1,11 +1,13 @@
+using Pinshot.PEG;
+
 namespace Blueprint.Blue
 {
     public class QGet : QExplicitCommand, ICommand
     {
         public string Key { get; set; }
-        public QGet(QEnvironment env, string text, string key) : base(env, text)
+        public QGet(QEnvironment env, string text, Parsed[] args) : base(env, text, "get")
         {
-            this.Key = key;
+            this.Key = args.Length == 1 ? args[0].text : "";
         }
     }
 }

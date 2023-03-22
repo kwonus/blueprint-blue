@@ -6,7 +6,7 @@ namespace Blueprint.Blue
     {
         public bool IsExplicit { get => true; }
 
-        protected QExplicitCommand(QEnvironment env, string text) : base(env, text)
+        protected QExplicitCommand(QEnvironment env, string text, string verb) : base(env, text, verb)
         {
             ;
         }
@@ -14,26 +14,26 @@ namespace Blueprint.Blue
         {
             if (item.rule.Equals("statement", StringComparison.InvariantCultureIgnoreCase))
             {
-                var statements = item.children;
-                if ((statements.Length == 1) && statements[0].rule.Equals("explicit", StringComparison.InvariantCultureIgnoreCase))
+                var commands = item.children;
+                if ((commands.Length == 1) && commands[0].rule.Equals("explicit", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    var explicits = statements[0].children;
+                    var explicits = commands[0].children;
 
                     if (explicits.Length == 1)
                     {
                         var command = explicits[0];
-                        switch (command.rule.ToLower())
+                        switch (command.rule.Trim().ToLower())
                         {
-                            case "help": return new QHelp(env, command.text, command.children);
-                            case "exit": return new QExit(env, command.text, command.children);
+                            case "help":    return new QHelp(env,    command.text, command.children);
+                            case "exit":    return new QExit(env,    command.text, command.children);
+                            case "delete":  return new QDelete(env,  command.text, command.children);
+                            case "expand":  return new QExpand(env,  command.text, command.children);
+                            case "get":     return new QGet(env,     command.text, command.children);
+                            case "review":  return new QReview(env,  command.text, command.children);
+                            case "version": return new QVersion(env, command.text, command.children);
                         }
                     }
                 }
-            }
-            switch(item.rule.ToLower())
-            {
-                case "help": return new QHelp(env, item.text, item.children);
-                case "exit": return new QExit(env, item.text, item.children);
             }
             return null;
         }

@@ -1,11 +1,15 @@
+using Pinshot.PEG;
+
 namespace Blueprint.Blue
 {
     public class QReview : QExplicitCommand, ICommand
     {
         string[] Arguments { get; set; }
-        public QReview(QEnvironment env, string text, string[] args) : base(env, text)
+        public QReview(QEnvironment env, string text, Parsed[] args) : base(env, text, "review")
         {
-            this.Arguments = args;
+            this.Arguments = new string[args.Length];
+            for (int i = 0; i < args.Length; i++)
+                this.Arguments[i] = args[i].text;
         }
     }
 }

@@ -1,6 +1,11 @@
 namespace Blueprint.Blue
 {
-    public class QStatement
+    public interface IStatement
+    {
+        void AddError(string message);
+        void AddWarning(string message);
+    }
+    public class QStatement: IStatement
     {
         public string Text { get; set; }
         public bool IsValid { get; set; }
@@ -9,5 +14,26 @@ namespace Blueprint.Blue
         public List<string> Warnings { get; set; }
         public QExplicitCommand? Singleton { get; set; }
         public QImplicitCommands? Commands { get; set; }
+
+        public QStatement()
+        {
+            this.Text = string.Empty;
+            this.IsValid= false;
+            this.ParseDiagnostic= string.Empty;
+            this.Errors = new();
+            this.Warnings = new();
+            this.Singleton = null;
+            this.Commands= null;
+        }
+
+        public void AddError(string message)
+        {
+            this.Errors.Add(message);
+        }
+
+        public void AddWarning(string message)
+        {
+            this.Warnings.Add(message);
+        }
     }
 }
