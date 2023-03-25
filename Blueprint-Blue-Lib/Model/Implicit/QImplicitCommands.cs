@@ -97,29 +97,34 @@
             bool valid = false;
             var commandSet = new QImplicitCommands(env, stmt.text);
 
-            if (stmt.rule.Equals("statement", StringComparison.InvariantCultureIgnoreCase))
+            if (stmt.rule.Equals("statement", StringComparison.InvariantCultureIgnoreCase) && (stmt.children.Length == 1))
             {
-                var commands = stmt.children;
-                foreach (var command in commands)
+                foreach (var command in stmt.children)
                 {
-                    if (command.rule.Equals("explicit"))
+                    if (command.rule.Equals("clauses", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        valid = false;
-                        diagnostics.AddError("Implicit commands cannot be interpersed with explicit commands");
-                        break;
+                        foreach (var clause in command.children)
+                        {
+                            if (clause.rule.Equals("explicit"))
+                            {
+                                valid = false;
+                                diagnostics.AddError("Implicit commands cannot be interpersed with explicit commands");
+                                break;
+                            }
+                            var child = QImplicitCommand.Create(env, clause);
+                            valid = (child != null);
+                            if (!valid)
+                            {
+                                diagnostics.AddError("An command induced an unexpected error");
+                                break;
+                            }
+                            valid = true;
+                            commandSet.Parts.Add(child);
+                        }
+                        // TO DO: Expand macros and invocations (cheat for now)
+                        commandSet.ExpandedParts = commandSet.Parts;
                     }
-                    var child = QImplicitCommand.Create(env, command);
-                    valid = (child != null);
-                    if (!valid)
-                    {
-                        diagnostics.AddError("An command induced an unexpected error");
-                        break;
-                    }
-                    valid = true;
-                    commandSet.Parts.Add(child);
                 }
-                // TO DO: Expand macros and invocations (cheat for now)
-                commandSet.ExpandedParts = commandSet.Parts;
             }
             return valid ? commandSet : null;
         }

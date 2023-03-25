@@ -23,8 +23,9 @@
                 }
             }
         }
-//      const string TestStmt = "\"\\foo\\ ... [he said] ... /pronoun/&/3p/\" + bar + x|y&z a&b&c > xfile < genesis 1:1";
-        const string TestStmt = "@Help find";
+        //      const string TestStmt = "\"\\foo\\ ... [he said] ... /pronoun/&/3p/\" + bar + x|y&z a&b&c > xfile < genesis 1:1";
+        //      static string[] TestStmt = { "@Help find", "format=@", "help", "please + help ... time of|for&/noun/ need + greetings" };
+        static string[] TestStmt = { "@Help find", "format = @", "help", "please + help time of|for&/noun/ need + greetings" };
 
         static void Main(string[] args)
         {
@@ -35,34 +36,38 @@
             var blueprint = new Blueprint("");
 
 
-            if ((url != null) && url.ToLower().StartsWith("http", StringComparison.InvariantCultureIgnoreCase))
+            foreach (string stmt in TestStmt)
             {
-                var svc = new PinshotSvc("http://127.0.0.1:3000/quelle");
-                var task = svc.Parse(TestStmt);
+                if ((url != null) && url.ToLower().StartsWith("http", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    var svc = new PinshotSvc("http://127.0.0.1:3000/quelle");
+                    var task = svc.Parse(stmt);
 
-                if (task.IsCompleted)
-                {
-                    root = task.Result;
-                }
-            }
-            else
-            {
-                var lib = new PinshotLib();
-                var result = lib.Parse(TestStmt);
-                root = result.root;
-            }
-            var blue = blueprint.Create(root);
-            if (root != null)
-            {
-                var error = root.error;
-                if (!string.IsNullOrEmpty(error))
-                {
-                    Console.WriteLine(error);
+                    if (task.IsCompleted)
+                    {
+                        root = task.Result;
+                    }
                 }
                 else
                 {
-                    var list = root.result;
-                    Program.Print(list, 0);
+                    var lib = new PinshotLib();
+                    var result = lib.Parse(stmt);
+                    var blueRaw = blueprint.Create(result.root);
+                    root = lib.ParseStatic(stmt).root;
+                }
+                var blue = blueprint.Create(root);
+                if (root != null)
+                {
+                    var error = root.error;
+                    if (!string.IsNullOrEmpty(error))
+                    {
+                        Console.WriteLine(error);
+                    }
+                    else
+                    {
+                        var list = root.result;
+                        Program.Print(list, 0);
+                    }
                 }
             }
         }

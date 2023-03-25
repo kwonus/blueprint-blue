@@ -8,6 +8,8 @@ namespace Pinshot.Blue
 
     internal static class Pinshot_RustFFI
     {
+        [DllImport("pin_shot_avx.dll", EntryPoint = "create_quelle_parse_raw")]
+        internal static extern ParsedStatementHandle pinshot_blue_raw_parse(string stmt);
         [DllImport("pin_shot_avx.dll", EntryPoint = "create_quelle_parse")]
         internal static extern ParsedStatementHandle pinshot_blue_parse(string stmt);
         [DllImport("pin_shot_avx.dll", EntryPoint = "delete_quelle_parse")]
@@ -48,7 +50,7 @@ namespace Pinshot.Blue
         {
             ;
         }
-        public (string json, RootParse? root) Parse(string stmt)
+        public (string json, RootParse? root) ParseStatic(string stmt)
         {
             using (ParsedStatementHandle handle = Pinshot_RustFFI.pinshot_blue_parse(stmt))
             {
@@ -57,7 +59,21 @@ namespace Pinshot.Blue
                 {
                     // Deserialization from JSON
                     DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(RootParse));
-                    RootParse? root = (RootParse?)deserializer.ReadObject(ms);
+                    var root = (RootParse?)deserializer.ReadObject(ms);
+                    return (result, root);
+                }
+            }
+        }
+        public (string json, RawParseResult? root) Parse(string stmt)
+        {
+            using (ParsedStatementHandle handle = Pinshot_RustFFI.pinshot_blue_raw_parse(stmt))
+            {
+                var result = handle.AsString();
+                using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(result)))
+                {
+                    // Deserialization from JSON
+                    DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(RawParseResult));
+                    var root = (RawParseResult?)deserializer.ReadObject(ms);
                     return (result, root);
                 }
             }

@@ -45,6 +45,33 @@ namespace Pinshot.PEG
         [DataMember]
         public Parsed[] children { set; get; }
     }
+
+    [DataContract]
+    public class RawParseResult
+    {
+        [DataMember]
+        public string input { set; get; }
+        [DataMember]
+        public string result { set; get; }
+        [DataMember]
+        public string error { set; get; }
+
+        public static (RawParseResult root, bool ok) Create(Stream stream)
+        {
+            try
+            {
+                var serializer = new DataContractJsonSerializer(typeof(RawParseResult));
+                var root = serializer.ReadObject(stream);
+                if (root != null)
+                    return ((RawParseResult) root, true);
+            }
+            catch
+            {
+                ;
+            }
+            return (new RawParseResult() { error = "Exception thrown during deserialization", input = "", result = "" }, false);
+        }
+    }
     public class QuelleStatement
     {
         public string command { get; private set; }

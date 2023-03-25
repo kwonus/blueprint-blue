@@ -10,20 +10,23 @@ namespace Blueprint.Blue
         {
             ;
         }
-        public static QImplicitCommand? Create(QEnvironment env, Parsed command)
+        public static QImplicitCommand? Create(QEnvironment env, Parsed clause)
         {
-            if (command.rule.Equals("implicit", StringComparison.InvariantCultureIgnoreCase))
+            if (clause.rule.Equals("clause", StringComparison.InvariantCultureIgnoreCase))
             {
-                switch (command.rule.Trim().ToLower())
+                foreach (var segment in clause.children)
                 {
-                    case "clear":   return QClear.Create(env,   command.text, command.children);
-                    case "display": return QDisplay.Create(env, command.text, command.children);
-                    case "exec":    return QExec.Create(env,    command.text, command.children);
-                    case "filter":  return QFilter.Create(env,  command.text, command.children);
-                    case "find":    return QFind.Create(env,    command.text, command.children);
-                    case "invoke":  return QInvoke.Create(env,  command.text, command.children);
-                    case "macro":   return QMacro.Create(env,   command.text, command.children);
-                    case "set":     return QSet.Create(env,     command.text, command.children);
+                    switch (segment.rule.Trim().ToLower())
+                    {
+                        case "clear":   return QClear.Create(env, clause.text, clause.children);
+                        case "display": return QDisplay.Create(env, clause.text, clause.children);
+                        case "exec":    return QExec.Create(env, clause.text, clause.children);
+                        case "filter":  return QFilter.Create(env, clause.text, clause.children);
+                        case "search":  return QFind.Create(env, clause.text, clause.children);
+                        case "invoke":  return QInvoke.Create(env, clause.text, clause.children);
+                        case "macro":   return QMacro.Create(env, clause.text, clause.children);
+                        case "set":     return QSet.Create(env, clause.text, clause.children);
+                    }
                 }
             }
             return null;
