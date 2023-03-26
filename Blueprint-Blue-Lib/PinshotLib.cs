@@ -50,7 +50,7 @@ namespace Pinshot.Blue
         {
             ;
         }
-        public (string json, RootParse? root) ParseStatic(string stmt)
+        public (string json, RootParse? root) Parse(string stmt)
         {
             using (ParsedStatementHandle handle = Pinshot_RustFFI.pinshot_blue_parse(stmt))
             {
@@ -64,7 +64,7 @@ namespace Pinshot.Blue
                 }
             }
         }
-        public (string json, RawParseResult? root) Parse(string stmt)
+        public (string json, RawParseResult? root) RawParse(string stmt)
         {
             using (ParsedStatementHandle handle = Pinshot_RustFFI.pinshot_blue_raw_parse(stmt))
             {

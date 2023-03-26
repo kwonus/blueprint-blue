@@ -53,7 +53,7 @@
             return new QStatement() { Commands = null, Singleton = null, ParseDiagnostic = "", Errors = new() { "Unknown error: unable to perform statement parsing" }, Warnings = new(), IsValid = false, Text = "" };
         }
         // The raw pars is the new way to do this; ParseStatic is OBE
-        public QStatement Create(RawParseResult? parse)
+        public QStatement Create(RawParseResult? parse) // Ability to call a raw parsing function for debugging
         {
             var env = new QEnvironment();
 
