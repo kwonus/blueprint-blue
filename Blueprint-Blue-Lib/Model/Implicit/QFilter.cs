@@ -4,15 +4,17 @@ namespace Blueprint.Blue
 {
     public class QFilter : QImplicitCommand, ICommand
     {
-        public string Scope { get; set; }
+        public string Rule { get; private set; }
+        public string Filter { get; private set; }
 
-        private QFilter(QEnvironment env, string text, string scope) : base(env, text, "filter")
+        private QFilter(QEnvironment env, string text, string rule, string filter) : base(env, text, "filter")
         {
-            this.Scope = scope;
+            this.Rule = rule;
+            this.Filter = filter;
         }
-        public static QFilter Create(QEnvironment env, string text, Parsed[] args)
+        public static QFilter? Create(QEnvironment env, string text, Parsed[] args)
         {
-            return new QFilter(env, text, "foo");
+            return args.Length == 1 ? new QFilter(env, text, args[0].rule, args[0].text) : null;
         }
     }
 }

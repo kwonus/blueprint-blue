@@ -101,30 +101,33 @@
             {
                 foreach (var command in stmt.children)
                 {
-                    if (command.rule.Equals("clauses", StringComparison.InvariantCultureIgnoreCase))
+                    if (command.rule.Equals("vector", StringComparison.InvariantCultureIgnoreCase))
                     {
                         foreach (var clause in command.children)
                         {
-                            if (clause.rule.Equals("explicit"))
+                            var objects = QImplicitCommand.Create(env, clause);
+                            var test = false;
+
+                            foreach (var obj in objects)
                             {
-                                valid = false;
-                                diagnostics.AddError("Implicit commands cannot be interpersed with explicit commands");
-                                break;
+                                test = true;
+                                commandSet.Parts.Add(obj);
                             }
-                            var child = QImplicitCommand.Create(env, clause);
-                            valid = (child != null);
+                            valid = test;
                             if (!valid)
-                            {
-                                diagnostics.AddError("An command induced an unexpected error");
                                 break;
-                            }
-                            valid = true;
-                            commandSet.Parts.Add(child);
                         }
-                        // TO DO: Expand macros and invocations (cheat for now)
-                        commandSet.ExpandedParts = commandSet.Parts;
                     }
                 }
+            }
+            if (valid)
+            {
+                // TO DO: Expand macros and invocations (cheat for now)
+                commandSet.ExpandedParts = commandSet.Parts;
+            }
+            else
+            {
+                diagnostics.AddError("An command induced an unexpected error");
             }
             return valid ? commandSet : null;
         }

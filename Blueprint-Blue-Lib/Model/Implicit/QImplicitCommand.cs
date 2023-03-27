@@ -10,26 +10,45 @@ namespace Blueprint.Blue
         {
             ;
         }
-        public static QImplicitCommand? Create(QEnvironment env, Parsed clause)
+        public static IEnumerable<QImplicitCommand> Create(QEnvironment env, Parsed clause)
         {
-            if (clause.rule.Equals("clause", StringComparison.InvariantCultureIgnoreCase))
+            var command = clause.rule.Trim().ToLower();
+
+            QImplicitCommand? result= null;
+
+            switch (command)
             {
-                foreach (var segment in clause.children)
+                case "clear":   result = QVariable.Create(env, clause.text, clause.children);      break;
+                case "exec":    result = QExec.Create(env, clause.text, clause.children);       break;
+                case "filter":  result = QFilter.Create(env, clause.text, clause.children);     break;
+                case "search":  result = QFind.Create(env, clause.text, clause.children);       break;
+                case "invoke":  result = QInvoke.Create(env, clause.text, clause.children);     break;
+                case "macro":   result = QMacro.Create(env, clause.text, clause.children);      break;
+                case "setting": result = QVariable.Create(env, clause.text, clause.children);        break;
+
+                case "implicit_singletons":
                 {
-                    switch (segment.rule.Trim().ToLower())
+                    foreach (var subordinate in clause.children)
                     {
-                        case "clear":   return QClear.Create(env, clause.text, clause.children);
-                        case "display": return QDisplay.Create(env, clause.text, clause.children);
-                        case "exec":    return QExec.Create(env, clause.text, clause.children);
-                        case "filter":  return QFilter.Create(env, clause.text, clause.children);
-                        case "search":  return QFind.Create(env, clause.text, clause.children);
-                        case "invoke":  return QInvoke.Create(env, clause.text, clause.children);
-                        case "macro":   return QMacro.Create(env, clause.text, clause.children);
-                        case "set":     return QSet.Create(env, clause.text, clause.children);
+                        var sub = subordinate.rule.Trim().ToLower();
+
+                        switch (sub)
+                        {
+                            case "print":  result = QDisplay.Create(env, subordinate.text, subordinate.children);   break;
+                            case "export": result = QExport.Create(env, subordinate.text, subordinate.children); break;
+                        }
+                        if (result != null)
+                        {
+                            yield return result;
+                            result = null;
+                        }
                     }
-                }
+                }   break;
             }
-            return null;
+            if (result != null)
+            {
+                yield return result;
+            }
         }
     }
 }

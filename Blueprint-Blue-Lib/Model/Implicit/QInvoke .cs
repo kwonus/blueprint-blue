@@ -10,9 +10,9 @@ namespace Blueprint.Blue
         {
             this.Label = label;
         }
-        public static QInvoke Create(QEnvironment env, string text, Parsed[] args)
+        public static QInvoke? Create(QEnvironment env, string text, Parsed[] args)
         {
-            return new QInvoke(env, text, "foo");
+            return args.Length == 1 && args[0].rule.ToLower() == "label" ? new QInvoke(env, text, args[0].text) : null;
         }
     }
 }

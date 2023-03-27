@@ -15,7 +15,7 @@ namespace Blueprint.Blue
             if (item.rule.Equals("statement", StringComparison.InvariantCultureIgnoreCase))
             {
                 var commands = item.children;
-                if ((commands.Length == 1) && commands[0].rule.Equals("explicit", StringComparison.InvariantCultureIgnoreCase))
+                if ((commands.Length == 1) && commands[0].rule.Equals("singleton", StringComparison.InvariantCultureIgnoreCase))
                 {
                     var explicits = commands[0].children;
 
