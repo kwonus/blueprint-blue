@@ -115,7 +115,8 @@
                             }
                             valid = test;
                             if (!valid)
-                                break;
+                                //    break;
+                                Console.WriteLine("Error clause; continuing for debugging purposes only!!!");
                         }
                     }
                 }
