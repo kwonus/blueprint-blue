@@ -8,14 +8,14 @@ namespace Blueprint.Blue
     {
         public List<uint> Fields { get; private set; }
 
-        private QDisplay(QEnvironment env, string text, IEnumerable<uint> fields) : base(env, text, "display")
+        private QDisplay(QContext env, string text, IEnumerable<uint> fields) : base(env, text, "display")
         {
             this.Fields = new();
 
             foreach (var field in fields)
                 this.Fields.Add(field);
         }
-        public static QDisplay? Create(QEnvironment env, string text, Parsed[] args)
+        public static QDisplay? Create(QContext env, string text, Parsed[] args)
         {
             try
             {

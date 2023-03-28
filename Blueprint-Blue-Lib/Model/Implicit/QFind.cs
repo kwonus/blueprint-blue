@@ -9,7 +9,7 @@ namespace Blueprint.Blue
         private bool Valid;
 
         // Unquoted/Unordered segments
-        private QFind(QEnvironment env, string text, Parsed[] args) : base(env, text, "find")
+        private QFind(QContext env, string text, Parsed[] args) : base(env, text, "find")
         {
             this.IsQuoted = false;
             this.Segments = new();
@@ -32,14 +32,14 @@ namespace Blueprint.Blue
             }
         }
         // Quoted/Ordered segments
-        private QFind(QEnvironment env, string text, Parsed arg, Parsed[] anchors) : base(env, text, "find")
+        private QFind(QContext env, string text, Parsed arg, Parsed[] anchors) : base(env, text, "find")
         {
             this.Valid = false;
 
             this.IsQuoted = true;
             this.Segments = new();
         }
-        public static QFind? Create(QEnvironment env, string text, Parsed[] args)
+        public static QFind? Create(QContext env, string text, Parsed[] args)
         {
             if (args.Length > 0 && args[0].children.Length > 0)
             {
@@ -56,7 +56,7 @@ namespace Blueprint.Blue
             }
             return null;
         }
-        private static QFind? CreateQuoted(QEnvironment env, string text, Parsed[] args)
+        private static QFind? CreateQuoted(QContext env, string text, Parsed[] args)
         {
             QFind? segments = null;
             if ((args.Length == 1) && (args[0].children.Length > 0) && args[0].rule.Equals("ordered", StringComparison.InvariantCultureIgnoreCase))
@@ -64,7 +64,7 @@ namespace Blueprint.Blue
 
             return (segments != null) && segments.Valid ? segments : null;
         }
-        private static QFind? CreateUnquoted(QEnvironment env, string text, Parsed[] args)
+        private static QFind? CreateUnquoted(QContext env, string text, Parsed[] args)
         {
             QFind? segments = null;
             if ((args.Length >= 1) && (args[0].children.Length > 0) && args[0].rule.Equals("segment", StringComparison.InvariantCultureIgnoreCase))

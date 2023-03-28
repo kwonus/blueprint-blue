@@ -6,11 +6,11 @@ namespace Blueprint.Blue
     {
         public string Label { get; set; }
 
-        private QInvoke(QEnvironment env, string text, string label) : base(env, text, "invoke")
+        private QInvoke(QContext env, string text, string label) : base(env, text, "invoke")
         {
             this.Label = label;
         }
-        public static QInvoke? Create(QEnvironment env, string text, Parsed[] args)
+        public static QInvoke? Create(QContext env, string text, Parsed[] args)
         {
             return args.Length == 1 && args[0].rule.ToLower() == "label" ? new QInvoke(env, text, args[0].text) : null;
         }

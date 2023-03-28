@@ -6,11 +6,11 @@ namespace Blueprint.Blue
     {
         public string Label { get; set; }
 
-        private QMacro(QEnvironment env, string text, string label) : base(env, text, "macro")
+        private QMacro(QContext env, string text, string label) : base(env, text, "macro")
         {
             this.Label = label;
         }
-        public static QMacro Create(QEnvironment env, string text, Parsed[] args)
+        public static QMacro Create(QContext env, string text, Parsed[] args)
         {
             return new QMacro(env, text, "foo");
         }

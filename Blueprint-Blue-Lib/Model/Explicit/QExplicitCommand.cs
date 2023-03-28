@@ -6,11 +6,11 @@ namespace Blueprint.Blue
     {
         public bool IsExplicit { get => true; }
 
-        protected QExplicitCommand(QEnvironment env, string text, string verb) : base(env, text, verb)
+        protected QExplicitCommand(QContext env, string text, string verb) : base(env, text, verb)
         {
             ;
         }
-        public static QExplicitCommand? Create(QEnvironment env, Parsed item)
+        public static QExplicitCommand? Create(QContext env, Parsed item)
         {
             if (item.rule.Equals("statement", StringComparison.InvariantCultureIgnoreCase))
             {

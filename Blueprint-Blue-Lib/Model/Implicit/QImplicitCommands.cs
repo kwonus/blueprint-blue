@@ -4,7 +4,7 @@
 
     public class QImplicitCommands
     {
-        public QEnvironment Environment { get; set; }
+        public QContext Environment { get; set; }
         public string ExpandedText { get; set; }
         public List<QImplicitCommand> Parts { get; set; }
         public List<QImplicitCommand> ExpandedParts { get; set; }
@@ -83,16 +83,16 @@
                 return null;
             }
         }
-        private QImplicitCommands(QEnvironment env, string stmtText)
+        private QImplicitCommands(QContext env, string stmtText)
         {
-            this.Environment = new QEnvironment();
+            this.Environment = env;
             this.ExpandedText = stmtText;
             this.Parts = new List<QImplicitCommand>();
 
             this.ExpandedParts = new List<QImplicitCommand>();
         }
 
-        public static QImplicitCommands? Create(QEnvironment env, Parsed stmt, IStatement diagnostics)
+        public static QImplicitCommands? Create(QContext env, Parsed stmt, IStatement diagnostics)
         {
             bool valid = false;
             var commandSet = new QImplicitCommands(env, stmt.text);

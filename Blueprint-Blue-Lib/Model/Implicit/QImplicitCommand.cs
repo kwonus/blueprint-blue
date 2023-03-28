@@ -6,11 +6,11 @@ namespace Blueprint.Blue
     {
         public bool IsExplicit { get => false; }
 
-        public QImplicitCommand(QEnvironment env, string text, string verb) : base(env, text, verb)
+        public QImplicitCommand(QContext env, string text, string verb) : base(env, text, verb)
         {
             ;
         }
-        public static IEnumerable<QImplicitCommand> Create(QEnvironment env, Parsed clause)
+        public static IEnumerable<QImplicitCommand> Create(QContext env, Parsed clause)
         {
             var command = clause.rule.Trim().ToLower();
 

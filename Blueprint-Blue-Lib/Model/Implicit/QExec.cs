@@ -6,11 +6,11 @@ namespace Blueprint.Blue
     {
         public uint Command { get; set; }
 
-        private QExec(QEnvironment env, string text, uint command) : base(env, text, "exec")
+        private QExec(QContext env, string text, uint command) : base(env, text, "exec")
         {
             this.Command = command;
         }
-        public static QExec Create(QEnvironment env, string text, Parsed[] args)
+        public static QExec Create(QContext env, string text, Parsed[] args)
         {
             return new QExec(env, text, 0);
         }

@@ -13,12 +13,12 @@ namespace Blueprint.Blue
         public string FileSpec { get; private set; }
         public FileCreateMode FileCreationMode  { get; private set; }
 
-        private QExport(QEnvironment env, string text, string spec, FileCreateMode mode) : base(env, text, "export")
+        private QExport(QContext env, string text, string spec, FileCreateMode mode) : base(env, text, "export")
         {
             this.FileSpec = spec;
             this.FileCreationMode = mode;
         }
-        public static QExport? Create(QEnvironment env, string text, Parsed[] args)
+        public static QExport? Create(QContext env, string text, Parsed[] args)
         {
             if ((args.Length == 1) && (args[0].children.Length == 1) && args[0].children[0].rule.Equals("filename", StringComparison.InvariantCultureIgnoreCase))
             {

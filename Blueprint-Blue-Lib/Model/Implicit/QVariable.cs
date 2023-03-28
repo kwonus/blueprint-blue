@@ -8,13 +8,13 @@ namespace Blueprint.Blue
         public string Value { get; protected set; }
         public bool Persistent { get; protected set; }
 
-        protected QVariable(QEnvironment env, string text, string verb, string key, string value, bool persistent) : base(env, text, verb)
+        protected QVariable(QContext env, string text, string verb, string key, string value, bool persistent) : base(env, text, verb)
         {
             this.Key = key;
             this.Value = value;
             this.Persistent = persistent;
         }
-        public static QVariable? Create(QEnvironment env, string text, Parsed[] args)
+        public static QVariable? Create(QContext env, string text, Parsed[] args)
         {
             if((args.Length == 1)
             && (args[0].children.Length == 2)

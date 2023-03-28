@@ -14,6 +14,7 @@ namespace Blueprint.Blue
         public List<string> Warnings { get; set; }
         public QExplicitCommand? Singleton { get; set; }
         public QImplicitCommands? Commands { get; set; }
+        public QContext Context { get; private set; }
 
         public QStatement()
         {
@@ -24,6 +25,7 @@ namespace Blueprint.Blue
             this.Warnings = new();
             this.Singleton = null;
             this.Commands= null;
+            this.Context = new QContext(this, @"C:\Users\Me\AVX");  // notional placeholder for now (base this on actual username/home
         }
 
         public void AddError(string message)
