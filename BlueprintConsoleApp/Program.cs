@@ -55,9 +55,11 @@
                     //var blueRaw = blueprint.Create(result.root);
                     root = lib.Parse(stmt).root;
                 }
-                var blue = blueprint.Create(root);
                 if (root != null)
                 {
+                    var blue = blueprint.Create(root);
+                    blue.Context.AddHistory(blue.Text);
+
                     var error = root.error;
                     if (!string.IsNullOrEmpty(error))
                     {
