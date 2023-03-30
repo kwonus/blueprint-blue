@@ -1,12 +1,11 @@
-using Pinshot.PEG;
-
 namespace Blueprint.Blue
 {
-    public class QDecoration : QTerm, ITerm
+    using Pinshot.PEG;
+    public class QDecoration : QFeature, IFeature
     {
         public int Decoration { get; set; }
 
-        public QDecoration(string text, Parsed parse) : base(text, parse)
+        public QDecoration(QFind search, string text, Parsed parse) : base(search, text, parse)
         {
             this.Decoration = 0;
         }

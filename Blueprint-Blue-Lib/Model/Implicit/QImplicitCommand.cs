@@ -18,13 +18,13 @@ namespace Blueprint.Blue
 
             switch (command)
             {
-                case "clear":   result = QVariable.Create(env, clause.text, clause.children);      break;
+                case "clear":   result = QVariable.Create(env, clause.text, clause.children);   break;
                 case "exec":    result = QExec.Create(env, clause.text, clause.children);       break;
                 case "filter":  result = QFilter.Create(env, clause.text, clause.children);     break;
                 case "search":  result = QFind.Create(env, clause.text, clause.children);       break;
                 case "invoke":  result = QInvoke.Create(env, clause.text, clause.children);     break;
                 case "macro":   result = QMacro.Create(env, clause.text, clause.children);      break;
-                case "setting": result = QVariable.Create(env, clause.text, clause.children);        break;
+                case "setting": result = QVariable.Create(env, clause.text, clause.children);   break;
 
                 case "implicit_singletons":
                 {

@@ -1,12 +1,12 @@
-using Pinshot.PEG;
-
 namespace Blueprint.Blue
 {
-    public class QWord : QTerm, ITerm
+    using Pinshot.PEG;
+
+    public class QWord : QFeature, IFeature
     {
         public int WordKey { get; set; }
 
-        public QWord(string text, Parsed parse) : base(text, parse)
+        public QWord(QFind search, string text, Parsed parse) : base(search, text, parse)
         {
             ;
         }

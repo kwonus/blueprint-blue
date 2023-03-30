@@ -1,13 +1,12 @@
-using Pinshot.PEG;
-
 namespace Blueprint.Blue
 {
-    public class QWildcard : QTerm, ITerm
+    using Pinshot.PEG;
+    public class QWildcard : QFeature, IFeature
     {
         public string Beginning { get; set; }
         public string Ending { get; set; }
 
-        public QWildcard(string text, Parsed parse) : base(text, parse)
+        public QWildcard(QFind search, string text, Parsed parse) : base(search, text, parse)
         {
             this.Beginning = string.Empty;
             this.Ending = string.Empty;

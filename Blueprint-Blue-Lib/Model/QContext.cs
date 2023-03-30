@@ -1,7 +1,6 @@
 ﻿namespace Blueprint.Blue
 {
     using BlueprintBlue;
-    using BlueprintBlue.Model;
     using System.Linq;
 
     public class QContext: IStatement

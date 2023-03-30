@@ -5,12 +5,14 @@ namespace Blueprint.Blue
     public class QFind : QImplicitCommand, ICommand
     {
         public bool IsQuoted { get; set; }
+        public IPolarity Polarity { get; set; }
         public List<QSearchSegment> Segments { get; set; }
         private bool Valid;
 
         // Unquoted/Unordered segments
         private QFind(QContext env, string text, Parsed[] args) : base(env, text, "find")
         {
+            this.Polarity = QPolarityPositive.POLARITY_DEFAULT; // all search clauses are positive unless a -- polarity flag is encountered
             this.IsQuoted = false;
             this.Segments = new();
             this.Valid = (args.Length > 0) && (this.Segments != null);

@@ -1,12 +1,11 @@
-using Pinshot.PEG;
-
 namespace Blueprint.Blue
 {
-    public class QLemma : QTerm, ITerm
+    using Pinshot.PEG;
+    public class QLemma : QFeature, IFeature
     {
         public int LemmaKey { get; set; }
 
-        public QLemma(string text, Parsed parse) : base(text, parse)
+        public QLemma(QFind search, string text, Parsed parse) : base(search, text, parse)
         {
             ;
         }
