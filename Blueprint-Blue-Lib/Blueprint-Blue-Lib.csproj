@@ -7,4 +7,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Digital-AV\omega\foundations\csharp\AVXLib\AVXLib.csproj" />
+  </ItemGroup>
+
 </Project>

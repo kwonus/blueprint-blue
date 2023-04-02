@@ -1,5 +1,6 @@
 ﻿namespace Blueprint.Blue
 {
+    using AVXLib.Framework;
     using BlueprintBlue;
     using System.Linq;
 
@@ -17,6 +18,15 @@
 
         public string History { get; private set; }
         public string Macros { get; private set; }
+
+        public static Deserialization.Data AVXData { get; private set; }
+        public static Orthographical Ortho { get; private set; }
+
+        static QContext()   // static constructor
+        {
+            QContext.AVXData = new Deserialization.Data(@"C:\src\Digital-AV\omega\AVX-Omega.data");
+            QContext.Ortho = new Orthographical(QContext.AVXData);
+        }
 
         public QContext(IStatement statement, string session)
         {

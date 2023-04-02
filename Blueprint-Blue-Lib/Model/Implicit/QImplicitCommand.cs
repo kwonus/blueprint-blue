@@ -35,7 +35,7 @@ namespace Blueprint.Blue
                         switch (sub)
                         {
                             case "print":  result = QDisplay.Create(env, subordinate.text, subordinate.children);   break;
-                            case "export": result = QExport.Create(env, subordinate.text, subordinate.children); break;
+                            case "export": result = QExport.Create(env, subordinate.text, subordinate.children);    break;
                         }
                         if (result != null)
                         {
