@@ -7,37 +7,49 @@ namespace Blueprint.Blue
 
         public QLemma(QFind search, string text, Parsed parse) : base(search, text, parse)
         {
-            var oov = AVXLib.Framework.OOV.GetReverseEntry(text.ToLower());
+            var normalized = text.ToLower();
+            var lex = QContext.AVXObjects.written.GetReverseLexRecordExtensive(normalized);
 
-            if (oov > 0)
+            if (lex.found)
             {
-                this.Lemmata = new ushort[] { oov };
-                return;  // If it is OOV, we can infer that this is a lemma
-            }
+                var lemmas = QContext.AVXObjects.lemmata.FindLemmataUsingWordKey(lex.key);
 
-            UInt16 key = 0;
-            var record = QContext.Ortho.GetReverseLexRecord(text);
-            if (record.found)
-            {
-                key = record.key;
-            }
-            else
-            {
-                // TO DO: If NOT EXACT:
-                record = QContext.Ortho.GetReverseLexRecordModern(text);
-                if (record.found)
+                if (lemmas != null) 
                 {
-                    key = record.key;
+                    this.Lemmata = lemmas;
+                    return;  // If it is OOV, we can infer that this is a lemma
                 }
-            }
-            if (key > 0)
-            {
-                this.Lemmata = AVXLib.Framework.Lemmata.FindLemmataUsingWordKey(key);
-            }
-            else
-            {
+
+                lemmas = QContext.AVXObjects.lemmata.FindLemmataInList(lex.key);
+
+                if (lemmas != null)
+                {
+                    this.Lemmata = lemmas;
+                    return;  // If it is OOV, we can infer that this is a lemma
+                }
                 this.Lemmata = new UInt16[0];
             }
+            var oov = QContext.AVXObjects.oov.GetReverseEntry(normalized);
+
+            if (oov != 0)
+            {
+                var lemmas = QContext.AVXObjects.lemmata.FindLemmataUsingWordKey(oov);
+
+                if (lemmas != null)
+                {
+                    this.Lemmata = lemmas;
+                    return;  // If it is OOV, we can infer that this is a lemma
+                }
+
+                lemmas = QContext.AVXObjects.lemmata.FindLemmataInList(oov);
+
+                if (lemmas != null)
+                {
+                    this.Lemmata = lemmas;
+                    return;  // If it is OOV, we can infer that this is a lemma
+                }
+            }
+            this.Lemmata = new UInt16[0];
         }
     }
 }

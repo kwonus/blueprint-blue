@@ -7,8 +7,54 @@
     {
         public QContext Environment { get; set; }
         public string ExpandedText { get; set; }
-        public List<QImplicitCommand> Parts { get; set; }
-        public List<QImplicitCommand> ExpandedParts { get; set; }
+        public List<QImplicitCommand> Parts { get; internal set; }
+        public List<QImplicitCommand> ExpandedParts { get; internal set; }
+
+        internal (int count, string stmt, string error) Expand()    // count >= 0 means success and count of macros that were processed // -1 means there was an error
+        {
+            (int count, string stmt, string error) result = (0, "", "");
+
+            foreach (var part in this.Parts)
+            {
+                if (part == null) continue;
+                if (part.GetType() == typeof(QInvoke))
+                {
+                    ;
+                }
+                else if (part.GetType() == typeof(QExec))
+                {
+                    ;
+                }
+                else
+                {
+                    result.stmt += part.Text;
+                }
+            }
+            return result;
+        }
+        // TODO:
+        public (int count, List<QImplicitCommand> result, string error) Compile()    // count >= 0 means success and count of macros that were processed // -1 means there was an error
+        {
+            (int count, List<QImplicitCommand> stmt, string error) result = (0, new(), "");
+
+            foreach (var part in this.Parts)
+            {
+                if (part == null) continue;
+                if (part.GetType() == typeof(QInvoke))
+                {
+                    ;
+                }
+                else if (part.GetType() == typeof(QExec))
+                {
+                    ;
+                }
+                else
+                {
+                    ;
+                }
+            }
+            return result;
+        }
 
         public IEnumerable<QFind> Searches
         {
@@ -128,7 +174,7 @@
                                 }
                                 else if (polarity != null)
                                 {
-                                    context.AddError("A negative polarity was encountered, bit it did not proceed a find clause");
+                                    context.AddError("A negative polarity was encountered, but it did not come before a find clause");
                                     polarity = null;
                                 }
                                 commandSet.Parts.Add(obj);
@@ -143,12 +189,26 @@
             }
             if (valid)
             {
-                // TO DO: Expand macros and invocations (cheat for now)
-                commandSet.ExpandedParts = commandSet.Parts;
+                var expanded = commandSet.Expand();
+                switch (expanded.count)
+                {
+                    case  0: commandSet.ExpandedParts = commandSet.Parts;
+                             commandSet.ExpandedText = stmt.text;
+                             break;
+                    case -1:
+                             commandSet.ExpandedParts = commandSet.Parts;
+                             commandSet.ExpandedText = stmt.text;
+                             valid = false;
+                             break;
+                    default:
+                             commandSet.ExpandedText = expanded.stmt;
+                             // commandSet.ExpandedParts = ?;
+                             break;
+                }
             }
             else
             {
-                diagnostics.AddError("An command induced an unexpected error");
+                diagnostics.AddError("A command induced an unexpected error");
             }
             return valid ? commandSet : null;
         }

@@ -5,13 +5,13 @@ namespace Blueprint.Blue
     {
         private string Text;
         public List<QSearchFragment> Fragments { get; private set; }
-        public QFind Context { get; private set; }
+        public QFind Search { get; private set; }
 
         public QSearchSegment(QFind context, string text, Parsed[] args)
         {
             this.Text = text;
             this.Fragments = new();
-            this.Context = context;
+            this.Search = context;
 
             foreach (var arg in args)
             {

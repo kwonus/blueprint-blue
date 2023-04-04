@@ -19,14 +19,7 @@
         public string History { get; private set; }
         public string Macros { get; private set; }
 
-        public static Deserialization.Data AVXData { get; private set; }
-        public static Orthographical Ortho { get; private set; }
-
-        static QContext()   // static constructor
-        {
-            QContext.AVXData = new Deserialization.Data(@"C:\src\Digital-AV\omega\AVX-Omega.data");
-            QContext.Ortho = new Orthographical(QContext.AVXData);
-        }
+        public static AVXLib.ObjectTable AVXObjects { get; internal set; } = AVXLib.ObjectTable.Create(@"C:\src\Digital-AV\omega\AVX-Omega.data");
 
         public QContext(IStatement statement, string session)
         {
@@ -60,6 +53,10 @@
             else
             {
                 this.AddWarning("A session context has not been provided");
+            }
+            if (!QContext.AVXObjects.Mem.valid)
+            {
+                this.AddError("Unable to load AVX Data. Without this library, other things will break");
             }
         }
         public void AddError(string message)

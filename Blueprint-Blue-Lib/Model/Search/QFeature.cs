@@ -11,12 +11,12 @@ namespace Blueprint.Blue
     {
         public string Text { get; private set; }
         public Parsed Parse { get; private set; }
-        public QFind Context { get; private set; }
+        public QFind Search { get; private set; }
         protected QFeature(QFind context, string text, Parsed parse)
         {
             this.Text = text;
             this.Parse = parse;
-            this.Context = context;
+            this.Search = context;
         }
         public static QFeature? Create(QFind search, string text, Parsed parse)
         {

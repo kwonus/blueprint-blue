@@ -1,13 +1,10 @@
 ﻿namespace Blueprint.Blue
 {
     using Pinshot.PEG;
-    using System.Text.Json;
-    using System.Text.Json.Nodes;
-    using static System.Runtime.InteropServices.JavaScript.JSType;
 
     public class Blueprint
     {
-        public Blueprint(string avxpath = null)
+        public Blueprint(string? avxpath = null)
         {
             ;
         }
