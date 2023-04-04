@@ -196,7 +196,7 @@
                     case  0:    commandSet.ExpandedParts = commandSet.Parts;
                                 commandSet.ExpandedText = stmt.text;
                                 if (commandSet.Macro != null)
-                                    commandSet.ExpandedText = commandSet.ExpandedText.Replace(commandSet.Macro.Text, "");
+                                    commandSet.ExpandedText = commandSet.ExpandedText.Replace(commandSet.Macro.Text, "").Trim();
                                 break;
                     case -1:
                                 commandSet.ExpandedParts = commandSet.Parts;
