@@ -149,7 +149,8 @@
                 IPolarity? polarity = null;
                 foreach (var command in stmt.children)
                 {
-                    if (command.rule.Equals("vector", StringComparison.InvariantCultureIgnoreCase))
+                    if (command.rule.Equals("vector", StringComparison.InvariantCultureIgnoreCase)
+                    ||  command.rule.Equals("macro_vector", StringComparison.InvariantCultureIgnoreCase))
                     {
                         foreach (var clause in command.children)
                         {
@@ -192,14 +193,16 @@
                 var expanded = commandSet.Expand();
                 switch (expanded.count)
                 {
-                    case  0: commandSet.ExpandedParts = commandSet.Parts;
-                             commandSet.ExpandedText = stmt.text;
-                             break;
+                    case  0:    commandSet.ExpandedParts = commandSet.Parts;
+                                commandSet.ExpandedText = stmt.text;
+                                if (commandSet.Macro != null)
+                                    commandSet.ExpandedText = commandSet.ExpandedText.Replace(commandSet.Macro.Text, "");
+                                break;
                     case -1:
-                             commandSet.ExpandedParts = commandSet.Parts;
-                             commandSet.ExpandedText = stmt.text;
-                             valid = false;
-                             break;
+                                commandSet.ExpandedParts = commandSet.Parts;
+                                commandSet.ExpandedText = stmt.text;
+                                valid = false;
+                                break;
                     default:
                              commandSet.ExpandedText = expanded.stmt;
                              // commandSet.ExpandedParts = ?;

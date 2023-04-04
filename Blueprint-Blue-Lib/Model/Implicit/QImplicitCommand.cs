@@ -14,7 +14,7 @@ namespace Blueprint.Blue
         {
             var command = clause.rule.Trim().ToLower();
 
-            QImplicitCommand? result= null;
+            QImplicitCommand? result = null;
 
             switch (command)
             {
@@ -23,7 +23,8 @@ namespace Blueprint.Blue
                 case "filter":  result = QFilter.Create(env, clause.text, clause.children);     break;
                 case "search":  result = QFind.Create(env, clause.text, clause.children);       break;
                 case "invoke":  result = QInvoke.Create(env, clause.text, clause.children);     break;
-                case "macro":   result = QMacro.Create(env, clause.text, clause.children);      break;
+                case "define_macro":
+                                result = QMacro.Create(env, clause.text, clause.children);      break;
                 case "setting": result = QVariable.Create(env, clause.text, clause.children);   break;
 
                 case "implicit_singletons":
@@ -48,6 +49,10 @@ namespace Blueprint.Blue
             if (result != null)
             {
                 yield return result;
+            }
+            else
+            {
+                env.AddError("A coomand in the statement is ill-defined: " + clause.text);
             }
         }
     }

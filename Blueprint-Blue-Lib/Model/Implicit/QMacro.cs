@@ -10,9 +10,13 @@ namespace Blueprint.Blue
         {
             this.Label = label;
         }
-        public static QMacro Create(QContext env, string text, Parsed[] args)
+        public static QMacro? Create(QContext env, string text, Parsed[] args)
         {
-            return new QMacro(env, text, "foo");
+            if (args.Length == 1 && args[0].rule == "label")
+            { 
+                return new QMacro(env, text, args[0].text);
+            }
+            return null;
         }
     }
 }
