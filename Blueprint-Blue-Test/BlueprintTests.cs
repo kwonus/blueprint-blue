@@ -86,7 +86,7 @@ namespace Blueprint_Blue_Test
         [TestMethod]
         public void CreateMacro()
         {
-            string stmt = "%exact = 1 || Extacto";
+            string stmt = "%exact = 1 || Exacto";
 
             var root = this.Parse(stmt);
 
@@ -105,7 +105,7 @@ namespace Blueprint_Blue_Test
                     Assert.IsTrue(commands.Macro.Label == "Exacto");
 
                 var parts = commands.ExpandedParts;
-                Assert.IsTrue(parts.Count == 1);
+                Assert.IsTrue(parts.Count == 2);
                 var part = parts[0];
                 Assert.IsTrue(part.Verb == "set");
                 var setter = (QSet)part;
