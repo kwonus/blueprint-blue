@@ -3,6 +3,7 @@
     using Pinshot.Blue;
     using Pinshot.PEG;
     using Blueprint.Blue;
+    using BlueprintBlue;
 
     internal class Program
     {
@@ -58,7 +59,10 @@
                 if (root != null)
                 {
                     var blue = blueprint.Create(root);
-                    blue.Context.AddHistory(blue.Text);
+                    if (blue.IsValid)
+                        blue.AddHistory();  // side-effects: AddHistory() & AddMacro()
+
+                    //blue.Context.AddHistory(blue.Text);
 
                     var error = root.error;
                     if (!string.IsNullOrEmpty(error))

@@ -4,6 +4,7 @@ namespace Blueprint_Blue_Test
     using Pinshot.PEG;
     using Blueprint.Blue;
     using static System.Runtime.InteropServices.JavaScript.JSType;
+    using BlueprintBlue;
 
     [TestClass]
     public class BlueprintTests
@@ -25,7 +26,7 @@ namespace Blueprint_Blue_Test
                 if (root.pinshot.error != null)
                 {
                     root.blueprint = this.lib_blueprint.Create(root.pinshot);
-                    root.blueprint.Context.AddHistory(root.blueprint.Text);
+                    var expandable = root.blueprint.IsValid ? new QExpandableStatement(root.blueprint) : null;  // side-effects: AddHistory() & AddMacro()
                 }
             }
             else

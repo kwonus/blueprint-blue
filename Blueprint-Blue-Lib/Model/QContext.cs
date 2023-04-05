@@ -16,10 +16,12 @@
 
         private IStatement Statement { get; set; }
 
-        public string History { get; private set; }
-        public string Macros { get; private set; }
+        public string HistoryPath { get; private set; } // not used yet
+        public string MacroPath { get; private set; }   // not used yet
 
         public static AVXLib.ObjectTable AVXObjects { get; internal set; } = AVXLib.ObjectTable.Create(@"C:\src\Digital-AV\omega\AVX-Omega.data");
+
+        private static Dictionary<UInt32, QExpandableStatement> History = new();
 
         public QContext(IStatement statement, string session)
         {
@@ -32,8 +34,8 @@
             this.User    = string.Empty;
             this.Session = session.Replace("\\", "/"); // always use unix-style path-spec
             this.Fields  = null;    // Null means that no fields were provided; In Quelle, this is different than an empty array of fields
-            this.History = string.Empty;
-            this.Macros  = string.Empty;
+            this.HistoryPath = string.Empty;
+            this.MacroPath = string.Empty;
 
             if (!string.IsNullOrEmpty(this.Session))
             {
@@ -42,8 +44,8 @@
                     var quelle = session.EndsWith("/Quelle", StringComparison.InvariantCultureIgnoreCase) || session.EndsWith("/Quelle/", StringComparison.InvariantCultureIgnoreCase);
                     var folder = quelle ? this.Session : Path.Combine(this.Session, "Quelle");
 
-                    this.History = Path.Combine(folder, "History.Quelle").Replace("\\", "/");
-                    this.Macros = Path.Combine(folder, "Labels").Replace("\\", "/");
+                    this.HistoryPath = Path.Combine(folder, "History.Quelle").Replace("\\", "/");
+                    this.MacroPath = Path.Combine(folder, "Labels").Replace("\\", "/");
                 }
                 else
                 {
@@ -63,64 +65,86 @@
         {
             this.Statement.AddError(message);
         }
+        public QExpandableStatement? Expand(UInt32 seq)     // e.g. $1
+        {
+            return this.GetHistoryEntry(seq);
+        }
+        public QExpandableStatement? Expand(string label)   // e.g. $my-macro-def
+        {
+            return this.GetMacro(label);
+        }
         public void AddWarning(string message)
         {
             this.Statement.AddWarning(message);
         }
-        public void AddHistory(string stmt)
+        public void AddHistory(QExpandableStatement stmt)
         {
-            var time = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            uint seq = 0;
-            try
+            if (!string.IsNullOrWhiteSpace(stmt.Statement))
             {
-                var lastLine = File.ReadLines(this.History).Last();
-                var parts = lastLine.Split('\t');
-                seq = 1 + uint.Parse(parts[0]);
-            }
-            catch
-            {
-                this.AddWarning("Unable to parse History.quelle; Resetting history file");
-                seq = 1;
-            }
-            try
-            {
-                using (StreamWriter sw = File.AppendText(this.History))
+                int seq = 1;
+                foreach (int i in from x in QContext.History.Keys orderby x descending select x)
                 {
-                    string line = seq.ToString() + "\t" + time.ToString() + "\t" + stmt;
-                    sw.WriteLine(line);
+                    seq = i;
+                    break;
+                }
+                try
+                {
+                    using (StreamWriter sw = File.AppendText(this.HistoryPath))
+                    {
+                        sw.WriteLine("- " + seq.ToString() + ":");
+                        sw.WriteLine("\ttime: " + stmt.Time.ToString());
+                        sw.WriteLine("\tstmt: " + stmt.Statement);
+                        if (!string.IsNullOrWhiteSpace(stmt.Expansion))
+                            sw.WriteLine("\texpd: " + stmt.Expansion);
+                    }
+                }
+                catch
+                {
+                    this.AddError("Unable to save history as requested");
                 }
             }
-            catch
+            else
             {
-                this.AddError("Unable to save history as requested");
+                this.AddError("Cannot add an invalid command to command history.");
             }
         }
-        public Dictionary<uint, QHistory> GetHistory(uint minSeq = 0, uint maxSeq = uint.MaxValue, DateTime? notBefore = null, DateTime? notAfter = null)
+        public void ReadAllHistory()
         {
-            var result = new Dictionary<uint, QHistory>();
-
-            var notBeforeOffset = notBefore != null ? new DateTimeOffset(notBefore.Value) : DateTimeOffset.MinValue;
-            var notAfterOffset  = notAfter  != null ? new DateTimeOffset(notAfter.Value)  : DateTimeOffset.MaxValue;
-
-            var notBeforeUInt64 = notBeforeOffset.ToUnixTimeMilliseconds();
-            var notAfterUInt64  = notAfterOffset.ToUnixTimeMilliseconds();
-
+            UInt32 seq = 0;
+            var restored = true;
+            string time = string.Empty;
+            string stmt = string.Empty;
+            string expd = string.Empty;
             try
             {
-                var lines = File.ReadLines(this.History);
+                var lines = File.ReadLines(this.HistoryPath);
+
                 foreach (string line in lines)
                 {
-                    var parts = line.Split('\t');
-                    if (parts.Length == 3)
+                    if (line.StartsWith("- "))
                     {
-                        var seq = uint.Parse(parts[0]);
-                        var time = Int64.Parse(parts[1]);
-
-                        var item = new QHistory() { Sequence = seq, Time = time, Statement = parts[3] };
+                        if (!restored)
+                        {
+                            var estmt = new QExpandableStatement { Expansion = expd, Statement = stmt, Time = Int64.Parse(time) };
+                            QContext.History[seq] = estmt;
+                        }
+                        seq = UInt32.Parse(line.Substring(2, line.Length - 3));
+                        time = string.Empty;
+                        stmt = string.Empty;
+                        expd = string.Empty;
+                        restored = false;
                     }
-                    else
+                    else if (line.StartsWith("\ttime: "))
                     {
-                        this.AddError("An entry in History.quelle was unreadable");
+                        time = line.Substring(7);
+                    }
+                    else if (line.StartsWith("\tstmt: "))
+                    {
+                        stmt = line.Substring(7);
+                    }
+                    else if (line.StartsWith("\texpd: "))
+                    {
+                        expd = line.Substring(7);
                     }
                 }
             }
@@ -128,52 +152,108 @@
             {
                 this.AddError("Unable to read History.quelle");
             }
-            return result;
+            if (!restored)
+            {
+                var estmt = new QExpandableStatement { Expansion = expd, Statement = stmt, Time = Int64.Parse(time) };
+                QContext.History[seq] = estmt;
+            }
         }
-        public QHistory? GetHistoryEntry(uint sequence)
+        public IEnumerable<(UInt32 seq, QExpandableStatement entry)> GetHistory(UInt32 minSeq = 0, UInt32 maxSeq = UInt32.MaxValue, DateTime? notBefore = null, DateTime? notAfter = null)
         {
-            if (sequence > 0 && sequence < uint.MaxValue)
+            var notBeforeOffset = notBefore != null ? new DateTimeOffset(notBefore.Value) : DateTimeOffset.MinValue;
+            var notAfterOffset  = notAfter  != null ? new DateTimeOffset(notAfter.Value)  : DateTimeOffset.MaxValue;
+
+            var notBeforeLong = notBeforeOffset.ToUnixTimeMilliseconds();
+            var notAfterLong  = notAfterOffset.ToUnixTimeMilliseconds();
+
+            foreach (var entry in QContext.History)
+            { 
+                if((entry.Key >= minSeq && entry.Key <= maxSeq)
+                && (entry.Value.Time >= notBeforeLong && entry.Value.Time <= notAfterLong))
+                {
+                    yield return (entry.Key, entry.Value);
+                }
+            }
+        }
+        public QExpandableStatement? GetHistoryEntry(UInt32 sequence)
+        {
+            if (sequence > 0 && sequence < UInt32.MaxValue)
             {
                 var history = this.GetHistory(minSeq: sequence, maxSeq: sequence);
 
-                if (history.Count == 1)
-                    return history[sequence];
+                QExpandableStatement? found = null;
+                int cnt = 0;
+                foreach (var candidate in history)
+                {
+                    found = candidate.entry;
+                    if (++cnt > 2)
+                        break;
+                }
+                if (cnt == 1)
+                    return found;
             }
             return null;
         }
-        public void AddMacro(string stmt, string label)
+        public void AddMacro(QExpandableStatement stmt, string label)
         {
-            var macro = Path.Combine(this.Macros, label + ".quelle");
-
-            try
+            if (!string.IsNullOrEmpty(label))
             {
-                using (var file = new StreamWriter(File.Create(macro)))
+                if (!(string.IsNullOrWhiteSpace(stmt.Statement) || string.IsNullOrWhiteSpace(stmt.Expansion)))
                 {
-                    file.Write(stmt);
+
+                    var macro = Path.Combine(this.MacroPath, label + ".quelle");
+
+                    try
+                    {
+                        using (var file = new StreamWriter(File.Create(macro)))
+                        {
+                            file.WriteLine("time: " + stmt.Time.ToString());
+                            file.WriteLine("stmt: " + stmt.Statement);
+                            file.WriteLine("expd: " + stmt.Expansion);
+                        }
+                    }
+                    catch
+                    {
+                        this.AddError("Cannot create macro: " + label);
+                    }
+                }
+                else
+                {
+                    this.AddError("Cannot save an invalid command as a macro.");
                 }
             }
-            catch
+            else
             {
-                this.AddError("Cannot create macro: " + label);
+                this.AddError("Cannot save a command as a macro without a label.");
             }
         }
-        public string GetMacro(string label)
+        public QExpandableStatement GetMacro(string label)
         {
-            var macro = Path.Combine(this.Macros, label + ".quelle");
+            var macro = Path.Combine(this.MacroPath, label + ".quelle");
 
-            try
+            var lines = File.ReadLines(this.HistoryPath);
+
+            string time = string.Empty;
+            string stmt = string.Empty;
+            string expd = string.Empty;
+            foreach (string line in lines)
             {
-                using (var file = new StreamWriter(File.Create(macro)))
+                if (line.StartsWith("\ttime: "))
                 {
-                    string stmt = File.ReadAllText(this.History);
-                    return stmt;
+                    time = line.Substring(7);
+                }
+                else if (line.StartsWith("\tstmt: "))
+                {
+                    stmt = line.Substring(7);
+                }
+                else if (line.StartsWith("\texpd: "))
+                {
+                    expd = line.Substring(7);
                 }
             }
-            catch
-            {
-                this.AddError("Cannot read macro: " + label);
-            }
-            return string.Empty;
+            var estmt = new QExpandableStatement { Expansion = expd, Statement = stmt, Time = Int64.Parse(time) };
+
+            return estmt;
         }
     }
 }

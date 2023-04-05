@@ -1,3 +1,5 @@
+using BlueprintBlue;
+
 namespace Blueprint.Blue
 {
     public interface IStatement
@@ -36,6 +38,10 @@ namespace Blueprint.Blue
         public void AddWarning(string message)
         {
             this.Warnings.Add(message);
+        }
+        public QExpandableStatement? AddHistory()
+        {
+            return new QExpandableStatement(this);
         }
     }
 }
