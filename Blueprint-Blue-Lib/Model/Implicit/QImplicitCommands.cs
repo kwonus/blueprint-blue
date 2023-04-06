@@ -2,35 +2,54 @@
 {
     using Pinshot.PEG;
     using System.Runtime.CompilerServices;
+    using System.Text;
 
     public class QImplicitCommands
     {
-        public QContext Environment { get; set; }
+        public QContext Context { get; set; }
         public string ExpandedText { get; set; }
         public List<QImplicitCommand> Parts { get; internal set; }
         public List<QImplicitCommand> ExpandedParts { get; internal set; }
 
-        internal (int count, string stmt, string error) Expand()    // count >= 0 means success and count of macros that were processed // -1 means there was an error
+        internal (int count, string stmt) Expand()    // count >= 0 means success and count of macros that were processed // -1 means there was an error
         {
-            (int count, string stmt, string error) result = (0, "", "");
+            int hcount = 0;
+            int mcount = 0;
+            StringBuilder stmt = new();
 
             foreach (var part in this.Parts)
             {
-                if (part == null) continue;
+                if (part == null)
+                {
+                    this.Context.AddWarning("Excountered an unexpected null value during statement expansion");
+                    continue;
+                }
                 if (part.GetType() == typeof(QInvoke))
                 {
-                    ;
+                    hcount++;
+                    var invoke = (QInvoke)part;
+                    var expand = this.Context.Expand(invoke.Command);
+                    if (expand != null)
+                        stmt.Append(expand.Expansion);
+                    else
+                        this.Context.AddError("Unable to expand history item: $" + invoke.Command.ToString());
                 }
-                else if (part.GetType() == typeof(QExec))
+                else if (part.GetType() == typeof(QUtilize))
                 {
-                    ;
+                    mcount++;
+                    var utilize = (QUtilize)part;
+                    var expand = this.Context.Expand(utilize.Label);
+                    if (expand != null)
+                        stmt.Append(expand.Expansion);
+                    else
+                        this.Context.AddError("Unable to expand macro label: $" + utilize.Label);
                 }
                 else
                 {
-                    result.stmt += part.Text;
+                    stmt.Append(part.Text);
                 }
             }
-            return result;
+            return (hcount + mcount, stmt.ToString());
         }
         // TODO:
         public (int count, List<QImplicitCommand> result, string error) Compile()    // count >= 0 means success and count of macros that were processed // -1 means there was an error
@@ -40,11 +59,11 @@
             foreach (var part in this.Parts)
             {
                 if (part == null) continue;
-                if (part.GetType() == typeof(QInvoke))
+                if (part.GetType() == typeof(QUtilize))
                 {
                     ;
                 }
-                else if (part.GetType() == typeof(QExec))
+                else if (part.GetType() == typeof(QInvoke))
                 {
                     ;
                 }
@@ -132,7 +151,7 @@
         }
         private QImplicitCommands(QContext env, string stmtText)
         {
-            this.Environment = env;
+            this.Context = env;
             this.ExpandedText = stmtText;
             this.Parts = new List<QImplicitCommand>();
 

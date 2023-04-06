@@ -78,5 +78,37 @@ namespace BlueprintBlue
             DateTimeOffset offset = DateTimeOffset.FromUnixTimeMilliseconds(this.Time);
             return offset.DateTime;
         }
+
+        // Operator overloading:
+        //
+        public static bool operator == (QExpandableStatement? q1, QExpandableStatement? q2)
+        {
+            if ((object)q1 == null || (object)q2 == null)
+                return false;
+
+            return q1.Equals(q2);
+        }
+
+        public static bool operator !=(QExpandableStatement? q1, QExpandableStatement? q2)
+        {
+            if ((object)q1 == null || (object)q2 == null)
+                return false;
+
+            return !(q1 == q2);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || this.GetType() != obj.GetType())
+                return false;
+
+            var q2 = (QExpandableStatement)obj;
+            return this.Statement == q2.Statement;
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Statement.GetHashCode();
+        }
     }
 }

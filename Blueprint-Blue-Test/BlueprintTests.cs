@@ -117,7 +117,7 @@ namespace Blueprint_Blue_Test
         [TestMethod]
         public void ExecuteMacro()
         {
-            string stmt = "%exact = 1 || Extacto";
+            string stmt = "%exact = 1 || Exacto";
             this.Parse(stmt);   // ignore result; just make sure that maco is defined as thus
 
             stmt = "$Exacto";

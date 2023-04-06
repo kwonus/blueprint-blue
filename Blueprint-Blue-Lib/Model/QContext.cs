@@ -21,10 +21,11 @@
 
         public static AVXLib.ObjectTable AVXObjects { get; internal set; } = AVXLib.ObjectTable.Create(@"C:\src\Digital-AV\omega\AVX-Omega.data");
 
-        private static Dictionary<UInt32, QExpandableStatement> History = new();
+        private Dictionary<UInt32, QExpandableStatement> History = new();
 
         public QContext(IStatement statement, string session)
         {
+
             this.Statement = statement;
 
             this.Format  = string.Empty;
@@ -60,6 +61,7 @@
             {
                 this.AddError("Unable to load AVX Data. Without this library, other things will break");
             }
+            this.ReadAllHistory();
         }
         public void AddError(string message)
         {
@@ -81,26 +83,32 @@
         {
             if (!string.IsNullOrWhiteSpace(stmt.Statement))
             {
-                int seq = 1;
-                foreach (int i in from x in QContext.History.Keys orderby x descending select x)
+                QExpandableStatement? prev = null;
+                UInt32 seq = 0;
+                foreach (UInt32 i in from x in this.History.Keys orderby x descending select (UInt32) x)
                 {
-                    seq = i;
+                    prev = this.History[i];
+                    seq = (UInt32) (i + 1);
                     break;
                 }
-                try
+                if (prev == null || prev != stmt) // do not redundantly re-save the most previously executed command to the history
                 {
-                    using (StreamWriter sw = File.AppendText(this.HistoryPath))
+                    try
                     {
-                        sw.WriteLine("- " + seq.ToString() + ":");
-                        sw.WriteLine("\ttime: " + stmt.Time.ToString());
-                        sw.WriteLine("\tstmt: " + stmt.Statement);
-                        if (!string.IsNullOrWhiteSpace(stmt.Expansion))
-                            sw.WriteLine("\texpd: " + stmt.Expansion);
+                        using (StreamWriter sw = File.AppendText(this.HistoryPath))
+                        {
+                            sw.WriteLine("- " + seq.ToString() + ":");
+                            sw.WriteLine("\ttime: " + stmt.Time.ToString());
+                            sw.WriteLine("\tstmt: " + stmt.Statement);
+                            if (!string.IsNullOrWhiteSpace(stmt.Expansion))
+                                sw.WriteLine("\texpd: " + stmt.Expansion);
+                        }
+                        this.History[seq + 1] = stmt;
                     }
-                }
-                catch
-                {
-                    this.AddError("Unable to save history as requested");
+                    catch
+                    {
+                        this.AddError("Unable to save history as requested");
+                    }
                 }
             }
             else
@@ -126,7 +134,7 @@
                         if (!restored)
                         {
                             var estmt = new QExpandableStatement { Expansion = expd, Statement = stmt, Time = Int64.Parse(time) };
-                            QContext.History[seq] = estmt;
+                            this.History[seq] = estmt;
                         }
                         seq = UInt32.Parse(line.Substring(2, line.Length - 3));
                         time = string.Empty;
@@ -155,7 +163,7 @@
             if (!restored)
             {
                 var estmt = new QExpandableStatement { Expansion = expd, Statement = stmt, Time = Int64.Parse(time) };
-                QContext.History[seq] = estmt;
+                this.History[seq] = estmt;
             }
         }
         public IEnumerable<(UInt32 seq, QExpandableStatement entry)> GetHistory(UInt32 minSeq = 0, UInt32 maxSeq = UInt32.MaxValue, DateTime? notBefore = null, DateTime? notAfter = null)
@@ -166,7 +174,7 @@
             var notBeforeLong = notBeforeOffset.ToUnixTimeMilliseconds();
             var notAfterLong  = notAfterOffset.ToUnixTimeMilliseconds();
 
-            foreach (var entry in QContext.History)
+            foreach (var entry in this.History)
             { 
                 if((entry.Key >= minSeq && entry.Key <= maxSeq)
                 && (entry.Value.Time >= notBeforeLong && entry.Value.Time <= notAfterLong))
