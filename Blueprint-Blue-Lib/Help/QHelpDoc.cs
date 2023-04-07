@@ -12,26 +12,36 @@
 
         private static Dictionary<string, QHelpDoc> Reference = new()
         {
-            { "help",     new(topic: "@help",    doc: "Help"     ) },
-            { "exit",     new(topic: "@exit",    doc: "Exit"     ) },
-            { "version",  new(topic: "@version", doc: "Version"  ) },
+            // Explicit Commands:
+            { "help",     new(topic: "@help",    doc: "System"   ) },
+            { "exit",     new(topic: "@exit",    doc: "System"   ) },
+            { "version",  new(topic: "@version", doc: "System"   ) },
             { "delete",   new(topic: "@delete",  doc: "Macro"    ) },
             { "expand",   new(topic: "@expand",  doc: "Macro"    ) },
             { "review",   new(topic: "@review",  doc: "History"  ) },
-            { "get",      new(topic: "@get",     doc: "Settings" ) },
-                                                         
-            { "clear",    new(topic: "clear",    doc: "Settings" ) },
-            { "display",  new(topic: "display",  doc: "Display"  ) },
+            { "get",      new(topic: "@get",     doc: "Control"  ) },
+             
+            // Implicit Commands:
+            { "show",     new(topic: "show",     doc: "Output"   ) },
+            { "export",   new(topic: "export",   doc: "Output"   ) },
             { "invoke",   new(topic: "invoke",   doc: "History"  ) },
-            { "export",   new(topic: "export",   doc: "Export"   ) },
-            { "filter",   new(topic: "filter",   doc: "Filter"   ) },
-            { "find",     new(topic: "find",     doc: "Find"     ) },
+            { "filter",   new(topic: "filter",   doc: "Search"   ) },
+            { "find",     new(topic: "find",     doc: "Search"   ) },
             { "utilize",  new(topic: "utilize",  doc: "Macro"    ) },
-            { "apply",    new(topic: "macro",    doc: "Macro"    ) },
-            { "set",      new(topic: "set",      doc: "Settings" ) },
-                                                         
-            { "settings", new(topic: "settings", doc: "Settings" ) },
-            { "history",  new(topic: "history",  doc: "History"  ) }
+            { "apply",    new(topic: "apply",    doc: "Macro"    ) },
+            { "set",      new(topic: "set",      doc: "Control"  ) },
+            { "clear",    new(topic: "clear",    doc: "Control"  ) },
+
+            // Topics:
+            { "search",   new(topic: "#search",  doc: "Search"   ) },
+            { "control",  new(topic: "#control", doc: "Control"  ) },
+            { "settings", new(topic: "#settings",doc: "Control"  ) }, // settings is an alias for control
+            { "history",  new(topic: "#history", doc: "History"  ) },
+            { "macro",    new(topic: "#macro",   doc: "Macro"    ) },
+            { "label",    new(topic: "#label",   doc: "Macro"    ) }, // label is an alias for macro
+            { "output",   new(topic: "#output",  doc: "Output"   ) },
+            { "system",   new(topic: "#system",  doc: "System"   ) }
+
         };
 
         public static QHelpDoc GetDocument(string verb)
