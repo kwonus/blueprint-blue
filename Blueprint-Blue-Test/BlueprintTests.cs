@@ -14,26 +14,7 @@ namespace Blueprint_Blue_Test
 
         public BlueprintTests()
         {
-            this.lib_pinshot = new PinshotLib();
-            this.lib_blueprint = new Blueprint("");
-        }
-        private (RootParse? pinshot, QStatement? blueprint, string fatal) Parse(string stmt)
-        {
-            (RootParse? pinshot, QStatement? blueprint, string fatal) root = (this.lib_pinshot.Parse(stmt).root, null, string.Empty);
-
-            if (root.pinshot != null)
-            {
-                if (root.pinshot.error != null)
-                {
-                    root.blueprint = this.lib_blueprint.Create(root.pinshot);
-                    var expandable = root.blueprint.IsValid ? new QExpandableStatement(root.blueprint) : null;  // side-effects: AddHistory() & AddMacro()
-                }
-            }
-            else
-            {
-                root.fatal = "Unable to produce a parse using pin-shot-avx library";
-            }
-            return root;
+            ;
         }
         [TestCleanup]
         public void TestTeardown()
@@ -45,7 +26,7 @@ namespace Blueprint_Blue_Test
         {
             string stmt = "@Help find";
 
-            var root = this.Parse(stmt);
+            var root = QStatement.Parse(stmt);
 
             Assert.IsNotNull(root.fatal);
             Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
@@ -68,7 +49,7 @@ namespace Blueprint_Blue_Test
         {
             string stmt = "@Help find";
 
-            var root = this.Parse(stmt);
+            var root = QStatement.Parse(stmt);
 
             Assert.IsNotNull(root.fatal);
             Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
@@ -89,7 +70,7 @@ namespace Blueprint_Blue_Test
         {
             string stmt = "%exact = 1 || Exacto";
 
-            var root = this.Parse(stmt);
+            var root = QStatement.Parse(stmt);
 
             Assert.IsNotNull(root.fatal);
             Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
@@ -118,10 +99,10 @@ namespace Blueprint_Blue_Test
         public void ExecuteMacro()
         {
             string stmt = "%exact = 1 || Exacto";
-            this.Parse(stmt);   // ignore result; just make sure that maco is defined as thus
+            var ignore = QStatement.Parse(stmt);  // ignore result; just make sure that maco is defined as thus
 
             stmt = "$Exacto";
-            var root = this.Parse(stmt);
+            var root = QStatement.Parse(stmt);
 
             Assert.IsNotNull(root.fatal);
             Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
@@ -154,7 +135,7 @@ namespace Blueprint_Blue_Test
         public void SearchWithPOS()
         {
             string stmt = "/noun/ /verb/ /!pn_obj/";
-            var root = this.Parse(stmt);
+            var root = QStatement.Parse(stmt);
 
             Assert.IsNotNull(root.fatal);
             Assert.IsTrue(string.IsNullOrEmpty(root.fatal));

@@ -4,6 +4,7 @@
     using Pinshot.PEG;
     using Blueprint.Blue;
     using BlueprintBlue;
+    using static System.Runtime.InteropServices.JavaScript.JSType;
 
     internal class Program
     {
@@ -30,49 +31,31 @@
 
         static void Main(string[] args)
         {
-            string? url = (args != null) && (args.Count() >= 1) && (args[0] != null) ? args[0] : null; // e.g. "http://127.0.0.1:3000/quelle"
-
-            RootParse? root = null;
-
-            var blueprint = new Blueprint("");
-
-
             foreach (string stmt in TestStmt)
             {
-                if ((url != null) && url.ToLower().StartsWith("http", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    var svc = new PinshotSvc("http://127.0.0.1:3000/quelle");
-                    var task = svc.Parse(stmt);
+                var result = QStatement.Parse(stmt);
+                if (result.blueprint != null)
+                { 
+                    QStatement blueprint = result.blueprint;
 
-                    if (task.IsCompleted)
+                    if (blueprint.Errors != null)
                     {
-                        root = task.Result;
+                        foreach (string error in blueprint.Errors)
+                        {
+                            Console.WriteLine(error);
+                        }
                     }
                 }
-                else
+                else if (result.pinshot != null)
                 {
-                    var lib = new PinshotLib();
-                    //var result = lib.RawParse(stmt);
-                    //var blueRaw = blueprint.Create(result.root);
-                    root = lib.Parse(stmt).root;
-                }
-                if (root != null)
-                {
-                    var blue = blueprint.Create(root);
-                    if (blue.IsValid)
-                        blue.AddHistory();  // side-effects: AddHistory() & AddMacro()
-
-                    //blue.Context.AddHistory(blue.Text);
-
-                    var error = root.error;
-                    if (!string.IsNullOrEmpty(error))
+                    RootParse pinshot = result.pinshot;
+                    if (!string.IsNullOrEmpty(pinshot.error))
                     {
-                        Console.WriteLine(error);
+                        Console.WriteLine(pinshot.error);
                     }
                     else
                     {
-                        var list = root.result;
-                        Program.Print(list, 0);
+                        Program.Print(pinshot.result, 0);
                     }
                 }
             }

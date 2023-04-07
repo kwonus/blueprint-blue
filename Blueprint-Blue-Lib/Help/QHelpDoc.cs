@@ -22,12 +22,12 @@
                                                          
             { "clear",    new(topic: "clear",    doc: "Settings" ) },
             { "display",  new(topic: "display",  doc: "Display"  ) },
-            { "exec",     new(topic: "exec",     doc: "Exec"     ) },
+            { "invoke",   new(topic: "invoke",   doc: "History"  ) },
             { "export",   new(topic: "export",   doc: "Export"   ) },
             { "filter",   new(topic: "filter",   doc: "Filter"   ) },
             { "find",     new(topic: "find",     doc: "Find"     ) },
-            { "invoke",   new(topic: "invoke",   doc: "Macro"    ) },
-            { "macro",    new(topic: "macro",    doc: "Macro"    ) },
+            { "utilize",  new(topic: "utilize",  doc: "Macro"    ) },
+            { "apply",    new(topic: "macro",    doc: "Macro"    ) },
             { "set",      new(topic: "set",      doc: "Settings" ) },
                                                          
             { "settings", new(topic: "settings", doc: "Settings" ) },

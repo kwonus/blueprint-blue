@@ -17,6 +17,8 @@
             int mcount = 0;
             StringBuilder stmt = new();
 
+            // for precedence to work in accordance with spec, expand macros and invocations first:
+            //
             foreach (var part in this.Parts)
             {
                 if (part == null)
@@ -39,10 +41,25 @@
                     mcount++;
                     var utilize = (QUtilize)part;
                     var expand = this.Context.Expand(utilize.Label);
-                    if (expand != null)
+                    if (!string.IsNullOrEmpty(expand.Expansion))
                         stmt.Append(expand.Expansion);
                     else
                         this.Context.AddError("Unable to expand macro label: $" + utilize.Label);
+                }
+            }
+            foreach (var part in this.Parts)
+            {
+                if (part == null)
+                {
+                    continue;
+                }
+                if (part.GetType() == typeof(QInvoke))
+                {
+                    ;
+                }
+                else if (part.GetType() == typeof(QUtilize))
+                {
+                    ;
                 }
                 else
                 {
@@ -222,10 +239,18 @@
                                 commandSet.ExpandedText = stmt.text;
                                 valid = false;
                                 break;
-                    default:
-                             commandSet.ExpandedText = expanded.stmt;
-                             // commandSet.ExpandedParts = ?;
-                             break;
+                    default:    {   commandSet.ExpandedText = expanded.stmt;
+                                    var expando = QStatement.Parse(expanded.stmt, opaque:true);
+                                    if ((expando.blueprint != null) && expando.blueprint.IsValid && (expando.blueprint.Commands != null))
+                                    {
+                                        commandSet.ExpandedParts = expando.blueprint.Commands.Parts;
+                                    }
+                                    else
+                                    {
+                                        context.AddError("Unable to expand statement");
+                                    }
+                                }
+                                break;
                 }
             }
             else

@@ -1,4 +1,6 @@
 using BlueprintBlue;
+using Pinshot.Blue;
+using Pinshot.PEG;
 
 namespace Blueprint.Blue
 {
@@ -39,9 +41,49 @@ namespace Blueprint.Blue
         {
             this.Warnings.Add(message);
         }
-        public QExpandableStatement? AddHistory()
+        public QExpandableStatement? MaintainState()
         {
             return new QExpandableStatement(this);
+        }
+        private static PinshotLib PinshotDLL = new PinshotLib();
+
+        public static (RootParse? pinshot, QStatement? blueprint, string fatal) Parse(string stmt, bool opaque = false, string? url = null)   // when url is unspecified, utilize pinvoke of pin-shot-avx.dll
+        {
+            (RootParse? pinshot, QStatement? blueprint, string fatal) root = (null, null, string.Empty);
+
+            var blueprint = new Blueprint("");
+
+            if ((url != null) && url.ToLower().StartsWith("http", StringComparison.InvariantCultureIgnoreCase))
+            {
+                var svc = new PinshotSvc("http://127.0.0.1:3000/quelle");
+                var task = svc.Parse(stmt);
+
+                if (task.IsCompleted)
+                {
+                    root.pinshot = task.Result;
+                }
+            }
+            else
+            {
+                root.pinshot = PinshotDLL.Parse(stmt).root;
+            }
+            if (root.pinshot != null)
+            {
+                var blue = blueprint.Create(root.pinshot);
+                if (blue.IsValid)
+                {
+                    if (!opaque)
+                        blue.MaintainState();  // side-effects: AddHistory() & AddMacro()
+                    root.blueprint = blue;
+                }
+                var error = root.pinshot.error;
+                if (!string.IsNullOrEmpty(error))
+                {
+                    root.fatal = error;
+                    Console.WriteLine(error);
+                }
+            }
+            return root;
         }
     }
 }
