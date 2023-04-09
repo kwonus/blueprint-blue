@@ -6,6 +6,10 @@ namespace Blueprint.Blue
 
     public class QDisplay : QImplicitCommand, ICommand
     {
+        public override string Expand()
+        {
+            return this.Text;
+        }
         public List<uint> Fields { get; private set; }
 
         private QDisplay(QContext env, string text, IEnumerable<uint> fields) : base(env, text, "display")

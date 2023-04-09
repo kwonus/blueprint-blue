@@ -6,6 +6,10 @@ namespace Blueprint.Blue
     {
         public string Label { get; set; }
 
+        public override string Expand()
+        {
+            return this.Text;
+        }
         private QUtilize(QContext env, string text, string label) : base(env, text, "invoke")
         {
             this.Label = label;

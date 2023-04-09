@@ -6,6 +6,10 @@ namespace Blueprint.Blue
     {
         public string Label { get; set; }
 
+        public override string Expand()
+        {
+            return this.Text;
+        }
         private QMacro(QContext env, string text, string label) : base(env, text, "macro")
         {
             this.Label = label;

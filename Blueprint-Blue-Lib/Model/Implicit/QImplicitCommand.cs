@@ -2,9 +2,10 @@ using Pinshot.PEG;
 
 namespace Blueprint.Blue
 {
-    public class QImplicitCommand : QCommand, ICommand
+    public abstract class QImplicitCommand : QCommand, ICommand
     {
         public bool IsExplicit { get => false; }
+        public abstract string Expand();
 
         public QImplicitCommand(QContext env, string text, string verb) : base(env, text, verb)
         {

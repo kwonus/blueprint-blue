@@ -24,7 +24,7 @@ namespace Blueprint_Blue_Test
         [TestMethod]
         public void VerifyDependecyLoading()
         {
-            string stmt = "@Help find";
+            string stmt = "@Help";
 
             var root = QStatement.Parse(stmt);
 
@@ -113,7 +113,7 @@ namespace Blueprint_Blue_Test
 
             if (root.blueprint.Commands != null) // silence the compiler of warnings
             {
-                ; // requires macro exapansion implementation prior to making assertions
+                ;
             }
         }
         [TestMethod]
@@ -146,9 +146,44 @@ namespace Blueprint_Blue_Test
 
             if (root.blueprint.Commands != null) // silence the compiler of warnings
             {
-                ; // requires macro exapansion implementation prior to making assertions
+                ;
             }
+        }
+        [TestMethod]
+        public void StatementWithElipsis()
+        {
+            string stmt = "\"help ... time of ... need\"";
+            var root = QStatement.Parse(stmt);
 
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
+
+            if (root.blueprint.Commands != null) // silence the compiler of warnings
+            {
+                ;
+            }
+        }
+        [TestMethod]
+        public void StatementWithOutput()
+        {
+            string stmt = "help [1 2 10] => c:\filename";
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
+
+            if (root.blueprint.Commands != null) // silence the compiler of warnings
+            {
+                ;
+            }
         }
     }
 }

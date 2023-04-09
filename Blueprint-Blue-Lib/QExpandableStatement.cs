@@ -33,25 +33,26 @@ namespace BlueprintBlue
                     foreach (var clause in statement.Commands.Assignments)
                     {
                         if (++i > 1)
+                            expandable.Append(' ');
+                        expandable.Append(clause.Expand());
+                    }
+                    foreach (var clause in statement.Commands.Searches)
+                    {
+                        var expansion = clause.Expand();
+                        if (++i > 1)
                         {
-                            if (clause.Text.StartsWith("--"))
+                            if (expansion.StartsWith("--"))
                                 expandable.Append(" + ");
                             else
                                 expandable.Append(' ');
                         }
-                        expandable.Append(clause.Text);
-                    }
-                    foreach (var clause in statement.Commands.Searches)
-                    {
-                        if (++i > 1)
-                            expandable.Append(' ');
-                        expandable.Append(clause.Text);
+                        expandable.Append(expansion);
                     }
                     foreach (var clause in statement.Commands.Filters)
                     {
                         if (++i > 1)
                             expandable.Append(' ');
-                        expandable.Append(clause.Text);
+                        expandable.Append(clause.Expand());
                     }
                 }
                 this.Expansion = expandable.ToString();
@@ -60,11 +61,6 @@ namespace BlueprintBlue
                 {
                     if (isMacroDef)
                         statement.Context.AddMacro(this, statement.Commands.Macro.Label);
-                    statement.Context.AddHistory(this);
-                }
-                else if (statement.IsValid)
-                {
-                    statement.Context.AddHistory(this);
                 }
                 else
                 {

@@ -10,6 +10,11 @@ namespace Blueprint.Blue
     }
     public class QExport : QImplicitCommand, ICommand
     {
+        public override string Expand()
+        {
+            return this.Text;
+        }
+
         public string FileSpec { get; private set; }
         public FileCreateMode FileCreationMode  { get; private set; }
 

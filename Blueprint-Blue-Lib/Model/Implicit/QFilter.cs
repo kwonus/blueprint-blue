@@ -7,6 +7,11 @@ namespace Blueprint.Blue
         public string Rule { get; private set; }
         public string Filter { get; private set; }
 
+        public override string Expand()
+        {
+            return this.Text;
+        }
+
         private QFilter(QContext env, string text, string rule, string filter) : base(env, text, "filter")
         {
             this.Rule = rule;

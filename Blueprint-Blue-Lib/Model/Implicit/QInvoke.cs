@@ -6,6 +6,10 @@ namespace Blueprint.Blue
     {
         public uint Command { get; set; }
 
+        public override string Expand()
+        {
+            return this.Text;
+        }
         private QInvoke(QContext env, string text, uint command) : base(env, text, "exec")
         {
             this.Command = command;

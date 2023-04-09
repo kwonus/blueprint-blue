@@ -3,6 +3,7 @@ namespace Blueprint.Blue
     public interface IPolarity
     {
         bool Positive { get; }
+        string Text { get; }
     }
 
     public class QPolarityPositive : IPolarity
@@ -10,6 +11,10 @@ namespace Blueprint.Blue
         public bool Positive
         {
             get => true;
+        }
+        public string Text
+        {
+            get => string.Empty;
         }
         private QPolarityPositive()
         {

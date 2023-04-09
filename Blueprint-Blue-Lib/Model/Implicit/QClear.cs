@@ -4,7 +4,12 @@ namespace Blueprint.Blue
 {
     public class QClear : QVariable, ICommand
     {
-        public QClear(QContext env, string text, string key, bool persistent) : base(env, text, "clear", key, string.Empty, persistent)
+        public override string Expand()
+        {
+            return this.Text;
+        }
+
+        public QClear(QContext env, string text, string key, bool persistent) : base(env, text, "clear", key, persistent)
         {
             ;
         }

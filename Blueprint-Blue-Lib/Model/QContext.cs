@@ -6,10 +6,10 @@
 
     public class QContext: IStatement
     {
-        public string   Format { get; set; }
-        public string   Domain { get; set; }
-        public UInt16   Span   { get; set; }
-        public bool     Exact  { get; set; }
+        public QFormat  Format { get; set; }
+        public QDomain  Domain { get; set; }
+        public QSpan    Span   { get; set; }
+        public QExact   Exact  { get; set; }
         public string   User   { get; set; }
         public string   Session{ get; set; }
         public UInt16[]?Fields { get; set; }
@@ -28,10 +28,11 @@
 
             this.Statement = statement;
 
-            this.Format  = string.Empty;
-            this.Domain  = string.Empty;
-            this.Span    = 0;     // zero means span is scoped by verse
-            this.Exact   = false;
+            this.Format  = new QFormat();
+            this.Domain  = new QDomain();
+            this.Span    = new QSpan();
+            this.Exact   = new QExact();
+
             this.User    = string.Empty;
             this.Session = session.Replace("\\", "/"); // always use unix-style path-spec
             this.Fields  = null;    // Null means that no fields were provided; In Quelle, this is different than an empty array of fields

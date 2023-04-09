@@ -9,70 +9,71 @@ namespace Blueprint.Blue
         public List<QSearchSegment> Segments { get; set; }
         private bool Valid;
 
-        // Unquoted/Unordered segments
+        public override string Expand()
+        {
+            if (!this.Valid)
+                return string.Empty;
+
+            var polarity = this.Polarity.Text;
+            if (polarity != string.Empty)
+                return polarity + ' ' + this.Text;
+
+            return polarity;
+        }
+
         private QFind(QContext env, string text, Parsed[] args) : base(env, text, "find")
         {
-            this.Polarity = QPolarityPositive.POLARITY_DEFAULT; // all search clauses are positive unless a -- polarity flag is encountered
-            this.IsQuoted = false;
             this.Segments = new();
-            this.Valid = (args.Length > 0) && (this.Segments != null);
+            this.Polarity = QPolarityPositive.POLARITY_DEFAULT; // all search clauses are positive unless a -- polarity flag is encountered
+            this.Valid = (args.Length > 0 && args[0].children.Length > 0);
+            if (this.Valid)
+            {
+                string fulltext = text.Trim();
+                var beginQuote = fulltext.StartsWith("\"");
+                var endQuote = fulltext.StartsWith("\"");
+
+                this.IsQuoted = true;
+
+                this.Valid = !(fulltext.Contains('"') && !this.IsQuoted);
+                    return;
+            }
 
             if (this.Valid)
             {
-                foreach (var arg in args)
+                string rule = this.IsQuoted ? "ordered" : "unordered";
+                this.Valid = (args.Length == 1 && args[0].rule == rule && args[0].children.Length > 0);
+            }
+            if (this.Valid)
+            {
+                foreach (var arg in args[0].children)
                 {
+                    QSearchSegment seg;
+
                     this.Valid = arg.rule.Equals("segment") && (arg.children.Length > 0);
-                    if (!this.Valid)
-                        break;
-                    var seg = new QSearchSegment(this, arg.text, arg.children);
-                    this.Valid = seg != null;
+                    if (this.Valid)
+                    {
+                        seg = new QSearchSegment(this, arg.text, arg.children, anchored: this.IsQuoted);
+                    }
+                    else
+                    {
+                        this.Valid = arg.rule.Equals("unanchored") && (arg.children.Length > 0);
+                        if (!this.Valid)
+                            break;
+                        seg = new QSearchSegment(this, arg.children[0].text, arg.children[0].children, anchored: false);
+                    }
                     if (this.Valid)
                         this.Segments.Add(seg);
                     else
                         break;
                 }
             }
-        }
-        // Quoted/Ordered segments
-        private QFind(QContext env, string text, Parsed arg, Parsed[] anchors) : base(env, text, "find")
-        {
-            this.Valid = false;
-
-            this.IsQuoted = true;
-            this.Segments = new();
+            
         }
         public static QFind? Create(QContext env, string text, Parsed[] args)
         {
-            if (args.Length > 0 && args[0].children.Length > 0)
-            {
-                string fulltext = text.Trim();
-                var beginQuote = fulltext.StartsWith("\"");
-                var endQuote = fulltext.StartsWith("\"");
+            QFind? search = new QFind(env, text, args);
 
-                if (beginQuote && endQuote)
-                    return CreateQuoted(env, text, args);
-                else if (beginQuote || endQuote)
-                    return null;
-                else
-                    return CreateUnquoted(env, text, args);
-            }
-            return null;
-        }
-        private static QFind? CreateQuoted(QContext env, string text, Parsed[] args)
-        {
-            QFind? segments = null;
-            if ((args.Length == 1) && (args[0].children.Length > 0) && args[0].rule.Equals("ordered", StringComparison.InvariantCultureIgnoreCase))
-                segments = new QFind(env, text, args[0], args[0].children);
-
-            return (segments != null) && segments.Valid ? segments : null;
-        }
-        private static QFind? CreateUnquoted(QContext env, string text, Parsed[] args)
-        {
-            QFind? segments = null;
-            if ((args.Length >= 1) && (args[0].children.Length > 0) && args[0].rule.Equals("segment", StringComparison.InvariantCultureIgnoreCase))
-                segments = new QFind(env, text, args);
-
-            return (segments != null) && segments.Valid ? segments : null;
+            return search.Valid ? search : null;
         }
     }
 }

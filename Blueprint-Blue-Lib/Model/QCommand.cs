@@ -6,6 +6,8 @@ namespace Blueprint.Blue
         public string Verb { get; }
         public QContext Context { get; }
         public bool IsExplicit { get; }
+
+        public string Expand();
     }
 
     public class QCommand
