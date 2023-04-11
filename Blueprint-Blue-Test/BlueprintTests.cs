@@ -24,7 +24,7 @@ namespace Blueprint_Blue_Test
         [TestMethod]
         public void VerifyDependecyLoading()
         {
-            string stmt = "@Help";
+            string stmt = "@help";
 
             var root = QStatement.Parse(stmt);
 
@@ -171,6 +171,122 @@ namespace Blueprint_Blue_Test
         public void StatementWithOutput()
         {
             string stmt = "help [1 2 10] => c:\filename";
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
+
+            if (root.blueprint.Commands != null) // silence the compiler of warnings
+            {
+                ;
+            }
+        }
+        [TestMethod]
+        public void GlobalResetControls()
+        {
+            string stmt = "@reset";
+
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+
+            //Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Singleton);
+
+            if (root.blueprint.Commands != null) // silence the compiler of warnings
+            {
+                ;
+            }
+        }
+        [TestMethod]
+        public void InitializeHistory()
+        {
+            string stmt = "@initialize history";
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Singleton);
+
+            if (root.blueprint.Commands != null) // silence the compiler of warnings
+            {
+                ;
+            }
+        }
+        [TestMethod]
+        public void LocalCurrentOnHistory()
+        {
+            // A current bug in the grammar does not allow the setting in first position of the statement
+            //
+            string stmt = "$1::current";
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
+
+            if (root.blueprint.Commands != null) // silence the compiler of warnings
+            {
+                ;
+            }
+        }
+        [TestMethod]
+        public void DefaultsOnHistory()
+        {
+            string stmt = "$1::defaults";
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
+
+            if (root.blueprint.Commands != null) // silence the compiler of warnings
+            {
+                ;
+            }
+        }
+        [TestMethod]
+        public void LocalCurrentonMacro()
+        {
+            // A current bug in the grammar does not allow the setting in first position of the statement
+            //
+            string stmt = "$goodness::current";
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
+
+            if (root.blueprint.Commands != null) // silence the compiler of warnings
+            {
+                ;
+            }
+        }
+        [TestMethod]
+        public void AbsorpionOnMacro()
+        {
+            // A current bug in the grammar does not allow the setting in first position of the statement
+            //
+            string stmt = "$goodness::absorb";
             var root = QStatement.Parse(stmt);
 
             Assert.IsNotNull(root.fatal);

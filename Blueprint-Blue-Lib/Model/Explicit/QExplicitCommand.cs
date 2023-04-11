@@ -29,13 +29,15 @@ namespace Blueprint.Blue
                         var command = explicits[0];
                         switch (command.rule.Trim().ToLower())
                         {
-                            case "help":    return new QHelp(env,    command.text, command.children);
-                            case "exit":    return new QExit(env,    command.text, command.children);
-                            case "delete":  return new QDelete(env,  command.text, command.children);
-                            case "expand":  return new QExpand(env,  command.text, command.children);
-                            case "get":     return new QGet(env,     command.text, command.children);
-                            case "review":  return new QReview(env,  command.text, command.children);
-                            case "version": return new QVersion(env, command.text, command.children);
+                            case "help":       return new QHelp(env,    command.text, command.children);
+                            case "exit":       return new QExit(env,    command.text, command.children);
+                            case "delete":     return new QDelete(env,  command.text, command.children);
+                            case "expand":     return new QExpand(env,  command.text, command.children);
+                            case "get":        return new QGet(env,     command.text, command.children);
+                            case "review":     return new QReview(env,  command.text, command.children);
+                            case "version":    return new QVersion(env, command.text, command.children);
+                            case "initialize": return new QInit(env,    command.text, command.children);
+                            case "reset":      return new QReset(env,   command.text, command.children);
                         }
                     }
                 }

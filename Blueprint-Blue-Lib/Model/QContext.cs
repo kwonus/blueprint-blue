@@ -6,10 +6,9 @@
 
     public class QContext: IStatement
     {
-        public QFormat  Format { get; set; }
-        public QDomain  Domain { get; set; }
-        public QSpan    Span   { get; set; }
-        public QExact   Exact  { get; set; }
+        public QSettings GlobalSettings { get; set; }
+        public QSettings LocalSettings { get; set; }
+
         public string   User   { get; set; }
         public string   Session{ get; set; }
         public UInt16[]?Fields { get; set; }
@@ -28,10 +27,8 @@
 
             this.Statement = statement;
 
-            this.Format  = new QFormat();
-            this.Domain  = new QDomain();
-            this.Span    = new QSpan();
-            this.Exact   = new QExact();
+            this.GlobalSettings = statement.GlobalSettings;
+            this.LocalSettings  = new QSettings(this.GlobalSettings);
 
             this.User    = string.Empty;
             this.Session = session.Replace("\\", "/"); // always use unix-style path-spec

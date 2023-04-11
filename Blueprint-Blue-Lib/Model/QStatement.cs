@@ -8,6 +8,9 @@ namespace Blueprint.Blue
     {
         void AddError(string message);
         void AddWarning(string message);
+
+        QSettings GlobalSettings { get; set; }
+        QSettings LocalSettings  { get; set; }
     }
     public class QStatement: IStatement
     {
@@ -20,6 +23,9 @@ namespace Blueprint.Blue
         public QImplicitCommands? Commands { get; set; }
         public QContext Context { get; private set; }
 
+        public QSettings GlobalSettings { get; set; }
+        public QSettings LocalSettings { get; set; }
+
         public QStatement()
         {
             this.Text = string.Empty;
@@ -29,6 +35,8 @@ namespace Blueprint.Blue
             this.Warnings = new();
             this.Singleton = null;
             this.Commands= null;
+            this.GlobalSettings = new QSettings(@"C:\Users\Me\AVX\Quelle\settings.quelle");
+            this.LocalSettings = new QSettings(this.GlobalSettings);
             this.Context = new QContext(this, @"C:\Users\Me\AVX");  // notional placeholder for now (base this on actual username/home
         }
 

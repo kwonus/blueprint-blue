@@ -14,7 +14,7 @@ namespace Blueprint.Blue
                 this.WordKey = record.key;
                 return;
             }
-            record = QContext.AVXObjects.written.GetReverseLexRecordExtensive(text, this.Search.Context.Exact.Value);
+            record = QContext.AVXObjects.written.GetReverseLexRecordExtensive(text, this.Search.Context.LocalSettings.Exact.Value);
             if (record.found)
             {
                 this.WordKey = record.key;

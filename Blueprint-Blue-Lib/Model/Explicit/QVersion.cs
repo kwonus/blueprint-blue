@@ -1,7 +1,7 @@
-using Pinshot.PEG;
-
 namespace Blueprint.Blue
 {
+    using Pinshot.PEG;
+
     public class QVersion : QExplicitCommand, ICommand
     {
         public bool Verbose { get; set; }

@@ -9,11 +9,10 @@ namespace Blueprint.Blue
     {
         public const UInt16 VERSE = 0;    // zero means verse-scope
         public const UInt16 DEFAULT = QSpan.VERSE;
-        public UInt16 Value { get; private set; }
+        public UInt16 Value { get; set; }
         public QSpan()
         {
             this.Value = QSpan.VERSE;
-            // TO DO: read current user-value
         }
         public QSpan(UInt16 val)
         {
@@ -55,11 +54,10 @@ namespace Blueprint.Blue
     public class QExact
     {
         public const bool DEFAULT = false;
-        public bool Value { get; private set; }
+        public bool Value { get; set; }
         public QExact()
         {
             this.Value = QExact.DEFAULT;
-            // TO DO: read current user-value
         }
         public QExact(bool val)
         {
@@ -95,11 +93,10 @@ namespace Blueprint.Blue
             AVX = 1
         }
         public const QDomainVal DEFAULT = QDomainVal.AV;
-        public QDomainVal Value { get; private set; }
+        public QDomainVal Value { get; set; }
         public QDomain()
         {
             this.Value = QDomain.DEFAULT;
-            // TO DO: read current user-value
         }
         public QDomain(QDomainVal val)
         {
@@ -142,11 +139,10 @@ namespace Blueprint.Blue
             MD = 3
         }
         public const QFormatVal DEFAULT = QFormatVal.JSON;
-        public QFormatVal Value { get; private set; }
+        public QFormatVal Value { get; set; }
         public QFormat()
         {
             this.Value = QFormat.DEFAULT;
-            // TO DO: read current user-value
         }
         public QFormat(QFormatVal val)
         {
@@ -216,26 +212,40 @@ namespace Blueprint.Blue
         }
         public static QVariable? Create(QContext env, string text, Parsed[] args)
         {
-            if((args.Length == 1)
-            && (args[0].children.Length == 2)
-            &&  args[0].children[0].rule.EndsWith("_key", StringComparison.InvariantCultureIgnoreCase)
-            &&  args[0].children[1].rule.EndsWith("_option", StringComparison.InvariantCultureIgnoreCase))
-            {
-                switch (args[0].children[1].text.ToLower())
+            if (args.Length == 1)
+            { 
+                if (args[0].rule == "global_reset")
                 {
-                    case "default":
-                        if (args[0].rule.EndsWith("_set"))
-                            return new QClear(env, text, args[0].children[0].text, true);
-                        else if (args[0].rule.EndsWith("_var"))
-                            return new QClear(env, text, args[0].children[0].text, true);
-                        break;
+                    return new QClear(env, text, args[0].rule, true);
+                }
+                else if (args[0].rule == "local_reset")
+                {
+                    return new QClear(env, text, args[0].rule, false);
+                }
+                else if (args[0].rule == "local_current")
+                {
+                    return new QCurrent(env, text, args[0].rule, false);
+                }
+                else if((args[0].children.Length == 2)
+                &&  args[0].children[0].rule.EndsWith("_key", StringComparison.InvariantCultureIgnoreCase)
+                &&  args[0].children[1].rule.EndsWith("_option", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    switch (args[0].children[1].text.ToLower())
+                    {
+                        case "default":
+                            if (args[0].rule.EndsWith("_set"))
+                                return new QClear(env, text, args[0].children[0].text, true);
+                            else if (args[0].rule.EndsWith("_var"))
+                                return new QClear(env, text, args[0].children[0].text, true);
+                            break;
 
-                    default:
-                        if (args[0].rule.EndsWith("_set"))
-                            return new QSet(env, text, args[0].children[0].text, args[0].children[1].text, true);
-                        else if (args[0].rule.EndsWith("_var"))
-                            return new QSet(env, text, args[0].children[0].text, args[0].children[1].text, false);
-                        break;
+                        default:
+                            if (args[0].rule.EndsWith("_set"))
+                                return new QSet(env, text, args[0].children[0].text, args[0].children[1].text, true);
+                            else if (args[0].rule.EndsWith("_var"))
+                                return new QSet(env, text, args[0].children[0].text, args[0].children[1].text, false);
+                            break;
+                    }
                 }
             }
             return null;
