@@ -57,9 +57,9 @@ namespace BlueprintBlue
                 }
                 this.Expansion = expandable.ToString();
 
-                if (statement.Commands != null && statement.Commands.Macro != null)
+                if (statement.Commands != null)
                 {
-                    if (isMacroDef)
+                    if (statement.Commands.Macro != null)
                         statement.Context.AddMacro(this, statement.Commands.Macro.Label);
                 }
                 else

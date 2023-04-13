@@ -1,10 +1,7 @@
 namespace Blueprint_Blue_Test
 {
     using Pinshot.Blue;
-    using Pinshot.PEG;
     using Blueprint.Blue;
-    using static System.Runtime.InteropServices.JavaScript.JSType;
-    using BlueprintBlue;
 
     [TestClass]
     public class BlueprintTests
@@ -39,7 +36,7 @@ namespace Blueprint_Blue_Test
             Assert.IsNotNull(QContext.AVXObjects.lemmata);
             Assert.IsNotNull(QContext.AVXObjects.oov);
 
-            Assert.IsTrue(QContext.AVXObjects.written.GetLexRecord(1).found);
+            Assert.IsTrue(QContext.AVXObjects.written.GetReverseLex("in") > 0);
             //Assert.IsTrue(QContext.AVXObjects.lexicon.); // TODO: TO DO: refactor lexical methods from written to lexicon object
             Assert.IsTrue(QContext.AVXObjects.lemmata.FindLemmataUsingWordKey(1).Length > 0);
             Assert.IsTrue(QContext.AVXObjects.oov.GetReverseEntry("elm") != 0);
@@ -117,7 +114,7 @@ namespace Blueprint_Blue_Test
             }
         }
         [TestMethod]
-        public void NegateTem()
+        public void NegateTerm()
         {
             string stmt = "-- spoke";
         }
@@ -130,6 +127,24 @@ namespace Blueprint_Blue_Test
         public void CompoundStatementWithOutput()
         {
             string stmt = @"%exact = default %exact::1 %format::json ""help ... time [of need]"" + please + help time of|for&/noun/ need + greetings < Genesis [1 2 10] => c:\filename";
+        }
+        [TestMethod]
+        public void SimpleSearch()
+        {
+            string stmt = "james";
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
+
+            if (root.blueprint.Commands != null) // silence the compiler of warnings
+            {
+                ;
+            }
         }
         [TestMethod]
         public void SearchWithPOS()

@@ -8,11 +8,11 @@ namespace Blueprint.Blue
         public QLemma(QFind search, string text, Parsed parse) : base(search, text, parse)
         {
             var normalized = text.ToLower();
-            var lex = QContext.AVXObjects.written.GetReverseLexRecordExtensive(normalized);
+            var lex = QContext.AVXObjects.written.GetReverseLexExtensive(normalized);
 
-            if (lex.found)
+            if (lex > 0)
             {
-                var lemmas = QContext.AVXObjects.lemmata.FindLemmataUsingWordKey(lex.key);
+                var lemmas = QContext.AVXObjects.lemmata.FindLemmataUsingWordKey(lex);
 
                 if (lemmas != null) 
                 {
@@ -20,7 +20,7 @@ namespace Blueprint.Blue
                     return;  // If it is OOV, we can infer that this is a lemma
                 }
 
-                lemmas = QContext.AVXObjects.lemmata.FindLemmataInList(lex.key);
+                lemmas = QContext.AVXObjects.lemmata.FindLemmataInList(lex);
 
                 if (lemmas != null)
                 {

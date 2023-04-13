@@ -32,16 +32,15 @@ namespace Blueprint.Blue
                 var beginQuote = fulltext.StartsWith("\"");
                 var endQuote = fulltext.StartsWith("\"");
 
-                this.IsQuoted = true;
+                this.IsQuoted = beginQuote && endQuote;
 
-                this.Valid = !(fulltext.Contains('"') && !this.IsQuoted);
-                    return;
+                this.Valid = this.IsQuoted ? true : !fulltext.Contains('"');
             }
 
             if (this.Valid)
             {
                 string rule = this.IsQuoted ? "ordered" : "unordered";
-                this.Valid = (args.Length == 1 && args[0].rule == rule && args[0].children.Length > 0);
+                this.Valid = (args.Length == 1) && args[0].rule.Equals(rule, StringComparison.InvariantCultureIgnoreCase) && (args[0].children.Length > 0);
             }
             if (this.Valid)
             {
