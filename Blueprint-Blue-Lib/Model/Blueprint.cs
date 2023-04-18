@@ -22,7 +22,7 @@
                 {
                     if (root.result[0].text.StartsWith('@'))
                     {
-                        stmt.Singleton = Blueprint.CreateSingleton(stmt.Context, root.result[0]);
+                        stmt.Singleton = Blueprint.CreateSingleton(stmt.Context, root.result[0], stmt);
                         stmt.IsValid = stmt.Singleton != null;
                         if (!stmt.IsValid)
                             stmt.Errors.Add("Unable to extract explicit command.");
@@ -91,11 +91,11 @@
             }
             return new QStatement() { Commands = null, Singleton = null, ParseDiagnostic = "", Errors = new() { "Unknown error: unable to perform statement parsing" }, Warnings = new(), IsValid = false, Text = "" };
         }
-        public static QExplicitCommand? CreateSingleton(QContext env, Parsed stmt)
+        public static QExplicitCommand? CreateSingleton(QContext env, Parsed stmt, QStatement diagnostics)
         {
             return QExplicitCommand.Create(env, stmt);
         }
-        public static QImplicitCommands? CreateCommandVector(QContext env, Parsed stmt, IStatement diagnostics)
+        public static QImplicitCommands? CreateCommandVector(QContext env, Parsed stmt, QStatement diagnostics)
         {
             return QImplicitCommands.Create(env, stmt, diagnostics);
         }

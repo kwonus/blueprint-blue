@@ -175,7 +175,7 @@
             this.ExpandedParts = new List<QImplicitCommand>();
         }
 
-        public static QImplicitCommands? Create(QContext context, Parsed stmt, IStatement diagnostics)
+        public static QImplicitCommands? Create(QContext context, Parsed stmt, QStatement diagnostics)
         {
             bool valid = false;
             var commandSet = new QImplicitCommands(context, stmt.text);

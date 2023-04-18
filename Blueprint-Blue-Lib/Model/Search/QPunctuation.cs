@@ -9,5 +9,10 @@ namespace Blueprint.Blue
         {
             this.Punctuation = 0;
         }
+        public override IEnumerable<string> AsYaml()
+        {
+            yield return "- feature: " + this.Text;
+            yield return "  punctuation: 0x" + this.Punctuation.ToString("X");
+        }
     }
 }

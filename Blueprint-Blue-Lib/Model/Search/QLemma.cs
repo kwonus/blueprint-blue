@@ -1,6 +1,8 @@
 namespace Blueprint.Blue
 {
     using Pinshot.PEG;
+    using System.Text;
+
     public class QLemma : QFeature, IFeature
     {
         public UInt16[] Lemmata { get; private set; }
@@ -8,7 +10,7 @@ namespace Blueprint.Blue
         public QLemma(QFind search, string text, Parsed parse) : base(search, text, parse)
         {
             var normalized = text.ToLower();
-            var lex = QContext.AVXObjects.written.GetReverseLexExtensive(normalized);
+            var lex = QContext.AVXObjects.written.GetReverseLexExtensive(normalized)[0];
 
             if (lex > 0)
             {
@@ -50,6 +52,22 @@ namespace Blueprint.Blue
                 }
             }
             this.Lemmata = new UInt16[0];
+        }
+        public override IEnumerable<string> AsYaml()
+        {
+            yield return "- feature: " + this.Text;
+            string delimiter = "";
+            var result = new StringBuilder("  lemmata: [ ", 48);
+            foreach (var lemma in this.Lemmata)
+            {
+                if (delimiter.Length > 0)
+                    result.Append(delimiter);
+                else
+                    delimiter = ", ";
+
+                result.Append(lemma.ToString());
+            }
+            yield return (delimiter.Length > 0) ? result.ToString() + " ]" : "";
         }
     }
 }

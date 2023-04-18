@@ -50,6 +50,10 @@ namespace Blueprint.Blue
         {
             return this.Value.ToString();
         }
+        public string AsYaml()
+        {
+            return "span: " + this.ToString();
+        }
     }
     public class QExact
     {
@@ -83,6 +87,10 @@ namespace Blueprint.Blue
         public override string ToString()
         {
             return this.Value ? "true" : "false";
+        }
+        public string AsYaml()
+        {
+            return "exact: " + this.ToString();
         }
     }
     public class QDomain
@@ -127,6 +135,10 @@ namespace Blueprint.Blue
         public override string ToString()
         {
             return QDomain.ToString(this.Value);
+        }
+        public string AsYaml()
+        {
+            return "lexicon: " + this.ToString();
         }
     }
     public class QFormat
@@ -178,6 +190,10 @@ namespace Blueprint.Blue
         {
             return QFormat.ToString(this.Value);
         }
+        public string AsYaml()
+        {
+            return "format: " + this.ToString();
+        }
     }
     public abstract class QVariable : QImplicitCommand, ICommand
     {
@@ -204,7 +220,7 @@ namespace Blueprint.Blue
             switch (setting.Trim().ToLower())
             {
                 case "span":   return QSpan.DEFAULT.ToString();
-                case "domain": return QDomain.DEFAULT.ToString();
+                case "lexicon": return QDomain.DEFAULT.ToString();
                 case "exact":  return QExact.DEFAULT.ToString();
                 case "format": return QFormat.DEFAULT.ToString();
             }

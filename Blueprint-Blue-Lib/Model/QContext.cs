@@ -3,17 +3,29 @@
     using AVXLib.Framework;
     using BlueprintBlue;
     using System.Linq;
+    using System.Text;
 
-    public class QContext: IStatement
+    public class QContext
     {
         public QSettings GlobalSettings { get; set; }
         public QSettings LocalSettings { get; set; }
+
+        public List<string> AsYaml()
+        {
+            var yaml = new List<string>();
+            yaml.Add("settings:");
+            foreach (var line in this.LocalSettings.AsYaml())
+            {
+                yaml.Add("  " + line);
+            }
+            return yaml;
+        }
 
         public string   User   { get; set; }
         public string   Session{ get; set; }
         public UInt16[]?Fields { get; set; }
 
-        private IStatement Statement { get; set; }
+        public QStatement Statement { get; private set; }
 
         public string HistoryPath { get; private set; } // not used yet
         public string MacroPath { get; private set; }   // not used yet
@@ -22,7 +34,7 @@
 
         private Dictionary<UInt32, QExpandableStatement> History = new();
 
-        public QContext(IStatement statement, string session)
+        public QContext(QStatement statement, string session)
         {
 
             this.Statement = statement;

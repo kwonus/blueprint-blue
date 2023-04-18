@@ -2,12 +2,13 @@ namespace Blueprint.Blue
 {
    public interface ICommand
     {
-        public string Text { get; }
-        public string Verb { get; }
-        public QContext Context { get; }
-        public bool IsExplicit { get; }
+        string Text { get; }
+        string Verb { get; }
+        QContext Context { get; }
+        bool IsExplicit { get; }
 
-        public string Expand();
+        string Expand();
+        List<string> AsYaml();
     }
 
     public class QCommand
@@ -22,6 +23,10 @@ namespace Blueprint.Blue
             this.Context = context;
             this.Text = text;
             this.Verb = verb;
+        }
+        virtual public List<string> AsYaml()
+        {
+            return new List<string>();
         }
     }
 }

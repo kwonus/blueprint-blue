@@ -4,10 +4,11 @@ namespace Blueprint.Blue
 
     public interface IFeature
     {
-        public string Text { get; }
+        string Text { get; }
+        IEnumerable<string> AsYaml();
     }
 
-    public class QFeature : IFeature // This is mostly redundant with QSearchFeature. The inheritance aspect of this class needs to be preserved 
+    public abstract class QFeature : IFeature // This is mostly redundant with QSearchFeature. The inheritance aspect of this class needs to be preserved 
     {
         public string Text { get; private set; }
         public Parsed Parse { get; private set; }
@@ -48,5 +49,6 @@ namespace Blueprint.Blue
             }
             return null;
         }
+        public abstract IEnumerable<string> AsYaml();
     }
 }

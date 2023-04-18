@@ -4,15 +4,7 @@ using Pinshot.PEG;
 
 namespace Blueprint.Blue
 {
-    public interface IStatement
-    {
-        void AddError(string message);
-        void AddWarning(string message);
-
-        QSettings GlobalSettings { get; set; }
-        QSettings LocalSettings  { get; set; }
-    }
-    public class QStatement: IStatement
+    public class QStatement
     {
         public string Text { get; set; }
         public bool IsValid { get; set; }

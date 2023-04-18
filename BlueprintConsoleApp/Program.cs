@@ -1,4 +1,5 @@
-﻿namespace BlueprintConsoleApp
+﻿
+namespace BlueprintConsoleApp
 {
     using Pinshot.Blue;
     using Pinshot.PEG;
@@ -8,6 +9,8 @@
     using AVXLib.Memory;
     using static AVXLib.Framework.Numerics;
     using System;
+    using System.Numerics;
+    using System.Runtime.Intrinsics;
 
     internal class Program
     {
@@ -30,7 +33,7 @@
         }
         //      const string TestStmt = "\"\\foo\\ ... [he said] ... /pronoun/&/3p/\" + bar + x|y&z a&b&c > xfile < genesis 1:1";
         //      static string[] TestStmt = { "@Help find", "format=@", "help", "please + help ... time of|for&/noun/ need + greetings" };
-        //       static string[] TestStmt = { "%exact = 1 || Exacto", "$Exacto", "-- spoke", @"%exact = default %exact::1 %format::json ""help ... time [of need]"" + please + help time of|for&/noun/ need + greetings < Genesis [1 2 10] => c:\filename" };
+        //      static string[] TestStmt = { "%exact = 1 || Exacto", "$Exacto", "-- spoke", @"%exact = default %exact::1 %format::json ""help ... time [of need]"" + please + help time of|for&/noun/ need + greetings < Genesis [1 2 10] => c:\filename" };
 
         static AVXLib.ObjectTable AVX = QContext.AVXObjects;
         static void Main(string[] args)
@@ -44,6 +47,8 @@
                     
                     if (result.blueprint != null)
                     {
+                        var yaml = new List<string>();
+                        
                         QStatement blueprint = result.blueprint;
 
                         if (blueprint.Errors.Count > 0)
@@ -74,16 +79,54 @@
                             else if (blueprint.Commands != null)
                             {
                                 if (blueprint.Commands.Macro != null)
+                                {
                                     ProcessMacro(blueprint.Commands);
-                                else if (blueprint.Commands.Searches.Any())
-                                    ProcessSearch(blueprint.Commands);
+                                }
                                 else
-                                    ProcessOther(blueprint.Commands);
+                                {
+                                    if (blueprint.Commands.Assignments.Any())
+                                    {
+                                        foreach (var detail in blueprint.Commands.Assignments)
+                                        {
+                                            // process all assignments in QContext object
+                                        }
+                                    }
+                                    yaml = result.blueprint.Context.AsYaml();
+
+                                    if (blueprint.Commands.Filters.Any())
+                                    {
+                                        yaml.Add("scope:");
+                                        foreach (var detail in blueprint.Commands.Filters)
+                                        {
+                                            foreach (var entry in detail.AsYaml())
+                                                yaml.Add("  " + entry);
+                                        }
+                                        ProcessSearch(blueprint.Commands);
+                                    }
+                                    if (blueprint.Commands.Searches.Any())
+                                    {
+                                        yaml.Add("search:");
+                                        foreach (var detail in blueprint.Commands.Searches)
+                                        {
+                                            foreach (var entry in detail.AsYaml())
+                                                yaml.Add("  " + entry);
+                                        }
+                                        ProcessSearch(blueprint.Commands);
+                                    }
+                                    else
+                                    {
+                                        ProcessOther(blueprint.Commands);
+                                    }
+                                }
                             }
                             else
                             {
                                 Console.Error.WriteLine("Possible logic error");
                             }
+                        }
+                        foreach (var entry in yaml)
+                        {
+                            Console.WriteLine(entry);
                         }
                     }
                     else if (result.pinshot != null)
@@ -153,7 +196,7 @@
                                 var ftype = feature.GetType();
                                 if (ftype == typeof(QWord))
                                 {
-                                    hit = (writ.WordKey & 0x3FFF) == ((QWord)feature).WordKey;
+                                    hit = (writ.WordKey & 0x3FFF) == (uint)((QWord)feature).WordKeys[0];    // todo: wordkeys is now multi-valued
                                 }
                                 else if (ftype == typeof(QLemma))
                                 {

@@ -15,14 +15,14 @@ namespace Blueprint.Blue
                 {
                     using (StreamWriter sw = File.CreateText(this.BackingStore))
                     {
-                        if (this.Domain.Value != QDomain.DEFAULT)
-                            sw.WriteLine("domain: " + this.Domain.ToString());
+                        if (this.Lexicon.Value != QDomain.DEFAULT)
+                            sw.WriteLine(this.Lexicon.AsYaml());
                         if (this.Exact.Value != QExact.DEFAULT)
-                            sw.WriteLine("exact:  " + this.Exact.ToString());
+                            sw.WriteLine(this.Exact.AsYaml());
                         if (this.Format.Value != QFormat.DEFAULT)
-                            sw.WriteLine("format: " + this.Format.ToString());
+                            sw.WriteLine(this.Format.AsYaml());
                         if (this.Span.Value != QSpan.DEFAULT)
-                            sw.WriteLine("span:   " + this.Span.ToString());
+                            sw.WriteLine(this.Span.AsYaml());
                     }
                 }
                 catch
@@ -47,20 +47,20 @@ namespace Blueprint.Blue
 
                         switch (trimmed)
                         {
-                            case "span": this.Span = new QSpan(kv[1]); break;
-                            case "domain": this.Domain = new QDomain(kv[1]); break;
-                            case "exact": this.Exact = new QExact(kv[1]); break;
-                            case "format": this.Format = new QFormat(kv[1]); break;
+                            case "span":    this.Span = new QSpan(kv[1]); break;
+                            case "lexicon": this.Lexicon = new QDomain(kv[1]); break;
+                            case "exact":   this.Exact = new QExact(kv[1]); break;
+                            case "format":  this.Format = new QFormat(kv[1]); break;
                         }
                     }
                 }
             }
             return true;
         }
-        public QFormat Format { get; set; }
-        public QDomain Domain { get; set; }
-        public QSpan Span     { get; set; }
-        public QExact Exact   { get; set; }
+        public QFormat Format  { get; set; }
+        public QDomain Lexicon { get; set; }
+        public QSpan Span      { get; set; }
+        public QExact Exact    { get; set; }
 
         private string? BackingStore;
 
@@ -89,7 +89,7 @@ namespace Blueprint.Blue
         public QSettings ResetDefaults()
         {
             this.Format = new QFormat();
-            this.Domain = new QDomain();
+            this.Lexicon = new QDomain();
             this.Span   = new QSpan();
             this.Exact  = new QExact();
             return this;
@@ -97,11 +97,20 @@ namespace Blueprint.Blue
         public QSettings CopyFrom(QSettings source)
         {
             this.Format = new QFormat(source.Format.Value);
-            this.Domain = new QDomain(source.Domain.Value);
+            this.Lexicon = new QDomain(source.Lexicon.Value);
             this.Span   = new QSpan(source.Span.Value);
             this.Exact  = new QExact(source.Exact.Value);
 
             return this;
+        }
+        public List<string> AsYaml()
+        {
+            var yaml = new List<string>();
+            yaml.Add(this.Span.AsYaml());
+            yaml.Add(this.Exact.AsYaml());
+            yaml.Add(this.Format.AsYaml());
+            yaml.Add(this.Lexicon.AsYaml());
+            return yaml;
         }
     }
 }

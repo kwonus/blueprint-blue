@@ -22,5 +22,22 @@ namespace Blueprint.Blue
             }
             Anchored = anchored;
         }
+        public List<string> AsYaml()
+        {
+            var yaml = new List<string>();
+
+            yaml.Add("- segment: " + this.Text);
+            yaml.Add("  anchored: " + this.Anchored.ToString().ToLower());
+
+            foreach (var fragment in this.Fragments)
+            {
+                var fragment_yaml = fragment.AsYaml();
+                foreach (var line in fragment_yaml)
+                {
+                    yaml.Add("  " + line);
+                }
+            }
+            return yaml;
+        }
     }
 }

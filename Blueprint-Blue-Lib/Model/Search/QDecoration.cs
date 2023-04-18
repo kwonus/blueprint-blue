@@ -9,5 +9,10 @@ namespace Blueprint.Blue
         {
             this.Decoration = 0;
         }
+        public override IEnumerable<string> AsYaml()
+        {
+            yield return "- feature: " + this.Text;
+            yield return "  decoration: 0x" + this.Decoration.ToString("X");
+        }
     }
 }

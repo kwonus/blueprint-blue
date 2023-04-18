@@ -31,5 +31,10 @@
             }
             this.Strongs = (0, 'X');
         }
+        public override IEnumerable<string> AsYaml()
+        {
+            yield return "- feature: " + this.Text;
+            yield return "  strongs: " + this.Strongs.lang + this.Strongs.strongs;
+        }
     }
 }

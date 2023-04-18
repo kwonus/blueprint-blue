@@ -4,6 +4,7 @@ namespace Blueprint.Blue
     {
         bool Positive { get; }
         string Text { get; }
+        string AsYaml();
     }
 
     public class QPolarityPositive : IPolarity
@@ -21,6 +22,11 @@ namespace Blueprint.Blue
             ;
         }
         public readonly static QPolarityPositive POLARITY_DEFAULT = new QPolarityPositive();
+
+        public string AsYaml()
+        {
+            return "negate: false";
+        }
     }
 
     public class QPolarityNegative : IPolarity
@@ -34,6 +40,10 @@ namespace Blueprint.Blue
         public bool Positive
         {
             get => false;
+        }
+        public string AsYaml()
+        {
+            return "negate: true";
         }
     }
 }

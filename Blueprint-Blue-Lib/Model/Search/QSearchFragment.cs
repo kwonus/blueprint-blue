@@ -21,5 +21,21 @@ namespace Blueprint.Blue
                     this.Search.Context.AddError("A feature was identified that could not be parsed: " + text);
             }
         }
+        public List<string> AsYaml()
+        {
+            var yaml = new List<string>();
+
+            yaml.Add("- fragment: " + this.Text);
+
+            foreach (var feature in this.Features)
+            {
+                var fragment_yaml = feature.AsYaml();
+                foreach (var line in fragment_yaml)
+                {
+                    yaml.Add("  " + line);
+                }
+            }
+            return yaml;
+        }
     }
 }

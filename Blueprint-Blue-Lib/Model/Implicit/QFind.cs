@@ -74,5 +74,25 @@ namespace Blueprint.Blue
 
             return search.Valid ? search : null;
         }
+        public override List<string> AsYaml()
+        {
+            var yaml = new List<string>();
+            if (this.Valid)
+            {
+                yaml.Add("- find: " + this.Text);
+                yaml.Add("  " + this.Polarity.AsYaml());
+                yaml.Add("  quoted: " + this.IsQuoted.ToString().ToLower());
+
+                foreach (var segment in this.Segments)
+                {
+                    var segments_yaml = segment.AsYaml();
+                    foreach (var line in segments_yaml)
+                    {
+                        yaml.Add("  " + line);
+                    }
+                }
+            }
+            return yaml;
+        }
     }
 }

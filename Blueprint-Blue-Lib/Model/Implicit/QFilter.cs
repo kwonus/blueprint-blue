@@ -1,4 +1,5 @@
 using Pinshot.PEG;
+using System.Text;
 
 namespace Blueprint.Blue
 {
@@ -20,6 +21,12 @@ namespace Blueprint.Blue
         public static QFilter? Create(QContext env, string text, Parsed[] args)
         {
             return args.Length == 1 ? new QFilter(env, text, args[0].rule, args[0].text) : null;
+        }
+        public override List<string> AsYaml()
+        {
+            var yaml = new List<string>();
+            yaml.Add("- include: " + this.Filter);
+            return yaml;
         }
     }
 }

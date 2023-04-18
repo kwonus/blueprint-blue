@@ -128,5 +128,19 @@ namespace Blueprint.Blue
                 search.Context.AddError("Unable to determine part-ofospeech from: \"" + text + "\"");
             }
         }
+        public override IEnumerable<string> AsYaml()
+        {
+            yield return "- feature: " + this.Text;
+            if (this.PnPos12 != 0)
+            {
+                yield return "  negate: " + this.Negate.ToString().ToLower();
+                yield return "  pos16: 0x" + this.PnPos12.ToString("X");
+            }
+            else if (this.Pos32 != 0)
+            {
+                yield return "  negate: " + this.Negate.ToString().ToLower();
+                yield return "  pos32: 0x" + this.PnPos12.ToString("X");
+            }
+        }
     }
 }
