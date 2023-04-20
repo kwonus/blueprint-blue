@@ -3,6 +3,7 @@
     using AVXLib.Framework;
     using BlueprintBlue;
     using System.Linq;
+    using System.Security.Cryptography;
     using System.Text;
 
     public class QContext
@@ -19,6 +20,21 @@
                 yaml.Add("  " + line);
             }
             return yaml;
+        }
+        public XSettings AsMessage()
+        {
+            var xdomain = this.LocalSettings.Lexicon.Value == QDomain.QDomainVal.AV ? XLexEnum.AV : XLexEnum.AVX;
+            var xformat = XFmtEnum.JSON;
+            if (this.LocalSettings.Format.Value != QFormat.QFormatVal.JSON)
+            {
+                if (this.LocalSettings.Format.Value != QFormat.QFormatVal.TEXT)
+                    xformat = XFmtEnum.TEXT;
+                else if (this.LocalSettings.Format.Value != QFormat.QFormatVal.HTML)
+                    xformat = XFmtEnum.HTML;
+                else if (this.LocalSettings.Format.Value != QFormat.QFormatVal.MD)
+                    xformat = XFmtEnum.MD;
+            }
+            return new XSettings() { Exact = this.LocalSettings.Exact.Value, Span = this.LocalSettings.Span.Value, Format = xformat, Lexicon = xdomain };
         }
 
         public string   User   { get; set; }

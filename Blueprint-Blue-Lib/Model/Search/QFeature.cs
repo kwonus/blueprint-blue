@@ -50,5 +50,7 @@ namespace Blueprint.Blue
             return null;
         }
         public abstract IEnumerable<string> AsYaml();
+
+        public abstract XFeature AsMessage();
     }
 }

@@ -1,16 +1,11 @@
 ﻿
 namespace BlueprintConsoleApp
 {
-    using Pinshot.Blue;
     using Pinshot.PEG;
     using Blueprint.Blue;
-    using BlueprintBlue;
-    using static System.Runtime.InteropServices.JavaScript.JSType;
-    using AVXLib.Memory;
-    using static AVXLib.Framework.Numerics;
     using System;
-    using System.Numerics;
-    using System.Runtime.Intrinsics;
+    using FlatSharp;
+    using Blueprint;
 
     internal class Program
     {
@@ -31,9 +26,9 @@ namespace BlueprintConsoleApp
                 }
             }
         }
-        //      const string TestStmt = "\"\\foo\\ ... [he said] ... /pronoun/&/3p/\" + bar + x|y&z a&b&c > xfile < genesis 1:1";
-        //      static string[] TestStmt = { "@Help find", "format=@", "help", "please + help ... time of|for&/noun/ need + greetings" };
-        //      static string[] TestStmt = { "%exact = 1 || Exacto", "$Exacto", "-- spoke", @"%exact = default %exact::1 %format::json ""help ... time [of need]"" + please + help time of|for&/noun/ need + greetings < Genesis [1 2 10] => c:\filename" };
+//      const string TestStmt = "\"\\foo\\ ... [he said] ... /pronoun/&/3p/\" + bar + x|y&z a&b&c > xfile < genesis 1:1";
+//      static string[] TestStmt = { "@Help find", "format=@", "help", "please + help ... time of|for&/noun/ need + greetings" };
+//      static string[] TestStmt = { "%exact = 1 || Exacto", "$Exacto", "-- spoke", @"%exact = default %exact::1 %format::json ""help ... time [of need]"" + please + help time of|for&/noun/ need + greetings < Genesis [1 2 10] => c:\filename" };
 
         static AVXLib.ObjectTable AVX = QContext.AVXObjects;
         static void Main(string[] args)
@@ -93,8 +88,11 @@ namespace BlueprintConsoleApp
                                     }
                                     yaml = result.blueprint.Context.AsYaml();
 
+                                    var call_cfunc = false;
+
                                     if (blueprint.Commands.Filters.Any())
                                     {
+                                        call_cfunc = true;
                                         yaml.Add("scope:");
                                         foreach (var detail in blueprint.Commands.Filters)
                                         {
@@ -105,6 +103,7 @@ namespace BlueprintConsoleApp
                                     }
                                     if (blueprint.Commands.Searches.Any())
                                     {
+                                        call_cfunc = true;
                                         yaml.Add("search:");
                                         foreach (var detail in blueprint.Commands.Searches)
                                         {
@@ -116,6 +115,17 @@ namespace BlueprintConsoleApp
                                     else
                                     {
                                         ProcessOther(blueprint.Commands);
+                                    }
+                                    if (!blueprint.Commands.Context.Statement.IsValid)
+                                    {
+                                        ;
+                                    }
+                                    else if (call_cfunc)
+                                    {
+                                        XRequest request = blueprint.Commands.AsSearchRequest();
+                                        int maxBytesNeeded = XRequest.Serializer.GetMaxSize(request);
+                                        byte[] bytes = new byte[maxBytesNeeded];
+                                        int bytesWritten = XRequest.Serializer.Write(bytes, request);
                                     }
                                 }
                             }

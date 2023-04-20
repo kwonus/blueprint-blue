@@ -31,5 +31,14 @@ namespace Blueprint.Blue
             }
             yield return (delimiter.Length > 0) ? result.ToString() + " ]" : "";
         }
+        public override XFeature AsMessage()
+        {
+            var keys = new List<UInt16>(this.WordKeys);
+            var word = new XWord() { Wkeys = keys };
+            var compare = new XCompare(word);
+            var feature = new XFeature { Feature = this.Text, Negate = false, Rule = "word", Match = compare };
+
+            return feature;
+        }
     }
 }

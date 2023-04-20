@@ -142,5 +142,23 @@ namespace Blueprint.Blue
                 yield return "  pos32: 0x" + this.PnPos12.ToString("X");
             }
         }
+        public override XFeature AsMessage()
+        {
+            XCompare compare;
+            if (this.Pos32 != 0)
+            {
+                var pos = new XPOS32() { Pos = this.Pos32 };
+                compare = new XCompare(pos);
+            }
+            else
+            {
+                var pos = new XPOS16() { Pnpos = this.PnPos12 };
+                compare = new XCompare(pos);
+            }
+            var feature = new XFeature { Feature = this.Text, Negate = this.Negate, Rule = "decoration", Match = compare };
+
+            return feature;
+            
+        }
     }
 }

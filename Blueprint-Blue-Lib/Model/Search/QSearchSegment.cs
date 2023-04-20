@@ -39,5 +39,15 @@ namespace Blueprint.Blue
             }
             return yaml;
         }
+        public XSegment AsMessage()
+        {
+            var segment = new XSegment { Anchored = this.Anchored, Segment = this.Text, Fragments = new List<XFragment>() };
+
+            foreach (var fragment in this.Fragments)
+            {
+                segment.Fragments.Add(fragment.AsMessage());
+            }
+            return segment;
+        }
     }
 }

@@ -8,6 +8,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <FlatSharpSchema Include="blueprint.fbs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FlatSharp.Compiler" Version="7.1.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="FlatSharp.Runtime" Version="7.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Digital-AV\omega\foundations\csharp\AVXLib\AVXLib.csproj" />
   </ItemGroup>
 

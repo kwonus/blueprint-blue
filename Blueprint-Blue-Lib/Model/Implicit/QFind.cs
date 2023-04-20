@@ -66,7 +66,7 @@ namespace Blueprint.Blue
                         break;
                 }
             }
-            
+
         }
         public static QFind? Create(QContext env, string text, Parsed[] args)
         {
@@ -93,6 +93,16 @@ namespace Blueprint.Blue
                 }
             }
             return yaml;
+        }
+        public XSearch AsMessage()
+        {
+            var search = new XSearch { Search = this.Text, Quoted = this.IsQuoted, Negate = !this.Polarity.Positive, Segments = new List<XSegment>() };
+
+            foreach (var segment in this.Segments)
+            {
+                search.Segments.Add(segment.AsMessage());
+            }
+            return search;
         }
     }
 }

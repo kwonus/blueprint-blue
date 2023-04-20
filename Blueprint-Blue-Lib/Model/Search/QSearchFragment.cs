@@ -37,5 +37,15 @@ namespace Blueprint.Blue
             }
             return yaml;
         }
+        public XFragment AsMessage()
+        {
+            var fragment = new XFragment { Fragment = this.Text, Features = new List<XFeature>() };
+
+            foreach (var feature in this.Features)
+            {
+                fragment.Features.Add(feature.AsMessage());
+            }
+            return fragment;
+        }
     }
 }

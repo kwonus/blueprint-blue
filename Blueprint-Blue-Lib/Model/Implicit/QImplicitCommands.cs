@@ -259,5 +259,50 @@
             }
             return valid ? commandSet : null;
         }
+        public XRequest AsSearchRequest()
+        {
+            var request = new XRequest() { Scope = null, Search = new List<XSearch>(), Settings = this.Context.AsMessage() };
+
+            if (this.Context.Statement.IsValid)
+            {
+                if (this.Filters.Any())
+                {
+                    request.Scope = new List<XScope>();
+                    foreach (var detail in this.Filters)
+                    {
+                        request.Scope.Add(detail.AsMessage());
+                    }
+                }
+                if (this.Searches.Any())
+                {
+                    foreach (var detail in this.Searches)
+                    {
+                        request.Search.Add(detail.AsMessage());
+                    }
+                }
+            }
+            return request;
+        }
+        public XRender AsRenderingRequest(XScope scope)
+        {
+            var request = new XRender() { Render = scope, Search = new List<XSearch>(), Settings = this.Context.AsMessage() };
+
+            if (this.Context.Statement.IsValid)
+            {
+                if (this.Searches.Any())
+                {
+                    foreach (var detail in this.Searches)
+                    {
+                        request.Search.Add(detail.AsMessage());
+                    }
+                }
+            }
+            return request;
+        }
+        public static XRender ConvertToRenderingRequest(XRequest request, XScope scope)
+        {
+            var render = new XRender() { Render = scope, Search = request.Search, Settings = request.Settings };
+            return render;
+        }
     }
 }

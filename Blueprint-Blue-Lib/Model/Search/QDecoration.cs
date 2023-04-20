@@ -3,7 +3,7 @@ namespace Blueprint.Blue
     using Pinshot.PEG;
     public class QDecoration : QFeature, IFeature
     {
-        public int Decoration { get; set; }
+        public byte Decoration { get; set; }
 
         public QDecoration(QFind search, string text, Parsed parse) : base(search, text, parse)
         {
@@ -13,6 +13,14 @@ namespace Blueprint.Blue
         {
             yield return "- feature: " + this.Text;
             yield return "  decoration: 0x" + this.Decoration.ToString("X");
+        }
+        public override XFeature AsMessage()
+        {
+            var decor = new XPunctuation() { Bits = this.Decoration };
+            var compare = new XCompare(decor);
+            var feature = new XFeature { Feature = this.Text, Negate = false, Rule = "decoration", Match = compare };
+
+            return feature;
         }
     }
 }

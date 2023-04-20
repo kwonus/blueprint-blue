@@ -1,0 +1,128 @@
+﻿attribute "fs_serializer";
+
+namespace Blueprint;
+
+enum XLexEnum:  byte { AV = 0, AVX = 1 }
+enum XFmtEnum:  byte { JSON = 0, TEXT = 1, HTML = 2, MD = 3 }
+enum XLangEnum: byte { H = 1, G = 2, X = 0 }
+
+table XRequest (fs_serializer) {
+    settings:    XSettings   (required);
+    search:    [ XSearch ]   (required);
+    scope:     [ XScope ];
+}
+
+table XRender (fs_serializer) {
+    settings:    XSettings   (required);
+    search:    [ XSearch ];
+    render:      XScope      (required);
+}
+
+table XSearch (fs_serializer) {
+    search:      string      (required);
+    negate:      bool        = false;
+    quoted:      bool        = false;
+    segments:  [ XSegment ]  (required);
+}
+
+table XSegment (fs_serializer) {
+    segment:     string      (required);
+    anchored:    bool        = false;
+    fragments:  [ XFragment ] (required);
+}
+
+table XFragment (fs_serializer) {
+    fragment:    string      (required);
+    features:  [ XFeature ]  (required);
+}
+
+union XCompare {
+    text:        XWord,
+    lemma:       XLemma,
+    pos16:       XPOS16,
+    pos32:       XPOS32,
+    punctuation: XPunctuation,
+    transition:  XTransition,
+    strongs:     XStrongs,
+    delta:       XDelta
+}
+
+table XFeature (fs_serializer) {
+    feature:     string      (required);
+    rule:        string      (required);
+    negate:      bool        = false;
+    match:       XCompare    (required);
+}
+
+table XWord (fs_serializer) {
+    wkeys:     [ uint16 ] (required);
+}
+
+table XLemma (fs_serializer) {
+    lemmata:   [ uint16 ] (required);
+}
+
+table XPOS32 (fs_serializer) {
+    pos:         uint32;
+}
+
+table XPOS16 (fs_serializer) {
+    pnpos:       uint16;
+}
+
+table XPunctuation (fs_serializer) {
+    bits:        uint8;
+}
+
+table XTransition (fs_serializer) {
+    bits:        uint8;
+}
+
+table XStrongs (fs_serializer) {
+    lang:        XLangEnum = X;    
+    number:      uint16;
+}
+
+table XDelta (fs_serializer) {
+    differs:     bool      = true; // must be explicitly set to T or F
+}
+
+table XSettings (fs_serializer) {
+    exact:       bool     = false;
+    span:        uint16   = 0;
+    lexicon:     XLexEnum = AV;
+    format:      XFmtEnum = JSON;
+}
+
+table XScope (fs_serializer) {
+    book:        uint8 = 0;      // required
+    chapter:     uint8 = 0;      // required
+    verse:       uint8 = 1;      // optional
+    vcount:      uint8 = 255;    // optional: verse-count: defaults to all remaining verses in chapter
+}
+
+table XResults (fs_serializer) {
+    settings:    XSettings (required);
+    scope:     [ XScope ]  (required);
+    matches:   [ XFind ];
+    errors:    [ string ];
+    warnings:  [ string ];
+}
+
+table XFind (fs_serializer) {
+    search:      string    (required);
+    negate:      bool      = false;
+    found:     [ XFound ];
+}
+
+table XFound (fs_serializer) {
+    start:       uint32 = 0; // required;
+    until:       uint32 = 0; // required;
+    matches:   [ XMatch ]  (required);
+}
+
+table XMatch (fs_serializer) {
+    fragment:    string    (required);
+    feature:     string    (required);
+    match:       uint32 = 0; // required; match represents coordinates of matching feature: BB_CC_VV_WW
+}

@@ -69,5 +69,14 @@ namespace Blueprint.Blue
             }
             yield return (delimiter.Length > 0) ? result.ToString() + " ]" : "";
         }
+        public override XFeature AsMessage()
+        {
+            var lemmata = new List<UInt16>(this.Lemmata);
+            var lemma = new XLemma() { Lemmata = lemmata };
+            var compare = new XCompare(lemma);
+            var feature = new XFeature { Feature = this.Text, Negate = false, Rule = "lemmata", Match = compare };
+
+            return feature;
+        }
     }
 }

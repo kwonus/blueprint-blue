@@ -3,7 +3,7 @@
     using Pinshot.PEG;
     public class QStrongs : QFeature, IFeature
     {
-        public (UInt16 strongs, char lang) Strongs { get; set; }
+        public (UInt16 number, char lang) Strongs { get; set; }
 
         public QStrongs(QFind search, string text, Parsed parse) : base(search, text, parse)
         {
@@ -34,7 +34,15 @@
         public override IEnumerable<string> AsYaml()
         {
             yield return "- feature: " + this.Text;
-            yield return "  strongs: " + this.Strongs.lang + this.Strongs.strongs;
+            yield return "  strongs: " + this.Strongs.lang + this.Strongs.number;
+        }
+        public override XFeature AsMessage()
+        {
+            var strongs = new XStrongs() { Lang = this.Strongs.lang == 'G' ? XLangEnum.G : this.Strongs.lang == 'H' ? XLangEnum.H : XLangEnum.H, Number = this.Strongs.number };
+            var compare = new XCompare(strongs);
+            var feature = new XFeature { Feature = this.Text, Negate = false, Rule = "lemmata", Match = compare };
+
+            return feature;
         }
     }
 }

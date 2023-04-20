@@ -28,5 +28,9 @@ namespace Blueprint.Blue
             yaml.Add("- include: " + this.Filter);
             return yaml;
         }
+        public XScope AsMessage()
+        {
+            return new XScope() { Book = 1, Chapter = 1 };
+        }
     }
 }
