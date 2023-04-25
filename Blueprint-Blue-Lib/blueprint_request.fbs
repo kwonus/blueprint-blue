@@ -1,6 +1,6 @@
 ﻿attribute "fs_serializer";
 
-namespace Blueprint;
+namespace Blueprint.Request;
 
 enum XLexEnum:  byte { AV = 0, AVX = 1 }
 enum XFmtEnum:  byte { JSON = 0, TEXT = 1, HTML = 2, MD = 3 }
@@ -8,14 +8,9 @@ enum XLangEnum: byte { H = 1, G = 2, X = 0 }
 
 table XRequest (fs_serializer) {
     settings:    XSettings   (required);
-    search:    [ XSearch ]   (required);
-    scope:     [ XScope ];
-}
-
-table XRender (fs_serializer) {
-    settings:    XSettings   (required);
     search:    [ XSearch ];
-    render:      XScope      (required);
+    scope:     [ XScope ];
+    render:    [ XFind ];   // when render==true scope should contain the element(s) to render
 }
 
 table XSearch (fs_serializer) {
@@ -101,28 +96,4 @@ table XScope (fs_serializer) {
     vcount:      uint8 = 255;    // optional: verse-count: defaults to all remaining verses in chapter
 }
 
-table XResults (fs_serializer) {
-    settings:    XSettings (required);
-    scope:     [ XScope ]  (required);
-    matches:   [ XFind ];
-    errors:    [ string ];
-    warnings:  [ string ];
-}
-
-table XFind (fs_serializer) {
-    search:      string    (required);
-    negate:      bool      = false;
-    found:     [ XFound ];
-}
-
-table XFound (fs_serializer) {
-    start:       uint32 = 0; // required;
-    until:       uint32 = 0; // required;
-    matches:   [ XMatch ]  (required);
-}
-
-table XMatch (fs_serializer) {
-    fragment:    string    (required);
-    feature:     string    (required);
-    match:       uint32 = 0; // required; match represents coordinates of matching feature: BB_CC_VV_WW
-}
+root_type XRequest;

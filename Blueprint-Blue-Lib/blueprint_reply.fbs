@@ -1,0 +1,28 @@
+﻿attribute "fs_serializer";
+
+namespace Blueprint.Reply;
+
+table XResults (fs_serializer) {
+    results:   [ XFind ]   (required);
+    scope:     [ uint32 ]; // This is null when returned from a search-request; it needs one or more elements when submitted as a render-request;
+}
+
+table XFind (fs_serializer) {
+    find:        string    (required);
+    negate:      bool      = false;
+    found:     [ XFound ];
+}
+
+table XFound (fs_serializer) {
+    start:       uint32 = 0; // required (zero is not a valid start coordinate)
+    until:       uint32 = 0; // required (zero is not a valid start coordinate)
+    matches:   [ XMatch ]  (required);
+}
+
+table XMatch (fs_serializer) {
+    fragment:    string    (required);
+    feature:     string    (required);
+    coordinates: uint32 = 0; // required; match represents coordinates of matching feature: BB_CC_VV_WW (zero is not a valid start coordinate)
+}
+
+root_type XResults;
