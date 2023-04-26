@@ -1,5 +1,6 @@
 ﻿namespace Blueprint.Blue
 {
+    using XBlueprint;
     using Pinshot.PEG;
     using System.Runtime.CompilerServices;
     using System.Text;
@@ -283,26 +284,9 @@
             }
             return request;
         }
-        public XRender AsRenderingRequest(XScope scope)
+        public XResults AsRenderingRequest(XResults results, UInt32 scope)
         {
-            var request = new XRender() { Render = scope, Search = new List<XSearch>(), Settings = this.Context.AsMessage() };
-
-            if (this.Context.Statement.IsValid)
-            {
-                if (this.Searches.Any())
-                {
-                    foreach (var detail in this.Searches)
-                    {
-                        request.Search.Add(detail.AsMessage());
-                    }
-                }
-            }
-            return request;
-        }
-        public static XRender ConvertToRenderingRequest(XRequest request, XScope scope)
-        {
-            var render = new XRender() { Render = scope, Search = request.Search, Settings = request.Settings };
-            return render;
+            return new XResults() { Results = results.Results,  Scope = scope };
         }
     }
 }

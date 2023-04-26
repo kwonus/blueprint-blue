@@ -1,6 +1,7 @@
 namespace Blueprint.Blue
 {
     using Pinshot.PEG;
+    using XBlueprint;
     public class QSearchSegment
     {
         private string Text;

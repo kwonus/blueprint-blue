@@ -1,10 +1,10 @@
 ﻿attribute "fs_serializer";
 
-namespace Blueprint.Reply;
+namespace XBlueprint;
 
 table XResults (fs_serializer) {
     results:   [ XFind ]   (required);
-    scope:     [ uint32 ]; // This is null when returned from a search-request; it needs one or more elements when submitted as a render-request;
+    scope:       uint32 = 0; // This is zero when returned from a search-request; it needs to be set when submitted as a render-request;
 }
 
 table XFind (fs_serializer) {

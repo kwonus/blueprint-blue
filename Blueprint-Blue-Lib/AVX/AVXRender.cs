@@ -1,6 +1,6 @@
 ﻿namespace AVX.Render
 {
-    using Blueprint;
+    using XBlueprint;
     using System;
     using FlatSharp;
     using System.Runtime.InteropServices;
@@ -48,11 +48,11 @@
         {
             ;
         }
-        public string Render(XRender render)
+        public string Render(XResults render)
         {
-            int maxBytesNeeded = XRender.Serializer.GetMaxSize(render);
+            int maxBytesNeeded = XResults.Serializer.GetMaxSize(render);
             byte[] bytes = new byte[maxBytesNeeded];
-            int bytesWritten = XRender.Serializer.Write(bytes, render);
+            int bytesWritten = XResults.Serializer.Write(bytes, render);
 
             using (AVXRenderingHandle handle = AVXRendering.CreateRendering(bytes))
             {

@@ -5,7 +5,7 @@ namespace BlueprintConsoleApp
     using Blueprint.Blue;
     using System;
     using FlatSharp;
-    using Blueprint;
+    using XBlueprint;
 
     internal class Program
     {

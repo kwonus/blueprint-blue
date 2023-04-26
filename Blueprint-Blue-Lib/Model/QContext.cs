@@ -1,5 +1,6 @@
 ﻿namespace Blueprint.Blue
 {
+    using XBlueprint;
     using AVXLib.Framework;
     using BlueprintBlue;
     using System.Linq;

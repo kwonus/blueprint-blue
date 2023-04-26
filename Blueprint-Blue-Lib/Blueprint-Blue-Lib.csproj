@@ -8,7 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <FlatSharpSchema Include="blueprint.fbs" />
+	  <FlatSharpSchema Include="blueprint_request.fbs" />
+	  <FlatSharpSchema Include="blueprint_reply.fbs" />
   </ItemGroup>
 
   <ItemGroup>

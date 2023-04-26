@@ -1,7 +1,7 @@
 namespace Blueprint.Blue
 {
     using Pinshot.PEG;
-
+    using XBlueprint;
     public interface IFeature
     {
         string Text { get; }

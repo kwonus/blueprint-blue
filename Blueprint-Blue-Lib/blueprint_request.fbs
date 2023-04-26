@@ -1,6 +1,6 @@
 ﻿attribute "fs_serializer";
 
-namespace Blueprint.Request;
+namespace XBlueprint;
 
 enum XLexEnum:  byte { AV = 0, AVX = 1 }
 enum XFmtEnum:  byte { JSON = 0, TEXT = 1, HTML = 2, MD = 3 }
@@ -10,7 +10,6 @@ table XRequest (fs_serializer) {
     settings:    XSettings   (required);
     search:    [ XSearch ];
     scope:     [ XScope ];
-    render:    [ XFind ];   // when render==true scope should contain the element(s) to render
 }
 
 table XSearch (fs_serializer) {

@@ -1,6 +1,6 @@
 ﻿namespace AVX.Search
 {
-    using Blueprint;
+    using XBlueprint;
     using System;
     using FlatSharp;
     using System.Runtime.InteropServices;

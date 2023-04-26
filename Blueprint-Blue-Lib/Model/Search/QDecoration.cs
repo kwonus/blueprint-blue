@@ -1,6 +1,8 @@
 namespace Blueprint.Blue
 {
     using Pinshot.PEG;
+    using XBlueprint;
+
     public class QDecoration : QFeature, IFeature
     {
         public byte Decoration { get; set; }

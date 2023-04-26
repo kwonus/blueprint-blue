@@ -3,6 +3,7 @@ using System.Text;
 
 namespace Blueprint.Blue
 {
+    using XBlueprint;
     public class QFilter : QImplicitCommand, ICommand
     {
         public string Rule { get; private set; }

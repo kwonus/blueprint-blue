@@ -1,7 +1,7 @@
-using Pinshot.PEG;
-
 namespace Blueprint.Blue
 {
+    using Pinshot.PEG;
+    using XBlueprint;
     public class QFind : QImplicitCommand, ICommand
     {
         public bool IsQuoted { get; set; }

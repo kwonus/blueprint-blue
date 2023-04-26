@@ -2,6 +2,7 @@ namespace Blueprint.Blue
 {
     using Pinshot.PEG;
     using System.Text;
+    using XBlueprint;
 
     public class QWord : QFeature, IFeature
     {

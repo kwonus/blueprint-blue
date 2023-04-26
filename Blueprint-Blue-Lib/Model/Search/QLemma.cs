@@ -1,6 +1,7 @@
 namespace Blueprint.Blue
 {
     using Pinshot.PEG;
+    using XBlueprint;
     using System.Text;
 
     public class QLemma : QFeature, IFeature
