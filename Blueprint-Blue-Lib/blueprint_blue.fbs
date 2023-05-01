@@ -1,15 +1,38 @@
 ﻿attribute "fs_serializer";
+attribute "fs_rpcInterface";
+attribute "fs_sharedString";
 
-namespace XBlueprint;
+namespace XBlueprintBlue;
 
-enum XLexEnum:  byte { AV = 0, AVX = 1 }
-enum XFmtEnum:  byte { JSON = 0, TEXT = 1, HTML = 2, MD = 3 }
-enum XLangEnum: byte { H = 1, G = 2, X = 0 }
+enum XLexEnum:   byte { AV = 0, AVX = 1 }
+enum XFmtEnum:   byte { JSON = 0, TEXT = 1, HTML = 2, MD = 3 }
+enum XLangEnum:  byte { H = 1, G = 2, X = 0 }
+enum XUserEnum:  byte { ANONYMOUS = 0, EXISTING = 1, NEW = 2, RESET = 3, UNKNOWN = 4 }
+enum XStatusEnum:byte { UNINITIALIZED = 0, PENDING = 1, EXECUTED = 2, ERROR = 3 }
 
-table XRequest (fs_serializer) {
+//table QuelleRequest (fs_serializer) {
+//    command:     string      (required);
+//    user:        XUser;  //  Eventually, this could become required for web-hosted instances of this service
+//}
+
+table XUser (fs_serializer) {
+    username:    string      (required);
+    disposition: XUserEnum   = ANONYMOUS;
+}
+
+table XBlueprint (fs_serializer) { // was: XRequest
     settings:    XSettings   (required);
     search:    [ XSearch ];
     scope:     [ XScope ];
+    singleton:   XCommand;
+    status:      XStatusEnum = UNINITIALIZED;
+    message:     string      (required);
+}
+
+table XCommand (fs_serializer) {
+    command:     string      (required);
+    rule:        string      (required);
+    response:  [ string ]    (required);
 }
 
 table XSearch (fs_serializer) {
@@ -95,4 +118,9 @@ table XScope (fs_serializer) {
     vcount:      uint8 = 255;    // optional: verse-count: defaults to all remaining verses in chapter
 }
 
-root_type XRequest;
+root_type XBlueprint;
+
+//rpc_service BlueprintSVC (fs_rpcInterface)
+//{
+//     CreateBlueprint (QuelleRequest) : XBlueprint;
+//}

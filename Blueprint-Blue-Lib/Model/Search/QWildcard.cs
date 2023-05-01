@@ -1,8 +1,11 @@
 namespace Blueprint.Blue
 {
     using Pinshot.PEG;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Text;
-    using XBlueprint;
+    using XBlueprintBlue;
 
     public class QWildcard : QFeature, IFeature
     {

@@ -4,7 +4,9 @@ namespace Blueprint.Blue
 {
     using AVXLib.Framework;
     using Pinshot.PEG;
-    using XBlueprint;
+    using System;
+    using System.Collections.Generic;
+    using XBlueprintBlue;
 
     public class QPartOfSpeech : QFeature, IFeature
     {

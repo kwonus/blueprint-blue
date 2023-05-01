@@ -1,6 +1,7 @@
 ﻿namespace Blueprint.Blue
 {
     using Pinshot.PEG;
+    using System;
 
     public class QInit : QExplicitCommand, ICommand
     {

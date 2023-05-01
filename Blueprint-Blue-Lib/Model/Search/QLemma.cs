@@ -1,8 +1,10 @@
 namespace Blueprint.Blue
 {
     using Pinshot.PEG;
-    using XBlueprint;
+    using XBlueprintBlue;
     using System.Text;
+    using System;
+    using System.Collections.Generic;
 
     public class QLemma : QFeature, IFeature
     {

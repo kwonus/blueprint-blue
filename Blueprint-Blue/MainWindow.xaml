@@ -1,0 +1,12 @@
+﻿<Window x:Class="Blueprint_Blue.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Blueprint_Blue"
+        mc:Ignorable="d"
+        Title="Blueprint Blue" Height="361" Width="462">
+    <Grid>
+
+    </Grid>
+</Window>

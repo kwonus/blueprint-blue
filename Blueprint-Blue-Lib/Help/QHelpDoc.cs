@@ -1,5 +1,7 @@
 ﻿namespace Blueprint.Blue
 {
+    using System.Collections.Generic;
+
     public class QHelpDoc
     {
         private QHelpDoc(string topic, string doc)

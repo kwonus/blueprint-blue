@@ -1,7 +1,9 @@
 ﻿namespace Blueprint.Blue
 {
     using Pinshot.PEG;
-    using XBlueprint;
+    using System;
+    using System.Collections.Generic;
+    using XBlueprintBlue;
     public class QStrongs : QFeature, IFeature
     {
         public (UInt16 number, char lang) Strongs { get; set; }

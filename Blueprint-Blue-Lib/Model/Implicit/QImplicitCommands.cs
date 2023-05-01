@@ -1,9 +1,11 @@
 ﻿namespace Blueprint.Blue
 {
-    using XBlueprint;
+    using XBlueprintBlue;
     using Pinshot.PEG;
-    using System.Runtime.CompilerServices;
     using System.Text;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System;
 
     public class QImplicitCommands
     {
@@ -260,9 +262,9 @@
             }
             return valid ? commandSet : null;
         }
-        public XRequest AsSearchRequest()
+        public XBlueprint AsSearchRequest()
         {
-            var request = new XRequest() { Scope = null, Search = new List<XSearch>(), Settings = this.Context.AsMessage() };
+            var request = new XBlueprint() { Scope = null, Search = new List<XSearch>(), Settings = this.Context.AsMessage(), Message = "ok" };
 
             if (this.Context.Statement.IsValid)
             {
@@ -284,9 +286,10 @@
             }
             return request;
         }
-        public XResults AsRenderingRequest(XResults results, UInt32 scope)
+        // Obsolete ... rendering is now driven directly from C++::AVXSearch library
+        public XSearchResults.XResults AsRenderingRequest(XSearchResults.XResults results, UInt32 scope)
         {
-            return new XResults() { Results = results.Results,  Scope = scope };
+            return new XSearchResults.XResults() { Results = results.Results,  Scope = scope };
         }
     }
 }

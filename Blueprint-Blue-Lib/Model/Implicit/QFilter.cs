@@ -1,9 +1,8 @@
-using Pinshot.PEG;
-using System.Text;
-
 namespace Blueprint.Blue
 {
-    using XBlueprint;
+    using Pinshot.PEG;
+    using System.Collections.Generic;
+    using XBlueprintBlue;
     public class QFilter : QImplicitCommand, ICommand
     {
         public string Rule { get; private set; }

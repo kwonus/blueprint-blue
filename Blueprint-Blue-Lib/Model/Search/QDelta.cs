@@ -1,7 +1,8 @@
 ﻿namespace Blueprint.Blue
 {
     using Pinshot.PEG;
-    using XBlueprint;
+    using System.Collections.Generic;
+    using XBlueprintBlue;
     public class QDelta : QFeature, IFeature
     {
         public bool hasDelta { get; set; }

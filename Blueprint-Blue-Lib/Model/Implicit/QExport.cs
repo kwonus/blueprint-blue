@@ -1,7 +1,7 @@
-using Pinshot.PEG;
-
 namespace Blueprint.Blue
 {
+    using Pinshot.PEG;
+    using System;
     public enum FileCreateMode
     {
         CreateNew = 0,

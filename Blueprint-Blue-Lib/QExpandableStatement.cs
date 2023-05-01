@@ -1,8 +1,8 @@
-﻿using Blueprint.Blue;
-using System.Text;
-
-namespace BlueprintBlue
+﻿namespace BlueprintBlue
 {
+    using Blueprint.Blue;
+    using System;
+    using System.Text;
     public class QExpandableStatement
     {
         public Int64 Time             { get; set; }
@@ -79,7 +79,7 @@ namespace BlueprintBlue
         //
         public static bool operator == (QExpandableStatement? q1, QExpandableStatement? q2)
         {
-            if ((object)q1 == null || (object)q2 == null)
+            if ((object?)q1 == null || (object?)q2 == null)
                 return false;
 
             return q1.Equals(q2);
@@ -87,13 +87,13 @@ namespace BlueprintBlue
 
         public static bool operator !=(QExpandableStatement? q1, QExpandableStatement? q2)
         {
-            if ((object)q1 == null || (object)q2 == null)
+            if ((object?)q1 == null || (object?)q2 == null)
                 return false;
 
             return !(q1 == q2);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj == null || this.GetType() != obj.GetType())
                 return false;

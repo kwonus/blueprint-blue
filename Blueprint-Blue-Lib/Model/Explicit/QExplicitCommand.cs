@@ -1,7 +1,7 @@
 using Pinshot.PEG;
-
 namespace Blueprint.Blue
 {
+    using System;
     public abstract class QExplicitCommand : QCommand, ICommand
     {
         public bool IsExplicit { get => true; }

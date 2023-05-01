@@ -1,7 +1,7 @@
-using Pinshot.PEG;
-
 namespace Blueprint.Blue
 {
+    using Pinshot.PEG;
+    using System;
     public class QHelp : QExplicitCommand, ICommand
     {
         public string Document { get; set; }

@@ -1,7 +1,9 @@
 ﻿namespace Pinshot.Blue
 {
     using Pinshot.PEG;
+    using System.Net.Http;
     using System.Net.Http.Json;
+    using System.Threading.Tasks;
 
     public class PinshotSvc
     {

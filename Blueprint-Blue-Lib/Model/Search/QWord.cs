@@ -1,8 +1,10 @@
 namespace Blueprint.Blue
 {
     using Pinshot.PEG;
+    using System;
+    using System.Collections.Generic;
     using System.Text;
-    using XBlueprint;
+    using XBlueprintBlue;
 
     public class QWord : QFeature, IFeature
     {

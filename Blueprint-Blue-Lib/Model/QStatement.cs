@@ -1,9 +1,11 @@
-using BlueprintBlue;
-using Pinshot.Blue;
-using Pinshot.PEG;
-
 namespace Blueprint.Blue
 {
+    using BlueprintBlue;
+    using Pinshot.Blue;
+    using Pinshot.PEG;
+    using System;
+    using System.Collections.Generic;
+
     public class QStatement
     {
         public string Text { get; set; }

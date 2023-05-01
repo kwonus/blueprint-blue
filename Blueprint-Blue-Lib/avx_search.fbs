@@ -1,6 +1,6 @@
 ﻿attribute "fs_serializer";
 
-namespace XBlueprint;
+namespace XSearchResults;
 
 table XResults (fs_serializer) {
     results:   [ XFind ]   (required);

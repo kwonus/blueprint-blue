@@ -1,8 +1,9 @@
 namespace Blueprint.Blue
 {
     using Pinshot.PEG;
+    using System.Collections.Generic;
     using System.Linq;
-    using System.Security.Cryptography.X509Certificates;
+    using System;
 
     public class QDisplay : QImplicitCommand, ICommand
     {

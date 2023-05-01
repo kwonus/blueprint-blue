@@ -1,10 +1,9 @@
-﻿using Pinshot.PEG;
-using System.Net.NetworkInformation;
-using System.Text.Json.Nodes;
-using static Blueprint.Blue.QDomain;
-
-namespace Blueprint.Blue
+﻿namespace Blueprint.Blue
 {
+    using Pinshot.PEG;
+    using System;
+    using static global::Blueprint.Blue.QDomain;
+
     public class QSpan
     {
         public const UInt16 VERSE = 0;    // zero means verse-scope

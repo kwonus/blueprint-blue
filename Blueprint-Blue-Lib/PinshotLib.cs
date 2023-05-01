@@ -2,6 +2,8 @@
 namespace Pinshot.Blue
 {
     using Pinshot.PEG;
+    using System;
+    using System.IO;
     using System.Runtime.InteropServices;
     using System.Runtime.Serialization.Json;
     using System.Text;

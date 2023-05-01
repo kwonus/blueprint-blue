@@ -1,6 +1,7 @@
 namespace Blueprint.Blue
 {
-   public interface ICommand
+    using System.Collections.Generic;
+    public interface ICommand
     {
         string Text { get; }
         string Verb { get; }

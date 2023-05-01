@@ -1,10 +1,8 @@
-﻿using BlueprintBlue;
-using Pinshot.Blue;
-using Pinshot.PEG;
-using System.Data;
-
-namespace Blueprint.Blue
+﻿namespace Blueprint.Blue
 {
+    using System.Collections.Generic;
+    using System.IO;
+
     public class QSettings
     {
         public bool Update()
@@ -63,11 +61,11 @@ namespace Blueprint.Blue
         public QExact Exact    { get; set; }
 
         private string? BackingStore;
-
+#pragma warning disable CS8618
         public QSettings()
         {
             this.BackingStore = null;
-            this.ResetDefaults();
+            this.ResetDefaults(); // silence the compiler by doing this explicitly:
         }
         public QSettings(QSettings source)
         {
@@ -88,18 +86,18 @@ namespace Blueprint.Blue
         }
         public QSettings ResetDefaults()
         {
-            this.Format = new QFormat();
+            this.Format  = new QFormat();
             this.Lexicon = new QDomain();
-            this.Span   = new QSpan();
-            this.Exact  = new QExact();
+            this.Span    = new QSpan();
+            this.Exact   = new QExact();
             return this;
         }
         public QSettings CopyFrom(QSettings source)
         {
-            this.Format = new QFormat(source.Format.Value);
+            this.Format  = new QFormat(source.Format.Value);
             this.Lexicon = new QDomain(source.Lexicon.Value);
-            this.Span   = new QSpan(source.Span.Value);
-            this.Exact  = new QExact(source.Exact.Value);
+            this.Span    = new QSpan(source.Span.Value);
+            this.Exact   = new QExact(source.Exact.Value);
 
             return this;
         }

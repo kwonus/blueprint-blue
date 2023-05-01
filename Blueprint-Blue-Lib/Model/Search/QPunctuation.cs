@@ -1,7 +1,8 @@
 namespace Blueprint.Blue
 {
     using Pinshot.PEG;
-    using XBlueprint;
+    using System.Collections.Generic;
+    using XBlueprintBlue;
     public class QPunctuation : QFeature, IFeature
     {
         public byte Punctuation { get; set; }

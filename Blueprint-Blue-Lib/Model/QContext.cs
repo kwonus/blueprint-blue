@@ -1,11 +1,11 @@
 ﻿namespace Blueprint.Blue
 {
-    using XBlueprint;
-    using AVXLib.Framework;
+    using XBlueprintBlue;
     using BlueprintBlue;
     using System.Linq;
-    using System.Security.Cryptography;
-    using System.Text;
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
 
     public class QContext
     {
