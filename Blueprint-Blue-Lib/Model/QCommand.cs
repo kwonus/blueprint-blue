@@ -1,6 +1,8 @@
 namespace Blueprint.Blue
 {
     using System.Collections.Generic;
+    using XBlueprintBlue;
+
     public interface ICommand
     {
         string Text { get; }

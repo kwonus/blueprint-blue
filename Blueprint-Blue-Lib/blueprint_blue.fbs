@@ -8,7 +8,7 @@ enum XLexEnum:   byte { AV = 0, AVX = 1 }
 enum XFmtEnum:   byte { JSON = 0, TEXT = 1, HTML = 2, MD = 3 }
 enum XLangEnum:  byte { H = 1, G = 2, X = 0 }
 enum XUserEnum:  byte { ANONYMOUS = 0, EXISTING = 1, NEW = 2, RESET = 3, UNKNOWN = 4 }
-enum XStatusEnum:byte { UNINITIALIZED = 0, PENDING = 1, EXECUTED = 2, ERROR = 3 }
+enum XStatusEnum:byte { OK = 0, ERROR = 1, UNKNOWN = 2 }
 
 //table QuelleRequest (fs_serializer) {
 //    command:     string      (required);
@@ -25,13 +25,14 @@ table XBlueprint (fs_serializer) { // was: XRequest
     search:    [ XSearch ];
     scope:     [ XScope ];
     singleton:   XCommand;
-    status:      XStatusEnum = UNINITIALIZED;
+    status:      XStatusEnum = UNKNOWN;
     message:     string      (required);
 }
 
 table XCommand (fs_serializer) {
     command:     string      (required);
-    rule:        string      (required);
+    verb:        string      (required);
+    arguments: [ string ];
     response:  [ string ]    (required);
 }
 

@@ -264,7 +264,13 @@
         }
         public XBlueprint AsSearchRequest()
         {
-            var request = new XBlueprint() { Scope = null, Search = new List<XSearch>(), Settings = this.Context.AsMessage(), Message = "ok" };
+            var request = new XBlueprint() {
+                Scope = null,
+                Search = new List<XSearch>(),
+                Settings = this.Context.AsMessage(),
+                Message = "ok",
+                Status = XStatusEnum.ERROR
+            };
 
             if (this.Context.Statement.IsValid)
             {

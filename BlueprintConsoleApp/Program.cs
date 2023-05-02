@@ -5,7 +5,7 @@ namespace BlueprintConsoleApp
     using Blueprint.Blue;
     using System;
     using FlatSharp;
-    using XBlueprint;
+    using XBlueprintBlue;
 
     internal class Program
     {
@@ -38,13 +38,13 @@ namespace BlueprintConsoleApp
                 Console.Write("> ");
                 for (string line = Console.ReadLine(); true; line = Console.ReadLine())
                 {
-                    var result = QStatement.Parse(line);
+                    var message = QStatement.Parse(line);
                     
-                    if (result.blueprint != null)
+                    if (message.blueprint != null)
                     {
                         var yaml = new List<string>();
                         
-                        QStatement blueprint = result.blueprint;
+                        QStatement blueprint = message.blueprint;
 
                         if (blueprint.Errors.Count > 0)
                         {
@@ -86,7 +86,7 @@ namespace BlueprintConsoleApp
                                             // process all assignments in QContext object
                                         }
                                     }
-                                    yaml = result.blueprint.Context.AsYaml();
+                                    yaml = message.blueprint.Context.AsYaml();
 
                                     var call_cfunc = false;
 
@@ -122,10 +122,10 @@ namespace BlueprintConsoleApp
                                     }
                                     else if (call_cfunc)
                                     {
-                                        XRequest request = blueprint.Commands.AsSearchRequest();
-                                        int maxBytesNeeded = XRequest.Serializer.GetMaxSize(request);
-                                        byte[] bytes = new byte[maxBytesNeeded];
-                                        int bytesWritten = XRequest.Serializer.Write(bytes, request);
+                                        XBlueprint request = blueprint.Commands.AsSearchRequest();
+//                                      var search = new AVXSearch();
+//                                      var results = search.Find(request);
+
                                     }
                                 }
                             }
@@ -139,9 +139,9 @@ namespace BlueprintConsoleApp
                             Console.WriteLine(entry);
                         }
                     }
-                    else if (result.pinshot != null)
+                    else if (message.pinshot != null)
                     {
-                        RootParse pinshot = result.pinshot;
+                        RootParse pinshot = message.pinshot;
                         if (!string.IsNullOrEmpty(pinshot.error))
                         {
                             Console.WriteLine(pinshot.error);

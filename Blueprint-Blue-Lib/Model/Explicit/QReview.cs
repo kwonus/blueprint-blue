@@ -1,4 +1,5 @@
 using Pinshot.PEG;
+using XBlueprintBlue;
 
 namespace Blueprint.Blue
 {
@@ -10,6 +11,11 @@ namespace Blueprint.Blue
             this.Arguments = new string[args.Length];
             for (int i = 0; i < args.Length; i++)
                 this.Arguments[i] = args[i].text;
+        }
+        public override void AddArgs(XCommand command)
+        {
+            foreach (var arg in this.Arguments)
+                command.Arguments.Add(arg);
         }
     }
 }

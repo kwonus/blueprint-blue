@@ -5,6 +5,7 @@ namespace Blueprint.Blue
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;
+    using XBlueprintBlue;
 
     public class QStatement
     {
@@ -32,6 +33,25 @@ namespace Blueprint.Blue
             this.GlobalSettings = new QSettings(@"C:\Users\Me\AVX\Quelle\settings.quelle");
             this.LocalSettings = new QSettings(this.GlobalSettings);
             this.Context = new QContext(this, @"C:\Users\Me\AVX");  // notional placeholder for now (base this on actual username/home
+        }
+        public XBlueprint Blueprint
+        {
+            get
+            {
+                if (this.IsValid)
+                {
+                    if (this.Singleton != null)
+                        return this.Singleton.AsSingletonCommand();
+                    if (this.Commands != null)
+                        return this.Commands.AsSearchRequest();
+                }
+                return new XBlueprint()
+                {
+                    Settings = this.Context.AsMessage(),
+                    Message = "Unexpected error or ill-defined request",
+                    Status = XStatusEnum.ERROR
+                };
+            }
         }
 
         public void AddError(string message)
