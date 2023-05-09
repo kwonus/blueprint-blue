@@ -31,12 +31,14 @@ namespace Blueprint_Blue_Test
 
             Assert.IsNotNull(QContext.AVXObjects);
 
+#if INCLUDE_DEPRECATED_BEHAVIOR
             Assert.IsNotNull(QContext.AVXObjects.written);
+#endif
             Assert.IsNotNull(QContext.AVXObjects.lexicon);
             Assert.IsNotNull(QContext.AVXObjects.lemmata);
             Assert.IsNotNull(QContext.AVXObjects.oov);
 
-            Assert.IsTrue(QContext.AVXObjects.written.GetReverseLex("in") > 0);
+            Assert.IsTrue(QContext.AVXObjects.lexicon.GetReverseLex("in") > 0);
             //Assert.IsTrue(QContext.AVXObjects.lexicon.); // TODO: TO DO: refactor lexical methods from written to lexicon object
             Assert.IsTrue(QContext.AVXObjects.lemmata.FindLemmataUsingWordKey(1).Length > 0);
             Assert.IsTrue(QContext.AVXObjects.oov.GetReverseEntry("elm") != 0);

@@ -13,7 +13,7 @@ namespace Blueprint.Blue
         public QLemma(QFind search, string text, Parsed parse) : base(search, text, parse)
         {
             var normalized = text.ToLower();
-            var lex = QContext.AVXObjects.written.GetReverseLexExtensive(normalized)[0];
+            var lex = QContext.AVXObjects.lexicon.GetReverseLexExtensive(normalized)[0];
 
             if (lex > 0)
             {

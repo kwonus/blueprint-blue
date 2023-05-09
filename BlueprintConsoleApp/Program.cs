@@ -99,7 +99,9 @@ namespace BlueprintConsoleApp
                                             foreach (var entry in detail.AsYaml())
                                                 yaml.Add("  " + entry);
                                         }
+#if INCLUDE_DEPRECATED_BEHAVIOR
                                         ProcessSearch(blueprint.Commands);
+#endif
                                     }
                                     if (blueprint.Commands.Searches.Any())
                                     {
@@ -110,7 +112,9 @@ namespace BlueprintConsoleApp
                                             foreach (var entry in detail.AsYaml())
                                                 yaml.Add("  " + entry);
                                         }
+#if INCLUDE_DEPRECATED_BEHAVIOR
                                         ProcessSearch(blueprint.Commands);
+#endif
                                     }
                                     else
                                     {
@@ -166,6 +170,7 @@ namespace BlueprintConsoleApp
         {
             ;
         }
+#if INCLUDE_DEPRECATED_BEHAVIOR
         static void ProcessSearch(QImplicitCommands vector)
         {
             foreach (var record in Find(vector))
@@ -174,6 +179,7 @@ namespace BlueprintConsoleApp
                 Console.WriteLine(book.name + " " + record.c.ToString() + ":" + record.v.ToString());
             }
         }
+#endif
         static void ProcessMacro(QImplicitCommands vector)
         {
             ;
@@ -182,6 +188,7 @@ namespace BlueprintConsoleApp
         {
             ;
         }
+#if INCLUDE_DEPRECATED_BEHAVIOR
         static IEnumerable<(byte b, byte c, byte v, byte w, UInt16 len)> Find(QImplicitCommands vector)
         {
             var methods = AVX.written;
@@ -241,5 +248,6 @@ namespace BlueprintConsoleApp
                 }
             }
         }
+#endif
     }
 }
