@@ -264,12 +264,21 @@
         }
         public XBlueprint AsSearchRequest()
         {
-            var request = new XBlueprint() {
-                Scope = null,
-                Search = new List<XSearch>(),
+            var request = this.Context.Statement.IsValid && (this.Context.Statement.Errors.Count == 0)
+            ? new XBlueprint()
+            {
                 Settings = this.Context.AsMessage(),
-                Message = "ok",
-                Status = XStatusEnum.ERROR
+                Search = new List<XSearch>(),
+                Status = XStatusEnum.FEEDBACK_EXPECTED,
+                Help = "to be defined later"
+            }
+            : new XBlueprint()
+            {
+                Settings = this.Context.AsMessage(),
+                Search = new List<XSearch>(),
+                Status = XStatusEnum.ERROR,
+                Messages = this.Context.Statement.Errors.Count > 0 ? this.Context.Statement.Errors : new() { "error" },
+                Help = "to be defined later"
             };
 
             if (this.Context.Statement.IsValid)

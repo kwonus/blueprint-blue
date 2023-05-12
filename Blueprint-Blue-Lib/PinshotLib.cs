@@ -10,11 +10,11 @@ namespace Pinshot.Blue
 
     internal static class Pinshot_RustFFI
     {
-        [DllImport("pin_shot_avx.dll", EntryPoint = "create_quelle_parse_raw")]
+        [DllImport("pinshot_blue.dll", EntryPoint = "create_quelle_parse_raw")]
         internal static extern ParsedStatementHandle pinshot_blue_raw_parse(string stmt);
-        [DllImport("pin_shot_avx.dll", EntryPoint = "create_quelle_parse")]
+        [DllImport("pinshot_blue.dll", EntryPoint = "create_quelle_parse")]
         internal static extern ParsedStatementHandle pinshot_blue_parse(string stmt);
-        [DllImport("pin_shot_avx.dll", EntryPoint = "delete_quelle_parse")]
+        [DllImport("pinshot_blue.dll", EntryPoint = "delete_quelle_parse")]
         internal static extern void pinshot_blue_free(IntPtr memory);
     }
 

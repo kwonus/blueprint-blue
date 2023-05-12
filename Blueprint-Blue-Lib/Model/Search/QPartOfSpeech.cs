@@ -107,16 +107,27 @@ namespace Blueprint.Blue
                 var child = parse.children[0];
                 if (child.text.StartsWith('#'))
                 {
-                    var hex = child.text.Substring(1);
+                    var pos = child.text.Substring(1);
                     try
                     {
-                        if (child.rule == "pos32")
+                        if (child.rule == "nupos")
                         {
-                            this.Pos32 = UInt32.Parse(hex);
+                            this.Pos32 = AVText.FiveBitEncoding.EncodePOS(pos);
+                        }
+                        else if (child.rule == "nupos_not")
+                        {
+                            this.Negate = true;
+                            if (pos.StartsWith('!'))
+                                pos = pos.Substring(1);
+                            this.Pos32 = AVText.FiveBitEncoding.EncodePOS(pos);
+                        }
+                        else if (child.rule == "pos32")
+                        {
+                            this.Pos32 = UInt32.Parse(pos);
                         }
                         else if (child.rule == "pn_pos12")
                         {
-                            this.PnPos12 = UInt16.Parse(hex);
+                            this.PnPos12 = UInt16.Parse(pos);
                         }
                     }
                     catch

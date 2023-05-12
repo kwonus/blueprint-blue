@@ -21,13 +21,22 @@ namespace Blueprint.Blue
         {
             var command = new XCommand() { Command = this.Text, Verb = this.Verb, Response = this.Context.Statement.Errors };
             this.AddArgs(command);
-            var request = new XBlueprint() {
+            var request = this.Context.Statement.IsValid && (this.Context.Statement.Errors.Count == 0)
+            ? new XBlueprint()
+            {
                 Settings = this.Context.AsMessage(),
                 Singleton = command,
-                Message = this.Context.Statement.IsValid && (this.Context.Statement.Errors.Count == 0) ? "ok" : "error",
-                Status = XStatusEnum.ERROR
+                Status = XStatusEnum.COMPLETED,
+                Help = "to be defined later"
+            }
+            : new XBlueprint()
+            {
+                Settings = this.Context.AsMessage(),
+                Singleton = command,
+                Status = XStatusEnum.ERROR,
+                Messages = this.Context.Statement.Errors.Count > 0 ? this.Context.Statement.Errors : new() { "error" },
+                Help = "to be defined later"
             };
-
             return request ;
         }
         public abstract void AddArgs(XCommand command);
