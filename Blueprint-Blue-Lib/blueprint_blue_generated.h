@@ -8,10 +8,10 @@
 
 // Ensure the included flatbuffers.h is the same version as when this file was
 // generated, otherwise it may not be compatible.
-// static_assert(FLATBUFFERS_VERSION_MAJOR == 22 &&
-//               FLATBUFFERS_VERSION_MINOR == 10 &&
-//               FLATBUFFERS_VERSION_REVISION == 26,
-//              "Non-compatible flatbuffers version included");
+static_assert(FLATBUFFERS_VERSION_MAJOR == 22 &&
+              FLATBUFFERS_VERSION_MINOR == 10 &&
+              FLATBUFFERS_VERSION_REVISION == 26,
+             "Non-compatible flatbuffers version included");
 
 namespace XBlueprintBlue {
 
@@ -444,7 +444,7 @@ struct XBlueprint FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyField<int8_t>(verifier, VT_STATUS, 1) &&
            VerifyOffsetRequired(verifier, VT_HELP) &&
            verifier.VerifyString(help()) &&
-           VerifyOffsetRequired(verifier, VT_MESSAGES) &&
+           VerifyOffset(verifier, VT_MESSAGES) &&
            verifier.VerifyVector(messages()) &&
            verifier.VerifyVectorOfStrings(messages()) &&
            verifier.EndTable();
@@ -485,7 +485,6 @@ struct XBlueprintBuilder {
     auto o = flatbuffers::Offset<XBlueprint>(end);
     fbb_.Required(o, XBlueprint::VT_SETTINGS);
     fbb_.Required(o, XBlueprint::VT_HELP);
-    fbb_.Required(o, XBlueprint::VT_MESSAGES);
     return o;
   }
 };
