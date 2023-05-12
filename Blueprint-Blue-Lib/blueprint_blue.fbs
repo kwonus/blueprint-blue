@@ -8,7 +8,11 @@ enum XLexEnum:   byte { AV = 0, AVX = 1 }
 enum XFmtEnum:   byte { JSON = 0, TEXT = 1, HTML = 2, MD = 3 }
 enum XLangEnum:  byte { H = 1, G = 2, X = 0 }
 enum XUserEnum:  byte { ANONYMOUS = 0, EXISTING = 1, NEW = 2, RESET = 3, UNKNOWN = 4 }
-enum XStatusEnum:byte { OK = 0, ERROR = 1, UNKNOWN = 2 }
+enum XStatusEnum:byte { COMPLETED = 0, ACTION_REQUIRED = 1, FEEDBACK_EXPECTED = 2, ERROR = 3, UNKNOWN = 4 }
+//   When Status == COMPLETED: there is no further action required by avx-command [same is true for ERROR and UNKNOWN] // although reporting status or error to the user may still be warrented
+//   When Status == ACTION_REQUIRED: the verb will not be complete until avx-command performs additional actions
+//   When Status == FEEDBACK_REQUESTED: this is similar to ACTION_REQUIRED, but a return message from avx-command is also expected subsequently
+//   (feedback message facillitates search summaries to be written into the command history; blueprint-blue manages all user-persisted data)
 
 //table QuelleRequest (fs_serializer) {
 //    command:     string      (required);
@@ -25,8 +29,9 @@ table XBlueprint (fs_serializer) { // was: XRequest
     search:    [ XSearch ];
     scope:     [ XScope ];
     singleton:   XCommand;
-    status:      XStatusEnum = UNKNOWN;
-    message:     string      (required);
+    status:      XStatusEnum = UNKNOWN;  // required
+    help:        string      (required); // url [likely on github for automatic markdown to html conversion]
+    messages:  [ string ];
 }
 
 table XCommand (fs_serializer) {

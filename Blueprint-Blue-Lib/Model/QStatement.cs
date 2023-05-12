@@ -14,6 +14,8 @@ namespace Blueprint.Blue
         public string ParseDiagnostic { get; set; }
         public List<string> Errors { get; set; }
         public List<string> Warnings { get; set; }
+        public Dictionary<string, string> Disposition { get; set; }
+
         public QExplicitCommand? Singleton { get; set; }
         public QImplicitCommands? Commands { get; set; }
         public QContext Context { get; private set; }
@@ -28,6 +30,7 @@ namespace Blueprint.Blue
             this.ParseDiagnostic= string.Empty;
             this.Errors = new();
             this.Warnings = new();
+            this.Disposition = new();
             this.Singleton = null;
             this.Commands= null;
             this.GlobalSettings = new QSettings(@"C:\Users\Me\AVX\Quelle\settings.quelle");
@@ -48,8 +51,9 @@ namespace Blueprint.Blue
                 return new XBlueprint()
                 {
                     Settings = this.Context.AsMessage(),
-                    Message = "Unexpected error or ill-defined request",
-                    Status = XStatusEnum.ERROR
+                    Messages = this.Context.Statement.Errors.Count > 0 ? this.Context.Statement.Errors : new() { "Unexpected error or ill-defined request" },
+                    Status = XStatusEnum.ERROR,
+                    Help = "to be defined later"
                 };
             }
         }
@@ -62,6 +66,10 @@ namespace Blueprint.Blue
         public void AddWarning(string message)
         {
             this.Warnings.Add(message);
+        }
+        public void AddDisposition(string type, string message)
+        {
+            this.Disposition[type.ToLower()] = message;
         }
         public QExpandableStatement? MaintainState()
         {

@@ -205,16 +205,20 @@ inline const char *EnumNameXUserEnum(XUserEnum e) {
 }
 
 enum XStatusEnum : int8_t {
-  XStatusEnum_OK = 0,
-  XStatusEnum_ERROR = 1,
-  XStatusEnum_UNKNOWN = 2,
-  XStatusEnum_MIN = XStatusEnum_OK,
+  XStatusEnum_COMPLETED = 0,
+  XStatusEnum_ACTION_REQUIRED = 1,
+  XStatusEnum_FEEDBACK_EXPECTED = 2,
+  XStatusEnum_ERROR = 3,
+  XStatusEnum_UNKNOWN = 4,
+  XStatusEnum_MIN = XStatusEnum_COMPLETED,
   XStatusEnum_MAX = XStatusEnum_UNKNOWN
 };
 
-inline const XStatusEnum (&EnumValuesXStatusEnum())[3] {
+inline const XStatusEnum (&EnumValuesXStatusEnum())[5] {
   static const XStatusEnum values[] = {
-    XStatusEnum_OK,
+    XStatusEnum_COMPLETED,
+    XStatusEnum_ACTION_REQUIRED,
+    XStatusEnum_FEEDBACK_EXPECTED,
     XStatusEnum_ERROR,
     XStatusEnum_UNKNOWN
   };
@@ -222,8 +226,10 @@ inline const XStatusEnum (&EnumValuesXStatusEnum())[3] {
 }
 
 inline const char * const *EnumNamesXStatusEnum() {
-  static const char * const names[4] = {
-    "OK",
+  static const char * const names[6] = {
+    "COMPLETED",
+    "ACTION_REQUIRED",
+    "FEEDBACK_EXPECTED",
     "ERROR",
     "UNKNOWN",
     nullptr
@@ -232,7 +238,7 @@ inline const char * const *EnumNamesXStatusEnum() {
 }
 
 inline const char *EnumNameXStatusEnum(XStatusEnum e) {
-  if (flatbuffers::IsOutRange(e, XStatusEnum_OK, XStatusEnum_UNKNOWN)) return "";
+  if (flatbuffers::IsOutRange(e, XStatusEnum_COMPLETED, XStatusEnum_UNKNOWN)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesXStatusEnum()[index];
 }
@@ -399,7 +405,8 @@ struct XBlueprint FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_SCOPE = 8,
     VT_SINGLETON = 10,
     VT_STATUS = 12,
-    VT_MESSAGE = 14
+    VT_HELP = 14,
+    VT_MESSAGES = 16
   };
   const XBlueprintBlue::XSettings *settings() const {
     return GetPointer<const XBlueprintBlue::XSettings *>(VT_SETTINGS);
@@ -414,10 +421,13 @@ struct XBlueprint FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     return GetPointer<const XBlueprintBlue::XCommand *>(VT_SINGLETON);
   }
   XBlueprintBlue::XStatusEnum status() const {
-    return static_cast<XBlueprintBlue::XStatusEnum>(GetField<int8_t>(VT_STATUS, 2));
+    return static_cast<XBlueprintBlue::XStatusEnum>(GetField<int8_t>(VT_STATUS, 4));
   }
-  const flatbuffers::String *message() const {
-    return GetPointer<const flatbuffers::String *>(VT_MESSAGE);
+  const flatbuffers::String *help() const {
+    return GetPointer<const flatbuffers::String *>(VT_HELP);
+  }
+  const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *messages() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *>(VT_MESSAGES);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -432,8 +442,11 @@ struct XBlueprint FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyOffset(verifier, VT_SINGLETON) &&
            verifier.VerifyTable(singleton()) &&
            VerifyField<int8_t>(verifier, VT_STATUS, 1) &&
-           VerifyOffsetRequired(verifier, VT_MESSAGE) &&
-           verifier.VerifyString(message()) &&
+           VerifyOffsetRequired(verifier, VT_HELP) &&
+           verifier.VerifyString(help()) &&
+           VerifyOffsetRequired(verifier, VT_MESSAGES) &&
+           verifier.VerifyVector(messages()) &&
+           verifier.VerifyVectorOfStrings(messages()) &&
            verifier.EndTable();
   }
 };
@@ -455,10 +468,13 @@ struct XBlueprintBuilder {
     fbb_.AddOffset(XBlueprint::VT_SINGLETON, singleton);
   }
   void add_status(XBlueprintBlue::XStatusEnum status) {
-    fbb_.AddElement<int8_t>(XBlueprint::VT_STATUS, static_cast<int8_t>(status), 2);
+    fbb_.AddElement<int8_t>(XBlueprint::VT_STATUS, static_cast<int8_t>(status), 4);
   }
-  void add_message(flatbuffers::Offset<flatbuffers::String> message) {
-    fbb_.AddOffset(XBlueprint::VT_MESSAGE, message);
+  void add_help(flatbuffers::Offset<flatbuffers::String> help) {
+    fbb_.AddOffset(XBlueprint::VT_HELP, help);
+  }
+  void add_messages(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> messages) {
+    fbb_.AddOffset(XBlueprint::VT_MESSAGES, messages);
   }
   explicit XBlueprintBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -468,7 +484,8 @@ struct XBlueprintBuilder {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<XBlueprint>(end);
     fbb_.Required(o, XBlueprint::VT_SETTINGS);
-    fbb_.Required(o, XBlueprint::VT_MESSAGE);
+    fbb_.Required(o, XBlueprint::VT_HELP);
+    fbb_.Required(o, XBlueprint::VT_MESSAGES);
     return o;
   }
 };
@@ -480,9 +497,11 @@ inline flatbuffers::Offset<XBlueprint> CreateXBlueprint(
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XScope>>> scope = 0,
     flatbuffers::Offset<XBlueprintBlue::XCommand> singleton = 0,
     XBlueprintBlue::XStatusEnum status = XBlueprintBlue::XStatusEnum_UNKNOWN,
-    flatbuffers::Offset<flatbuffers::String> message = 0) {
+    flatbuffers::Offset<flatbuffers::String> help = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> messages = 0) {
   XBlueprintBuilder builder_(_fbb);
-  builder_.add_message(message);
+  builder_.add_messages(messages);
+  builder_.add_help(help);
   builder_.add_singleton(singleton);
   builder_.add_scope(scope);
   builder_.add_search(search);
@@ -498,10 +517,12 @@ inline flatbuffers::Offset<XBlueprint> CreateXBlueprintDirect(
     const std::vector<flatbuffers::Offset<XBlueprintBlue::XScope>> *scope = nullptr,
     flatbuffers::Offset<XBlueprintBlue::XCommand> singleton = 0,
     XBlueprintBlue::XStatusEnum status = XBlueprintBlue::XStatusEnum_UNKNOWN,
-    const char *message = nullptr) {
+    const char *help = nullptr,
+    const std::vector<flatbuffers::Offset<flatbuffers::String>> *messages = nullptr) {
   auto search__ = search ? _fbb.CreateVector<flatbuffers::Offset<XBlueprintBlue::XSearch>>(*search) : 0;
   auto scope__ = scope ? _fbb.CreateVector<flatbuffers::Offset<XBlueprintBlue::XScope>>(*scope) : 0;
-  auto message__ = message ? _fbb.CreateString(message) : 0;
+  auto help__ = help ? _fbb.CreateString(help) : 0;
+  auto messages__ = messages ? _fbb.CreateVector<flatbuffers::Offset<flatbuffers::String>>(*messages) : 0;
   return XBlueprintBlue::CreateXBlueprint(
       _fbb,
       settings,
@@ -509,7 +530,8 @@ inline flatbuffers::Offset<XBlueprint> CreateXBlueprintDirect(
       scope__,
       singleton,
       status,
-      message__);
+      help__,
+      messages__);
 }
 
 struct XCommand FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {

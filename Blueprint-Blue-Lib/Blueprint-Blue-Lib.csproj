@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
+	
   <ItemGroup>
 	  <FlatSharpSchema Include="blueprint_blue.fbs" />
 	  <FlatSharpSchema Include="avx_search.fbs" />
