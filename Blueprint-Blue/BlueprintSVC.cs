@@ -77,7 +77,7 @@ namespace Blueprint_Blue
                             {
                                 Int64 seq = DateTimeOffset.Now.ToUnixTimeMilliseconds();
                                 while (this.CommandSequence.ContainsKey(seq))
-                                    seq++; // this is very unlike, but avoids collisions (single-threaded)
+                                    seq++; // this is very unlikely, but avoids collisions (single-threaded)
                                 var result = QStatement.Parse(content);
 
                                 if (result.blueprint != null && result.blueprint.IsValid)

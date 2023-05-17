@@ -98,7 +98,7 @@ namespace Blueprint.Blue
         }
         public XSearch AsMessage()
         {
-            var search = new XSearch { Search = this.Text, Quoted = this.IsQuoted, Negate = !this.Polarity.Positive, Segments = new List<XSegment>() };
+            var search = new XSearch { Expression = this.Text, Quoted = this.IsQuoted, Negate = !this.Polarity.Positive, Segments = new List<XSegment>() };
 
             foreach (var segment in this.Segments)
             {

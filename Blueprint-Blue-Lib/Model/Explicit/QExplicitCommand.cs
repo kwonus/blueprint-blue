@@ -19,7 +19,8 @@ namespace Blueprint.Blue
         }
         public XBlueprint AsSingletonCommand()
         {
-            var command = new XCommand() { Command = this.Text, Verb = this.Verb, Response = this.Context.Statement.Errors };
+            var reply = new XReply();
+            var command = new XCommand() { Command = this.Text, Verb = this.Verb, Reply = reply };
             this.AddArgs(command);
             var request = this.Context.Statement.IsValid && (this.Context.Statement.Errors.Count == 0)
             ? new XBlueprint()
@@ -27,17 +28,21 @@ namespace Blueprint.Blue
                 Settings = this.Context.AsMessage(),
                 Singleton = command,
                 Status = XStatusEnum.COMPLETED,
-                Help = "to be defined later"
+                Help = "https://to-be-defined-later.html"
             }
             : new XBlueprint()
             {
                 Settings = this.Context.AsMessage(),
                 Singleton = command,
                 Status = XStatusEnum.ERROR,
-                Messages = this.Context.Statement.Errors.Count > 0 ? this.Context.Statement.Errors : new() { "error" },
-                Help = "to be defined later"
+                Errors = this.Context.Statement.Errors.Count > 0 ? this.Context.Statement.Errors : new() { "Unexpected error" },
+                Help = "https://to-be-defined-later.html"
             };
-            return request ;
+            if (this.Context.Statement.Warnings.Count > 0)
+            {
+                request.Warnings = this.Context.Statement.Warnings;
+            }
+            return request;
         }
         public abstract void AddArgs(XCommand command);
 

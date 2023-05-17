@@ -270,16 +270,20 @@
                 Settings = this.Context.AsMessage(),
                 Search = new List<XSearch>(),
                 Status = XStatusEnum.FEEDBACK_EXPECTED,
-                Help = "to be defined later"
+                Help = "https://to-be-defined-later.html"
             }
             : new XBlueprint()
             {
                 Settings = this.Context.AsMessage(),
                 Search = new List<XSearch>(),
                 Status = XStatusEnum.ERROR,
-                Messages = this.Context.Statement.Errors.Count > 0 ? this.Context.Statement.Errors : new() { "error" },
-                Help = "to be defined later"
+                Errors = this.Context.Statement.Errors.Count > 0 ? this.Context.Statement.Errors : new() { "Unknown error" },
+                Help = "https://to-be-defined-later.html"
             };
+            if (this.Context.Statement.Warnings.Count > 0)
+            {
+                request.Warnings = this.Context.Statement.Warnings;
+            }
 
             if (this.Context.Statement.IsValid)
             {

@@ -8,7 +8,7 @@ enum XLexEnum:   byte { AV = 0, AVX = 1 }
 enum XFmtEnum:   byte { JSON = 0, TEXT = 1, HTML = 2, MD = 3 }
 enum XLangEnum:  byte { H = 1, G = 2, X = 0 }
 enum XUserEnum:  byte { ANONYMOUS = 0, EXISTING = 1, NEW = 2, RESET = 3, UNKNOWN = 4 }
-enum XStatusEnum:byte { COMPLETED = 0, ACTION_REQUIRED = 1, FEEDBACK_EXPECTED = 2, ERROR = 3, UNKNOWN = 4 }
+enum XStatusEnum:byte { COMPLETED = 0, FEEDBACK_EXPECTED = 1, ERROR = 2, UNKNOWN = 3 }
 //   When Status == COMPLETED: there is no further action required by avx-command [same is true for ERROR and UNKNOWN] // although reporting status or error to the user may still be warrented
 //   When Status == ACTION_REQUIRED: the verb will not be complete until avx-command performs additional actions
 //   When Status == FEEDBACK_REQUESTED: this is similar to ACTION_REQUIRED, but a return message from avx-command is also expected subsequently
@@ -30,19 +30,38 @@ table XBlueprint (fs_serializer) { // was: XRequest
     scope:     [ XScope ];
     singleton:   XCommand;
     status:      XStatusEnum = UNKNOWN;  // required
-    help:        string      (required); // url [likely on github for automatic markdown to html conversion]
-    messages:  [ string ];
+    help:        string      (required); // url of help-file for singleton.command xor search.expression  [likely on github for automatic markdown to html conversion]
+    warnings:  [ string ];
+    errors:    [ string ];
 }
 
-table XCommand (fs_serializer) {
+table XCommand (fs_serializer) { // for singleton expressions
     command:     string      (required);
     verb:        string      (required);
     arguments: [ string ];
-    response:  [ string ]    (required);
+    reply:       XReply;
+}
+
+table XReply (fs_serializer) {
+    version:     string;      // for @version
+    help:        string;      // for @help
+    value:       string;      // for @get
+    macro:       XStatement;  // for @expand
+    history:   [ XStatement ];// for @review (history)
+}
+
+table XStatement (fs_serializer) {
+    id:          uint32 = 0;  // required for @review (history)
+    label:       string;      // required for @expand reply
+    time:        uint64 = 0;  // required
+    stmt:        string      (required);
+    expd:        string      (required);
+    summary:     string;      // defined only for searches
+    settings:    XSettings   (required);
 }
 
 table XSearch (fs_serializer) {
-    search:      string      (required);
+    expression:  string      (required);
     negate:      bool        = false;
     quoted:      bool        = false;
     segments:  [ XSegment ]  (required);
@@ -111,7 +130,7 @@ table XDelta (fs_serializer) {
 }
 
 table XSettings (fs_serializer) {
-    exact:       bool     = false;
+    exact:       bool     = false;  // for some after version 2.0.3.511, this will become:: match: string (required) ... e.g. av, avx, either, av:80%, avx:80%, either:80%, etc
     span:        uint16   = 0;
     lexicon:     XLexEnum = AV;
     format:      XFmtEnum = JSON;
