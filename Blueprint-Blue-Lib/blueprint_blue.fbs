@@ -4,7 +4,8 @@ attribute "fs_sharedString";
 
 namespace XBlueprintBlue;
 
-enum XLexEnum:   byte { AV = 0, AVX = 1 }
+enum XOutEnum:   byte { AV = 1, AVX = 2 }
+enum XLexEnum:   byte { AV = 1, AVX = 2, BOTH = 3 }
 enum XFmtEnum:   byte { JSON = 0, TEXT = 1, HTML = 2, MD = 3 }
 enum XLangEnum:  byte { H = 1, G = 2, X = 0 }
 enum XUserEnum:  byte { ANONYMOUS = 0, EXISTING = 1, NEW = 2, RESET = 3, UNKNOWN = 4 }
@@ -130,14 +131,16 @@ table XDelta (fs_serializer) {
 }
 
 table XSettings (fs_serializer) {
-    exact:       bool     = false;  // for some after version 2.0.3.511, this will become:: match: string (required) ... e.g. av, avx, either, av:80%, avx:80%, either:80%, etc
+    threshold_txt: byte   = 100;
+    threshold_pho: byte   = 0;
     span:        uint16   = 0;
-    lexicon:     XLexEnum = AV;
+    lexicon:     XLexEnum = BOTH;
+    display:     XOutEnum = AV;
     format:      XFmtEnum = JSON;
 }
 
 table XScope (fs_serializer) {
-    book:        uint8 = 0;      // required
+    book:        uint8 = 0;       // required
     chapter:     uint8 = 0;      // required
     verse:       uint8 = 1;      // optional
     vcount:      uint8 = 255;    // optional: verse-count: defaults to all remaining verses in chapter

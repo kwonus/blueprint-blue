@@ -18,6 +18,8 @@ namespace Blueprint_Blue
 
         public BlueprintSVC()
         {
+            var forceInitialization = QContext.AVXObjects;
+
             this.CommandSequence = new();
         }
         public async void Run()

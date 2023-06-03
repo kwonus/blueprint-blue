@@ -151,7 +151,7 @@ namespace Blueprint_Blue_Test
         [TestMethod]
         public void SearchWithPOS()
         {
-            string stmt = "/noun/ /verb/ /!pn_obj/";
+            string stmt = "/noun/ /verb/";
             var root = QStatement.Parse(stmt);
 
             Assert.IsNotNull(root.fatal);
@@ -261,24 +261,6 @@ namespace Blueprint_Blue_Test
             }
         }
         [TestMethod]
-        public void DefaultsOnHistory()
-        {
-            string stmt = "$1::defaults";
-            var root = QStatement.Parse(stmt);
-
-            Assert.IsNotNull(root.fatal);
-            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
-            Assert.IsNotNull(root.blueprint);
-
-            Assert.IsTrue(root.blueprint.IsValid);
-            Assert.IsNotNull(root.blueprint.Commands);
-
-            if (root.blueprint.Commands != null) // silence the compiler of warnings
-            {
-                ;
-            }
-        }
-        [TestMethod]
         public void LocalCurrentonMacro()
         {
             // A current bug in the grammar does not allow the setting in first position of the statement
@@ -303,7 +285,7 @@ namespace Blueprint_Blue_Test
         {
             // A current bug in the grammar does not allow the setting in first position of the statement
             //
-            string stmt = "$goodness::absorb";
+            string stmt = "@absorb goodness";
             var root = QStatement.Parse(stmt);
 
             Assert.IsNotNull(root.fatal);

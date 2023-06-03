@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Digital-AV\omega\foundations\csharp\AVXLib\AVXLib.csproj" />
+    <ProjectReference Include="..\..\NUPhone\PhonemeEmbeddings\PhonemeEmbeddings.csproj" />
   </ItemGroup>
 
 </Project>
