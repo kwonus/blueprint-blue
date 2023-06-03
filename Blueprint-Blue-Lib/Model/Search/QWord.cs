@@ -12,7 +12,8 @@ namespace Blueprint.Blue
 
         public QWord(QFind search, string text, Parsed parse) : base(search, text, parse)
         {
-            this.WordKeys = QContext.AVXObjects.lexicon.GetReverseLexExtensive(text, this.Search.Context.LocalSettings.Exact.Value);
+            var wkey = QContext.AVXObjects.lexicon.GetReverseLex(text);
+            this.WordKeys = (wkey != 0) ? new UInt16[1] { wkey } : new UInt16[0];
             if (this.WordKeys.Length == 0)
             {
                 this.Search.Context.AddError("A word was specified that could not be found in the lexicon: " + text);

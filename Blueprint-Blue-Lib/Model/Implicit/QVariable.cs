@@ -2,7 +2,7 @@
 {
     using Pinshot.PEG;
     using System;
-    using static global::Blueprint.Blue.QDomain;
+    using static global::Blueprint.Blue.QLexicalDomain;
 
     public class QSpan
     {
@@ -41,10 +41,12 @@
             }
             return QSpan.VERSE;
         }
-        public static string ToString(QDomainVal val)
+        // Cruft ???
+        /*
+        public static string ToString(QLexiconVal val)
         {
             return val.ToString();
-        }
+        }*/
         public override string ToString()
         {
             return this.Value.ToString();
@@ -54,90 +56,170 @@
             return "span: " + this.ToString();
         }
     }
-    public class QExact
+    public class QFuzzy
     {
-        public const bool DEFAULT = false;
-        public bool Value { get; set; }
-        public QExact()
+        public string KEY { get; private set; }
+        public byte DEFAULT
         {
-            this.Value = QExact.DEFAULT;
+            get
+            {
+                if (this.KEY.Contains("pho", StringComparison.InvariantCultureIgnoreCase)) // phonetic vs text
+                    return 0;
+                return 100;
+            }
         }
-        public QExact(bool val)
+        public byte Value { get; set; }
+        public QFuzzy(string key)
         {
+            this.KEY = key;
+            this.Value = this.DEFAULT;
+        }
+        public QFuzzy(string key, byte val)
+        {
+            this.KEY = key;
             this.Value = val;
         }
-        public QExact(string val)
+        public QFuzzy(string key, string val)
         {
-            this.Value = QExact.FromString(val);
+            this.KEY = key;
+            this.Value = QFuzzy.FromString(val);
         }
-        public static bool FromString(string val)
+        public static byte FromString(string val)
         {
             string test = val.Trim().ToLower();
-            return test == "f"
-                || test == "false"
-                || test == "y"
-                || test == "yes"
-                || test == "1";
+            if (val.Equals("none"))
+                return 0;
+            if (val.Equals("exact") || val.Equals("exact"))
+                return 100;
+            if (val.Length != 2)
+                return 0;
+            try
+            {
+                return (byte)UInt16.Parse(val);
+            }
+            catch
+            {
+                return 0;
+            }
         }
-        public static string ToString(bool val)
+        public static string ToString(byte val)
         {
-            return val ? "true" : "false";
+            return val.ToString();
         }
         public override string ToString()
         {
-            return this.Value ? "true" : "false";
+            return this.Value.ToString();
         }
         public string AsYaml()
         {
-            return "exact: " + this.ToString();
+            return this.KEY + ": " + this.ToString();
         }
     }
-    public class QDomain
+    public class QLexicalDomain
     {
-        public enum QDomainVal
+        public enum QLexiconVal
         {
-            AV = 0,
-            AVX = 1
+            UNDEFINED,
+            AV = 1,
+            AVX = 2,
+            BOTH = 3
         }
-        public const QDomainVal DEFAULT = QDomainVal.AV;
-        public QDomainVal Value { get; set; }
-        public QDomain()
+        public const QLexiconVal DEFAULT = QLexiconVal.BOTH;
+        public QLexiconVal Value { get; set; }
+        public QLexicalDomain()
         {
-            this.Value = QDomain.DEFAULT;
+            this.Value = QLexicalDomain.DEFAULT;
         }
-        public QDomain(QDomainVal val)
+        public QLexicalDomain(QLexiconVal val)
         {
             this.Value = val;
         }
-        public QDomain(string val)
+        public QLexicalDomain(string val)
         {
-            this.Value = QDomain.FromString(val);
+            this.Value = QLexicalDomain.FromString(val);
         }
-        public static QDomainVal FromString(string val)
+        public static QLexiconVal FromString(string val)
         {
             switch (val.Trim().ToUpper())
             {
-                case "AV":  return QDomainVal.AV;
-                case "AVX": return QDomainVal.AVX;
-                default:    return QDomain.DEFAULT;
+                case "KJV":
+                case "AV":   return QLexiconVal.AV;
+                case "MODERN":
+                case "MOD":
+                case "AVX":  return QLexiconVal.AVX;
+                case "BOTH":
+                case "DUAL": return QLexiconVal.BOTH;
+                default:     return QLexicalDomain.DEFAULT;
             }
         }
-        public static string ToString(QDomainVal val)
+        public static string ToString(QLexiconVal val)
         {
             switch (val)
             {
-                case QDomainVal.AV:  return "av";
-                case QDomainVal.AVX: return "avx";
-                default:             return QDomain.DEFAULT.ToString();
+                case QLexiconVal.AV:  return "av";
+                case QLexiconVal.AVX: return "avx";
+                default:             return QLexicalDomain.DEFAULT.ToString();
             }
         }
         public override string ToString()
         {
-            return QDomain.ToString(this.Value);
+            return QLexicalDomain.ToString(this.Value);
         }
         public string AsYaml()
         {
             return "lexicon: " + this.ToString();
+        }
+    }
+    public class QLexicalDisplay
+    {
+        public enum QDisplayVal
+        {
+            UNDEFINED,
+            AV = 1,
+            AVX = 2
+        }
+        public const QDisplayVal DEFAULT = QDisplayVal.AV;
+        public QDisplayVal Value { get; set; }
+        public QLexicalDisplay()
+        {
+            this.Value = QLexicalDisplay.DEFAULT;
+        }
+        public QLexicalDisplay(QDisplayVal val)
+        {
+            this.Value = val;
+        }
+        public QLexicalDisplay(string val)
+        {
+            this.Value = QLexicalDisplay.FromString(val);
+        }
+        public static QDisplayVal FromString(string val)
+        {
+            switch (val.Trim().ToUpper())
+            {
+                case "KJV":
+                case "AV":  return QDisplayVal.AV;
+                case "MODERN":
+                case "MOD":
+                case "AVX": return QDisplayVal.AVX;
+                default:    return QLexicalDisplay.DEFAULT;
+            }
+        }
+        public static string ToString(QDisplayVal val)
+        {
+            switch (val)
+            {
+                case QDisplayVal.AV: return "av";
+                case QDisplayVal.AVX: return "avx";
+                default: return QLexicalDisplay.DEFAULT.ToString();
+            }
+        }
+        public override string ToString()
+        {
+            return QLexicalDisplay.ToString(this.Value);
+        }
+        public string AsYaml()
+        {
+            return "display: " + this.ToString();
         }
     }
     public class QFormat
@@ -219,9 +301,19 @@
             switch (setting.Trim().ToLower())
             {
                 case "span":   return QSpan.DEFAULT.ToString();
-                case "lexicon": return QDomain.DEFAULT.ToString();
-                case "exact":  return QExact.DEFAULT.ToString();
+                case "lexicon": return QLexicalDomain.DEFAULT.ToString();
+                case "display": return QLexicalDomain.DEFAULT.ToString();
                 case "format": return QFormat.DEFAULT.ToString();
+            }
+            var parts = setting.Split('.');
+            if (parts.Length == 2)
+            {
+                if (parts[0].Equals("threshold.", StringComparison.InvariantCultureIgnoreCase)
+                ||  parts[0].Equals("score.", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    var obj = new QFuzzy(parts[1]);
+                    return obj.DEFAULT.ToString(); ;
+                }
             }
             return string.Empty;
         }

@@ -6,6 +6,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using BlueprintBlue.FuzzyLex;
 
     public class QContext
     {
@@ -24,7 +25,8 @@
         }
         public XSettings AsMessage()
         {
-            var xdomain = this.LocalSettings.Lexicon.Value == QDomain.QDomainVal.AV ? XLexEnum.AV : XLexEnum.AVX;
+            var xdomain = this.LocalSettings.Lexicon.Value == QLexicalDomain.QLexiconVal.BOTH ? XLexEnum.BOTH : this.LocalSettings.Lexicon.Value == QLexicalDomain.QLexiconVal.AV ? XLexEnum.AV : XLexEnum.AVX;
+            var xdisplay = this.LocalSettings.Display.Value == QLexicalDisplay.QDisplayVal.AV ? XOutEnum.AV : XOutEnum.AVX;
             var xformat = XFmtEnum.JSON;
             if (this.LocalSettings.Format.Value != QFormat.QFormatVal.JSON)
             {
@@ -35,7 +37,7 @@
                 else if (this.LocalSettings.Format.Value != QFormat.QFormatVal.MD)
                     xformat = XFmtEnum.MD;
             }
-            return new XSettings() { Exact = this.LocalSettings.Exact.Value, Span = this.LocalSettings.Span.Value, Format = xformat, Lexicon = xdomain };
+            return new XSettings() { ThresholdTxt = (sbyte) this.LocalSettings.ThresholdTxt.Value, ThresholdPho = (sbyte)this.LocalSettings.ThresholdPho.Value, Span = this.LocalSettings.Span.Value, Format = xformat, Lexicon = xdomain, Display = xdisplay };
         }
 
         public string   User   { get; set; }
@@ -48,12 +50,15 @@
         public string MacroPath { get; private set; }   // not used yet
 
         public static AVXLib.ObjectTable AVXObjects { get; internal set; } = AVXLib.ObjectTable.Create(@"C:\src\Digital-AV\omega\AVX-Omega.data");
-
+        static QContext()
+        {
+            BlueprintLex.Initialize(QContext.AVXObjects);
+        }
         private Dictionary<UInt32, QExpandableStatement> History = new();
 
         public QContext(QStatement statement, string session)
         {
-
+            BlueprintBlue.FuzzyLex.BlueprintLex.Initialize(QContext.AVXObjects);
             this.Statement = statement;
 
             this.GlobalSettings = statement.GlobalSettings;

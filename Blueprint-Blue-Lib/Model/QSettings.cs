@@ -13,10 +13,14 @@
                 {
                     using (StreamWriter sw = File.CreateText(this.BackingStore))
                     {
-                        if (this.Lexicon.Value != QDomain.DEFAULT)
+                        if (this.Lexicon.Value != QLexicalDomain.DEFAULT)
                             sw.WriteLine(this.Lexicon.AsYaml());
-                        if (this.Exact.Value != QExact.DEFAULT)
-                            sw.WriteLine(this.Exact.AsYaml());
+                        if (this.Display.Value != QLexicalDisplay.DEFAULT)
+                            sw.WriteLine(this.Display.AsYaml());
+                        if (this.ThresholdTxt.Value != this.ThresholdTxt.DEFAULT)
+                            sw.WriteLine(this.ThresholdTxt.AsYaml());
+                        if (this.ThresholdPho.Value != this.ThresholdPho.DEFAULT)
+                            sw.WriteLine(this.ThresholdPho.AsYaml());
                         if (this.Format.Value != QFormat.DEFAULT)
                             sw.WriteLine(this.Format.AsYaml());
                         if (this.Span.Value != QSpan.DEFAULT)
@@ -42,12 +46,22 @@
                     if (kv.Length == 2)
                     {
                         var trimmed = kv[0].Trim();
+                        var parts = trimmed.Split('.');
 
-                        switch (trimmed)
+                        switch (parts[0])
                         {
                             case "span":    this.Span = new QSpan(kv[1]); break;
-                            case "lexicon": this.Lexicon = new QDomain(kv[1]); break;
-                            case "exact":   this.Exact = new QExact(kv[1]); break;
+                            case "lexicon": this.Lexicon = new QLexicalDomain(kv[1]); break;
+                            case "display": this.Display = new QLexicalDisplay(kv[1]); break;
+                            case "threshold":
+                            case "score":   if (parts.Length == 2)
+                                            {
+                                                if (parts[1].Contains("xt"))
+                                                    this.ThresholdTxt = new QFuzzy(parts[1], kv[1]);
+                                                else if (parts[1].Contains("pho"))
+                                                    this.ThresholdPho = new QFuzzy(parts[1], kv[1]);
+                                            }
+                                            break;
                             case "format":  this.Format = new QFormat(kv[1]); break;
                         }
                     }
@@ -55,10 +69,12 @@
             }
             return true;
         }
-        public QFormat Format  { get; set; }
-        public QDomain Lexicon { get; set; }
-        public QSpan Span      { get; set; }
-        public QExact Exact    { get; set; }
+        public QFormat  Format  { get; set; }
+        public QLexicalDomain  Lexicon { get; set; }
+        public QLexicalDisplay Display { get; set; }
+        public QSpan    Span    { get; set; }
+        public QFuzzy   ThresholdTxt { get; set; }
+        public QFuzzy   ThresholdPho { get; set; }
 
         private string? BackingStore;
 #pragma warning disable CS8618
@@ -87,17 +103,21 @@
         public QSettings ResetDefaults()
         {
             this.Format  = new QFormat();
-            this.Lexicon = new QDomain();
+            this.Lexicon = new QLexicalDomain();
+            this.Display = new QLexicalDisplay();
             this.Span    = new QSpan();
-            this.Exact   = new QExact();
+            this.ThresholdTxt = new QFuzzy("thresholdTxt");
+            this.ThresholdPho = new QFuzzy("thresholdPho");
             return this;
         }
         public QSettings CopyFrom(QSettings source)
         {
             this.Format  = new QFormat(source.Format.Value);
-            this.Lexicon = new QDomain(source.Lexicon.Value);
+            this.Lexicon = new QLexicalDomain(source.Lexicon.Value);
+            this.Display = new QLexicalDisplay(source.Display.Value);
             this.Span    = new QSpan(source.Span.Value);
-            this.Exact   = new QExact(source.Exact.Value);
+            this.ThresholdTxt = new QFuzzy("scoreTxt", source.ThresholdTxt.Value);
+            this.ThresholdPho = new QFuzzy("scorePho", source.ThresholdPho.Value);
 
             return this;
         }
@@ -105,9 +125,11 @@
         {
             var yaml = new List<string>();
             yaml.Add(this.Span.AsYaml());
-            yaml.Add(this.Exact.AsYaml());
+            yaml.Add(this.ThresholdTxt.AsYaml());
+            yaml.Add(this.ThresholdPho.AsYaml());
             yaml.Add(this.Format.AsYaml());
             yaml.Add(this.Lexicon.AsYaml());
+            yaml.Add(this.Display.AsYaml());
             return yaml;
         }
     }

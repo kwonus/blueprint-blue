@@ -38,19 +38,22 @@ namespace Blueprint.Blue
                     ending = normalized.Substring(star + 1);
                 }
 
-                UInt16 key = 0;
-                foreach (var lex in lexicon)
+                if (this.Search.Context.LocalSettings.Lexicon.Value != QLexicalDomain.QLexiconVal.AVX)
                 {
-                    ++key;
+                    UInt16 key = 0;
+                    foreach (var lex in lexicon)
+                    {
+                        ++key;
 
-                    var find = lex.Search.ToString();
-                    if ( ((beginning == null) || find.ToString().StartsWith(beginning, StringComparison.InvariantCultureIgnoreCase))
-                    &&   ((   ending == null) || find.ToString().EndsWith(     ending, StringComparison.InvariantCultureIgnoreCase)) )
-                        words.Add(key);
+                        var find = lex.Search.ToString();
+                        if (((beginning == null) || find.ToString().StartsWith(beginning, StringComparison.InvariantCultureIgnoreCase))
+                        && ((ending == null) || find.ToString().EndsWith(ending, StringComparison.InvariantCultureIgnoreCase)))
+                            words.Add(key);
+                    }
                 }
-                if (!this.Search.Context.LocalSettings.Exact.Value)
-                { 
-                    key = 0;
+                if (this.Search.Context.LocalSettings.Lexicon.Value != QLexicalDomain.QLexiconVal.AV)
+                {
+                    UInt16 key = 0;
                     foreach (var lex in lexicon)
                     {
                         ++key;

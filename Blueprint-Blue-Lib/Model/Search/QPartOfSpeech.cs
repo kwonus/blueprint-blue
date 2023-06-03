@@ -64,17 +64,7 @@ namespace Blueprint.Blue
         };
         static QPartOfSpeech()
         {
-            var negations = new Dictionary<string, (UInt16 pnpos, bool negate)>();
-
-            foreach (var kv in QPartOfSpeech.PnPosTable)
-            {
-                var negate = "/!" + kv.Key.Substring(1);
-                negations[negate] = (kv.Value.pnpos, true);
-            }
-            foreach (var kv in negations)
-            {
-                QPartOfSpeech.PnPosTable[kv.Key] = kv.Value;
-            }
+            ;
         }
 
         public static ((UInt16 pnpos, bool negate) result, bool found) Lookup(string pnpos)
