@@ -185,7 +185,6 @@
 
             if (stmt.rule.Equals("statement", StringComparison.InvariantCultureIgnoreCase) && (stmt.children.Length == 1))
             {
-                IPolarity? polarity = null;
                 foreach (var command in stmt.children)
                 {
                     if (command.rule.Equals("vector", StringComparison.InvariantCultureIgnoreCase)
@@ -193,30 +192,11 @@
                     {
                         foreach (var clause in command.children)
                         {
-                            if (clause.rule.Equals("negative", StringComparison.InvariantCultureIgnoreCase))
-                            {
-                                polarity = new QPolarityNegative(clause.text);
-                                continue;
-                            }
                             var objects = QImplicitCommand.Create(context, clause);
                             var test = false;
 
                             foreach (var obj in objects)
                             {
-                                test = true;
-                                if (obj.GetType() == typeof(QFind))
-                                {
-                                    if (polarity != null)
-                                    {
-                                        ((QFind)obj).Polarity = polarity;
-                                        polarity = null;
-                                    }
-                                }
-                                else if (polarity != null)
-                                {
-                                    context.AddError("A negative polarity was encountered, but it did not come before a find clause");
-                                    polarity = null;
-                                }
                                 commandSet.Parts.Add(obj);
                             }
                             valid = test;

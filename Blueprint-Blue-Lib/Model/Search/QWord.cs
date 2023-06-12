@@ -10,7 +10,7 @@ namespace Blueprint.Blue
     {
         public UInt16[] WordKeys { get; set; }
 
-        public QWord(QFind search, string text, Parsed parse) : base(search, text, parse)
+        public QWord(QFind search, string text, Parsed parse, bool negate) : base(search, text, parse, negate)
         {
             var wkey = QContext.AVXObjects.lexicon.GetReverseLex(text);
             this.WordKeys = (wkey != 0) ? new UInt16[1] { wkey } : new UInt16[0];

@@ -8,7 +8,7 @@
     {
         public (UInt16 number, char lang) Strongs { get; set; }
 
-        public QStrongs(QFind search, string text, Parsed parse) : base(search, text, parse)
+        public QStrongs(QFind search, string text, Parsed parse, bool negate) : base(search, text, parse, negate)
         {
             var parts = text.Split(':');
             if (parts.Length == 2)

@@ -11,7 +11,7 @@ namespace Blueprint.Blue
     {
         public UInt16[] WordKeys { get; set; }
 
-        public QWildcard(QFind search, string text, Parsed parse) : base(search, text, parse)
+        public QWildcard(QFind search, string text, Parsed parse, bool negate) : base(search, text, parse, negate)
         {
             string? beginning = null;
             string? ending = null;

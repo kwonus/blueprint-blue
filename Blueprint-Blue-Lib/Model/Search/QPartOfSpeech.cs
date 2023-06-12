@@ -77,7 +77,7 @@ namespace Blueprint.Blue
             return entry;
         }
 
-        public QPartOfSpeech(QFind search, string text, Parsed parse) : base(search, text, parse)
+        public QPartOfSpeech(QFind search, string text, Parsed parse, bool negate) : base(search, text, parse, negate)
         {
             var pnpos = text.ToLower().Replace(" ", "");
 

@@ -10,7 +10,7 @@ namespace Blueprint.Blue
     {
         public UInt16[] Lemmata { get; private set; }
 
-        public QLemma(QFind search, string text, Parsed parse) : base(search, text, parse)
+        public QLemma(QFind search, string text, Parsed parse, bool negate) : base(search, text, parse, negate)
         {
             var normalized = text.ToLower();
             var lex = QContext.AVXObjects.lexicon.GetReverseLexExtensive(normalized)[0];

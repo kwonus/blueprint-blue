@@ -8,7 +8,7 @@ namespace Blueprint.Blue
     {
         public byte Decoration { get; set; }
 
-        public QDecoration(QFind search, string text, Parsed parse) : base(search, text, parse)
+        public QDecoration(QFind search, string text, Parsed parse, bool negate) : base(search, text, parse, negate)
         {
             this.Decoration = 0;
         }

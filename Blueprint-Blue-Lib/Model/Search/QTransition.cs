@@ -8,7 +8,7 @@
         public byte Transition { get; set; }
         public bool Negate { get; set; } = false;
 
-        public QTransition(QFind search, string text, Parsed parse) : base(search, text, parse)
+        public QTransition(QFind search, string text, Parsed parse, bool negate) : base(search, text, parse, negate)
         {
             this.Transition = 0;
         }

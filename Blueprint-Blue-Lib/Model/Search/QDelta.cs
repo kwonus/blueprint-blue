@@ -7,7 +7,7 @@
     {
         public bool hasDelta { get; set; }
 
-        public QDelta(QFind search, string text, Parsed parse) : base(search, text, parse)
+        public QDelta(QFind search, string text, Parsed parse, bool negate) : base(search, text, parse, negate)
         {
             this.hasDelta = false;
         }

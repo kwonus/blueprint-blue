@@ -7,7 +7,6 @@ namespace Blueprint.Blue
     public class QFind : QImplicitCommand, ICommand
     {
         public bool IsQuoted { get; set; }
-        public IPolarity Polarity { get; set; }
         public List<QSearchSegment> Segments { get; set; }
         private bool Valid;
 
@@ -16,17 +15,12 @@ namespace Blueprint.Blue
             if (!this.Valid)
                 return string.Empty;
 
-            var polarity = this.Polarity.Text;
-            if (polarity != string.Empty)
-                return polarity + ' ' + this.Text;
-
-            return polarity;
+            return this.Text;
         }
 
         private QFind(QContext env, string text, Parsed[] args) : base(env, text, "find")
         {
             this.Segments = new();
-            this.Polarity = QPolarityPositive.POLARITY_DEFAULT; // all search clauses are positive unless a -- polarity flag is encountered
             this.Valid = (args.Length > 0 && args[0].children.Length > 0);
             if (this.Valid)
             {
@@ -82,7 +76,6 @@ namespace Blueprint.Blue
             if (this.Valid)
             {
                 yaml.Add("- find: " + this.Text);
-                yaml.Add("  " + this.Polarity.AsYaml());
                 yaml.Add("  quoted: " + this.IsQuoted.ToString().ToLower());
 
                 foreach (var segment in this.Segments)
@@ -98,7 +91,7 @@ namespace Blueprint.Blue
         }
         public XSearch AsMessage()
         {
-            var search = new XSearch { Expression = this.Text, Quoted = this.IsQuoted, Negate = !this.Polarity.Positive, Segments = new List<XSegment>() };
+            var search = new XSearch { Expression = this.Text, Quoted = this.IsQuoted, Segments = new List<XSegment>() };
 
             foreach (var segment in this.Segments)
             {
