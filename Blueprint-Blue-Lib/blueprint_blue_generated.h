@@ -74,8 +74,8 @@ struct XScopeBuilder;
 
 enum XThreshold : int8_t {
   XThreshold_NONE = 0,
-  XThreshold_MIN = 33,
-  XThreshold_MAX = 99,
+  XThreshold_FUZZY_MIN = 33,
+  XThreshold_FUZZY_MAX = 99,
   XThreshold_EXACT = 100,
   XThreshold_MIN = XThreshold_NONE,
   XThreshold_MAX = XThreshold_EXACT
@@ -84,8 +84,8 @@ enum XThreshold : int8_t {
 inline const XThreshold (&EnumValuesXThreshold())[4] {
   static const XThreshold values[] = {
     XThreshold_NONE,
-    XThreshold_MIN,
-    XThreshold_MAX,
+    XThreshold_FUZZY_MIN,
+    XThreshold_FUZZY_MAX,
     XThreshold_EXACT
   };
   return values;
@@ -94,8 +94,8 @@ inline const XThreshold (&EnumValuesXThreshold())[4] {
 inline const char *EnumNameXThreshold(XThreshold e) {
   switch (e) {
     case XThreshold_NONE: return "NONE";
-    case XThreshold_MIN: return "MIN";
-    case XThreshold_MAX: return "MAX";
+    case XThreshold_FUZZY_MIN: return "FUZZY_MIN";
+    case XThreshold_FUZZY_MAX: return "FUZZY_MAX";
     case XThreshold_EXACT: return "EXACT";
     default: return "";
   }

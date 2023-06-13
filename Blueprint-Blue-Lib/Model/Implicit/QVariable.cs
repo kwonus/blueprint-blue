@@ -70,7 +70,7 @@
         }
         public QFuzzy(byte val)
         {
-            this.Value = val >= (byte) XThreshold.MIN && val <= (byte) XThreshold.EXACT ? val : (byte) 0;
+            this.Value = val >= (byte) XThreshold.FUZZY_MIN && val <= (byte) XThreshold.EXACT ? val : (byte) 0;
             this.AutomaticLemmaMatching = (val >= 33);
         }
         public QFuzzy(string val)
@@ -88,7 +88,7 @@
             else try
             {
                 var ival = int.Parse(val);
-                this.Value = ival >= (byte)XThreshold.MIN && ival <= (byte)XThreshold.EXACT ? (byte)ival : (byte)0;
+                this.Value = ival >= (byte)XThreshold.FUZZY_MIN && ival <= (byte)XThreshold.EXACT ? (byte)ival : (byte)0;
             }
             catch
             {
@@ -115,7 +115,7 @@
         }
         public override string ToString()
         {
-            if (this.Value < (byte) XThreshold.MIN || this.Value > (byte)XThreshold.EXACT)
+            if (this.Value < (byte) XThreshold.FUZZY_MIN || this.Value > (byte)XThreshold.EXACT)
                 return "none";
 
             string result = this.Value.ToString();
