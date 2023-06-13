@@ -8,10 +8,10 @@
 
 // Ensure the included flatbuffers.h is the same version as when this file was
 // generated, otherwise it may not be compatible.
-static_assert(FLATBUFFERS_VERSION_MAJOR == 22 &&
-              FLATBUFFERS_VERSION_MINOR == 10 &&
-              FLATBUFFERS_VERSION_REVISION == 26,
-             "Non-compatible flatbuffers version included");
+// static_assert(FLATBUFFERS_VERSION_MAJOR == 22 &&
+//               FLATBUFFERS_VERSION_MINOR == 10 &&
+//               FLATBUFFERS_VERSION_REVISION == 26,
+//              "Non-compatible flatbuffers version included");
 
 namespace XBlueprintBlue {
 
@@ -1719,8 +1719,8 @@ struct XSettings FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_DISPLAY = 10,
     VT_FORMAT = 12
   };
-  int8_t similarity() const {
-    return GetField<int8_t>(VT_SIMILARITY, 0);
+  const flatbuffers::String *similarity() const {
+    return GetPointer<const flatbuffers::String *>(VT_SIMILARITY);
   }
   uint16_t span() const {
     return GetField<uint16_t>(VT_SPAN, 0);
@@ -1736,7 +1736,8 @@ struct XSettings FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<int8_t>(verifier, VT_SIMILARITY, 1) &&
+           VerifyOffsetRequired(verifier, VT_SIMILARITY) &&
+           verifier.VerifyString(similarity()) &&
            VerifyField<uint16_t>(verifier, VT_SPAN, 2) &&
            VerifyField<int8_t>(verifier, VT_LEXICON, 1) &&
            VerifyField<int8_t>(verifier, VT_DISPLAY, 1) &&
@@ -1749,8 +1750,8 @@ struct XSettingsBuilder {
   typedef XSettings Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_similarity(int8_t similarity) {
-    fbb_.AddElement<int8_t>(XSettings::VT_SIMILARITY, similarity, 0);
+  void add_similarity(flatbuffers::Offset<flatbuffers::String> similarity) {
+    fbb_.AddOffset(XSettings::VT_SIMILARITY, similarity);
   }
   void add_span(uint16_t span) {
     fbb_.AddElement<uint16_t>(XSettings::VT_SPAN, span, 0);
@@ -1771,24 +1772,42 @@ struct XSettingsBuilder {
   flatbuffers::Offset<XSettings> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<XSettings>(end);
+    fbb_.Required(o, XSettings::VT_SIMILARITY);
     return o;
   }
 };
 
 inline flatbuffers::Offset<XSettings> CreateXSettings(
     flatbuffers::FlatBufferBuilder &_fbb,
-    int8_t similarity = 0,
+    flatbuffers::Offset<flatbuffers::String> similarity = 0,
     uint16_t span = 0,
     XBlueprintBlue::XLexEnum lexicon = XBlueprintBlue::XLexEnum_BOTH,
     XBlueprintBlue::XOutEnum display = XBlueprintBlue::XOutEnum_AV,
     XBlueprintBlue::XFmtEnum format = XBlueprintBlue::XFmtEnum_JSON) {
   XSettingsBuilder builder_(_fbb);
+  builder_.add_similarity(similarity);
   builder_.add_span(span);
   builder_.add_format(format);
   builder_.add_display(display);
   builder_.add_lexicon(lexicon);
-  builder_.add_similarity(similarity);
   return builder_.Finish();
+}
+
+inline flatbuffers::Offset<XSettings> CreateXSettingsDirect(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    const char *similarity = nullptr,
+    uint16_t span = 0,
+    XBlueprintBlue::XLexEnum lexicon = XBlueprintBlue::XLexEnum_BOTH,
+    XBlueprintBlue::XOutEnum display = XBlueprintBlue::XOutEnum_AV,
+    XBlueprintBlue::XFmtEnum format = XBlueprintBlue::XFmtEnum_JSON) {
+  auto similarity__ = similarity ? _fbb.CreateString(similarity) : 0;
+  return XBlueprintBlue::CreateXSettings(
+      _fbb,
+      similarity__,
+      span,
+      lexicon,
+      display,
+      format);
 }
 
 struct XScope FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {

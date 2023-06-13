@@ -132,7 +132,7 @@ table XDelta (fs_serializer) {
 }
 
 table XSettings (fs_serializer) {
-    similarity:  byte     = 0;
+    similarity:  string   (required);
     span:        uint16   = 0;
     lexicon:     XLexEnum = BOTH;
     display:     XOutEnum = AV;
@@ -140,7 +140,7 @@ table XSettings (fs_serializer) {
 }
 
 table XScope (fs_serializer) {
-    book:        uint8 = 0;       // required
+    book:        uint8 = 0;      // required
     chapter:     uint8 = 0;      // required
     verse:       uint8 = 1;      // optional
     vcount:      uint8 = 255;    // optional: verse-count: defaults to all remaining verses in chapter

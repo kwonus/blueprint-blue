@@ -37,7 +37,7 @@
                 else if (this.LocalSettings.Format.Value != QFormat.QFormatVal.MD)
                     xformat = XFmtEnum.MD;
             }
-            return new XSettings() { Similarity = (sbyte) this.LocalSettings.Similarity.Value, Span = this.LocalSettings.Span.Value, Format = xformat, Lexicon = xdomain, Display = xdisplay };
+            return new XSettings() { Similarity = this.LocalSettings.Similarity.ToString(), Span = this.LocalSettings.Span.Value, Format = xformat, Lexicon = xdomain, Display = xdisplay };
         }
 
         public string   User   { get; set; }
