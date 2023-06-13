@@ -8,10 +8,10 @@
 
 // Ensure the included flatbuffers.h is the same version as when this file was
 // generated, otherwise it may not be compatible.
-// static_assert(FLATBUFFERS_VERSION_MAJOR == 22 &&
-//               FLATBUFFERS_VERSION_MINOR == 10 &&
-//               FLATBUFFERS_VERSION_REVISION == 26,
-//              "Non-compatible flatbuffers version included");
+static_assert(FLATBUFFERS_VERSION_MAJOR == 22 &&
+              FLATBUFFERS_VERSION_MINOR == 10 &&
+              FLATBUFFERS_VERSION_REVISION == 26,
+             "Non-compatible flatbuffers version included");
 
 namespace XBlueprintBlue {
 
@@ -72,22 +72,51 @@ struct XSettingsBuilder;
 struct XScope;
 struct XScopeBuilder;
 
-enum XLexEnum : int8_t {
-  XLexEnum_AV = 0,
-  XLexEnum_AVX = 1,
-  XLexEnum_MIN = XLexEnum_AV,
-  XLexEnum_MAX = XLexEnum_AVX
+enum XThreshold : int8_t {
+  XThreshold_NONE = 0,
+  XThreshold_MIN = 33,
+  XThreshold_MAX = 99,
+  XThreshold_EXACT = 100,
+  XThreshold_MIN = XThreshold_NONE,
+  XThreshold_MAX = XThreshold_EXACT
 };
 
-inline const XLexEnum (&EnumValuesXLexEnum())[2] {
-  static const XLexEnum values[] = {
-    XLexEnum_AV,
-    XLexEnum_AVX
+inline const XThreshold (&EnumValuesXThreshold())[4] {
+  static const XThreshold values[] = {
+    XThreshold_NONE,
+    XThreshold_MIN,
+    XThreshold_MAX,
+    XThreshold_EXACT
   };
   return values;
 }
 
-inline const char * const *EnumNamesXLexEnum() {
+inline const char *EnumNameXThreshold(XThreshold e) {
+  switch (e) {
+    case XThreshold_NONE: return "NONE";
+    case XThreshold_MIN: return "MIN";
+    case XThreshold_MAX: return "MAX";
+    case XThreshold_EXACT: return "EXACT";
+    default: return "";
+  }
+}
+
+enum XOutEnum : int8_t {
+  XOutEnum_AV = 1,
+  XOutEnum_AVX = 2,
+  XOutEnum_MIN = XOutEnum_AV,
+  XOutEnum_MAX = XOutEnum_AVX
+};
+
+inline const XOutEnum (&EnumValuesXOutEnum())[2] {
+  static const XOutEnum values[] = {
+    XOutEnum_AV,
+    XOutEnum_AVX
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesXOutEnum() {
   static const char * const names[3] = {
     "AV",
     "AVX",
@@ -96,9 +125,42 @@ inline const char * const *EnumNamesXLexEnum() {
   return names;
 }
 
+inline const char *EnumNameXOutEnum(XOutEnum e) {
+  if (flatbuffers::IsOutRange(e, XOutEnum_AV, XOutEnum_AVX)) return "";
+  const size_t index = static_cast<size_t>(e) - static_cast<size_t>(XOutEnum_AV);
+  return EnumNamesXOutEnum()[index];
+}
+
+enum XLexEnum : int8_t {
+  XLexEnum_AV = 1,
+  XLexEnum_AVX = 2,
+  XLexEnum_BOTH = 3,
+  XLexEnum_MIN = XLexEnum_AV,
+  XLexEnum_MAX = XLexEnum_BOTH
+};
+
+inline const XLexEnum (&EnumValuesXLexEnum())[3] {
+  static const XLexEnum values[] = {
+    XLexEnum_AV,
+    XLexEnum_AVX,
+    XLexEnum_BOTH
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesXLexEnum() {
+  static const char * const names[4] = {
+    "AV",
+    "AVX",
+    "BOTH",
+    nullptr
+  };
+  return names;
+}
+
 inline const char *EnumNameXLexEnum(XLexEnum e) {
-  if (flatbuffers::IsOutRange(e, XLexEnum_AV, XLexEnum_AVX)) return "";
-  const size_t index = static_cast<size_t>(e);
+  if (flatbuffers::IsOutRange(e, XLexEnum_AV, XLexEnum_BOTH)) return "";
+  const size_t index = static_cast<size_t>(e) - static_cast<size_t>(XLexEnum_AV);
   return EnumNamesXLexEnum()[index];
 }
 
@@ -1651,28 +1713,33 @@ inline flatbuffers::Offset<XDelta> CreateXDelta(
 struct XSettings FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   typedef XSettingsBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_EXACT = 4,
+    VT_SIMILARITY = 4,
     VT_SPAN = 6,
     VT_LEXICON = 8,
-    VT_FORMAT = 10
+    VT_DISPLAY = 10,
+    VT_FORMAT = 12
   };
-  bool exact() const {
-    return GetField<uint8_t>(VT_EXACT, 0) != 0;
+  int8_t similarity() const {
+    return GetField<int8_t>(VT_SIMILARITY, 0);
   }
   uint16_t span() const {
     return GetField<uint16_t>(VT_SPAN, 0);
   }
   XBlueprintBlue::XLexEnum lexicon() const {
-    return static_cast<XBlueprintBlue::XLexEnum>(GetField<int8_t>(VT_LEXICON, 0));
+    return static_cast<XBlueprintBlue::XLexEnum>(GetField<int8_t>(VT_LEXICON, 3));
+  }
+  XBlueprintBlue::XOutEnum display() const {
+    return static_cast<XBlueprintBlue::XOutEnum>(GetField<int8_t>(VT_DISPLAY, 1));
   }
   XBlueprintBlue::XFmtEnum format() const {
     return static_cast<XBlueprintBlue::XFmtEnum>(GetField<int8_t>(VT_FORMAT, 0));
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint8_t>(verifier, VT_EXACT, 1) &&
+           VerifyField<int8_t>(verifier, VT_SIMILARITY, 1) &&
            VerifyField<uint16_t>(verifier, VT_SPAN, 2) &&
            VerifyField<int8_t>(verifier, VT_LEXICON, 1) &&
+           VerifyField<int8_t>(verifier, VT_DISPLAY, 1) &&
            VerifyField<int8_t>(verifier, VT_FORMAT, 1) &&
            verifier.EndTable();
   }
@@ -1682,14 +1749,17 @@ struct XSettingsBuilder {
   typedef XSettings Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_exact(bool exact) {
-    fbb_.AddElement<uint8_t>(XSettings::VT_EXACT, static_cast<uint8_t>(exact), 0);
+  void add_similarity(int8_t similarity) {
+    fbb_.AddElement<int8_t>(XSettings::VT_SIMILARITY, similarity, 0);
   }
   void add_span(uint16_t span) {
     fbb_.AddElement<uint16_t>(XSettings::VT_SPAN, span, 0);
   }
   void add_lexicon(XBlueprintBlue::XLexEnum lexicon) {
-    fbb_.AddElement<int8_t>(XSettings::VT_LEXICON, static_cast<int8_t>(lexicon), 0);
+    fbb_.AddElement<int8_t>(XSettings::VT_LEXICON, static_cast<int8_t>(lexicon), 3);
+  }
+  void add_display(XBlueprintBlue::XOutEnum display) {
+    fbb_.AddElement<int8_t>(XSettings::VT_DISPLAY, static_cast<int8_t>(display), 1);
   }
   void add_format(XBlueprintBlue::XFmtEnum format) {
     fbb_.AddElement<int8_t>(XSettings::VT_FORMAT, static_cast<int8_t>(format), 0);
@@ -1707,15 +1777,17 @@ struct XSettingsBuilder {
 
 inline flatbuffers::Offset<XSettings> CreateXSettings(
     flatbuffers::FlatBufferBuilder &_fbb,
-    bool exact = false,
+    int8_t similarity = 0,
     uint16_t span = 0,
-    XBlueprintBlue::XLexEnum lexicon = XBlueprintBlue::XLexEnum_AV,
+    XBlueprintBlue::XLexEnum lexicon = XBlueprintBlue::XLexEnum_BOTH,
+    XBlueprintBlue::XOutEnum display = XBlueprintBlue::XOutEnum_AV,
     XBlueprintBlue::XFmtEnum format = XBlueprintBlue::XFmtEnum_JSON) {
   XSettingsBuilder builder_(_fbb);
   builder_.add_span(span);
   builder_.add_format(format);
+  builder_.add_display(display);
   builder_.add_lexicon(lexicon);
-  builder_.add_exact(exact);
+  builder_.add_similarity(similarity);
   return builder_.Finish();
 }
 
