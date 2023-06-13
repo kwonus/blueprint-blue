@@ -4,6 +4,7 @@ attribute "fs_sharedString";
 
 namespace XBlueprintBlue;
 
+enum XThreshold: byte { NONE = 0, MIN = 33, MAX = 99, EXACT = 100 }
 enum XOutEnum:   byte { AV = 1, AVX = 2 }
 enum XLexEnum:   byte { AV = 1, AVX = 2, BOTH = 3 }
 enum XFmtEnum:   byte { JSON = 0, TEXT = 1, HTML = 2, MD = 3 }
@@ -131,8 +132,7 @@ table XDelta (fs_serializer) {
 }
 
 table XSettings (fs_serializer) {
-    threshold_txt: byte   = 100;
-    threshold_pho: byte   = 0;
+    similarity:  byte     = 0;
     span:        uint16   = 0;
     lexicon:     XLexEnum = BOTH;
     display:     XOutEnum = AV;

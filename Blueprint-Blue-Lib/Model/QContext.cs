@@ -11,7 +11,7 @@
     public class QContext
     {
         public QSettings GlobalSettings { get; set; }
-        public QSettings LocalSettings { get; set; }
+        public QSettings LocalSettings  { get; set; }
 
         public List<string> AsYaml()
         {
@@ -37,7 +37,7 @@
                 else if (this.LocalSettings.Format.Value != QFormat.QFormatVal.MD)
                     xformat = XFmtEnum.MD;
             }
-            return new XSettings() { ThresholdTxt = (sbyte) this.LocalSettings.ThresholdTxt.Value, ThresholdPho = (sbyte)this.LocalSettings.ThresholdPho.Value, Span = this.LocalSettings.Span.Value, Format = xformat, Lexicon = xdomain, Display = xdisplay };
+            return new XSettings() { Similarity = (sbyte) this.LocalSettings.Similarity.Value, Span = this.LocalSettings.Span.Value, Format = xformat, Lexicon = xdomain, Display = xdisplay };
         }
 
         public string   User   { get; set; }

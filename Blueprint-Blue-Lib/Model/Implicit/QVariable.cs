@@ -2,6 +2,8 @@
 {
     using Pinshot.PEG;
     using System;
+    using System.Runtime.CompilerServices;
+    using XBlueprintBlue;
     using static global::Blueprint.Blue.QLexicalDomain;
 
     public class QSpan
@@ -41,12 +43,6 @@
             }
             return QSpan.VERSE;
         }
-        // Cruft ???
-        /*
-        public static string ToString(QLexiconVal val)
-        {
-            return val.ToString();
-        }*/
         public override string ToString()
         {
             return this.Value.ToString();
@@ -58,31 +54,46 @@
     }
     public class QFuzzy
     {
-        public string KEY { get; private set; }
-        public byte DEFAULT
+        public static byte DEFAULT
         {
             get
             {
-                if (this.KEY.Contains("pho", StringComparison.InvariantCultureIgnoreCase)) // phonetic vs text
-                    return 0;
-                return 100;
+                return (byte) XThreshold.NONE;
             }
         }
-        public byte Value { get; set; }
-        public QFuzzy(string key)
+        public byte Value { get; private set; }
+        public bool AutomaticLemmaMatching { get; private set; }
+        public QFuzzy()
         {
-            this.KEY = key;
-            this.Value = this.DEFAULT;
+            this.Value = QFuzzy.DEFAULT;
+            this.AutomaticLemmaMatching = false;
         }
-        public QFuzzy(string key, byte val)
+        public QFuzzy(byte val)
         {
-            this.KEY = key;
-            this.Value = val;
+            this.Value = val >= (byte) XThreshold.MIN && val <= (byte) XThreshold.EXACT ? val : (byte) 0;
+            this.AutomaticLemmaMatching = (val >= 33);
         }
-        public QFuzzy(string key, string val)
+        public QFuzzy(string val)
         {
-            this.KEY = key;
-            this.Value = QFuzzy.FromString(val);
+            this.AutomaticLemmaMatching = val.EndsWith('!');
+            string value = !this.AutomaticLemmaMatching ? val : val.Substring(0, val.Length - 1);
+            if (value.Equals("none", StringComparison.InvariantCultureIgnoreCase))
+            {
+                this.Value = (byte) XThreshold.NONE;  // 0
+            }
+            else if (value.Equals("exact", StringComparison.InvariantCultureIgnoreCase))
+            {
+                this.Value = (byte) XThreshold.EXACT; // 100
+            }
+            else try
+            {
+                var ival = int.Parse(val);
+                this.Value = ival >= (byte)XThreshold.MIN && ival <= (byte)XThreshold.EXACT ? (byte)ival : (byte)0;
+            }
+            catch
+            {
+                this.Value = QFuzzy.DEFAULT;
+            }
         }
         public static byte FromString(string val)
         {
@@ -102,17 +113,18 @@
                 return 0;
             }
         }
-        public static string ToString(byte val)
-        {
-            return val.ToString();
-        }
         public override string ToString()
         {
-            return this.Value.ToString();
+            if (this.Value < (byte) XThreshold.MIN || this.Value > (byte)XThreshold.EXACT)
+                return "none";
+
+            string result = this.Value.ToString();
+
+            return !this.AutomaticLemmaMatching ? result : result + '!';
         }
         public string AsYaml()
         {
-            return this.KEY + ": " + this.ToString();
+            return "similarity: " + this.ToString();
         }
     }
     public class QLexicalDomain
@@ -300,20 +312,11 @@
         {
             switch (setting.Trim().ToLower())
             {
-                case "span":   return QSpan.DEFAULT.ToString();
+                case "span":    return QSpan.DEFAULT.ToString();
                 case "lexicon": return QLexicalDomain.DEFAULT.ToString();
                 case "display": return QLexicalDomain.DEFAULT.ToString();
-                case "format": return QFormat.DEFAULT.ToString();
-            }
-            var parts = setting.Split('.');
-            if (parts.Length == 2)
-            {
-                if (parts[0].Equals("threshold.", StringComparison.InvariantCultureIgnoreCase)
-                ||  parts[0].Equals("score.", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    var obj = new QFuzzy(parts[1]);
-                    return obj.DEFAULT.ToString(); ;
-                }
+                case "format":  return QFormat.DEFAULT.ToString();
+                case "similarity": return QFuzzy.DEFAULT.ToString();
             }
             return string.Empty;
         }
