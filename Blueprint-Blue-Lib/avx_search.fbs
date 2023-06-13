@@ -9,7 +9,6 @@ table XResults (fs_serializer) {
 
 table XFind (fs_serializer) {
     find:        string    (required);
-    negate:      bool      = false;
     found:     [ XFound ];
 }
 

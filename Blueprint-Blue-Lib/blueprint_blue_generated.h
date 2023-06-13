@@ -952,15 +952,11 @@ struct XSearch FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   typedef XSearchBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_EXPRESSION = 4,
-    VT_NEGATE = 6,
-    VT_QUOTED = 8,
-    VT_SEGMENTS = 10
+    VT_QUOTED = 6,
+    VT_SEGMENTS = 8
   };
   const flatbuffers::String *expression() const {
     return GetPointer<const flatbuffers::String *>(VT_EXPRESSION);
-  }
-  bool negate() const {
-    return GetField<uint8_t>(VT_NEGATE, 0) != 0;
   }
   bool quoted() const {
     return GetField<uint8_t>(VT_QUOTED, 0) != 0;
@@ -972,7 +968,6 @@ struct XSearch FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     return VerifyTableStart(verifier) &&
            VerifyOffsetRequired(verifier, VT_EXPRESSION) &&
            verifier.VerifyString(expression()) &&
-           VerifyField<uint8_t>(verifier, VT_NEGATE, 1) &&
            VerifyField<uint8_t>(verifier, VT_QUOTED, 1) &&
            VerifyOffsetRequired(verifier, VT_SEGMENTS) &&
            verifier.VerifyVector(segments()) &&
@@ -987,9 +982,6 @@ struct XSearchBuilder {
   flatbuffers::uoffset_t start_;
   void add_expression(flatbuffers::Offset<flatbuffers::String> expression) {
     fbb_.AddOffset(XSearch::VT_EXPRESSION, expression);
-  }
-  void add_negate(bool negate) {
-    fbb_.AddElement<uint8_t>(XSearch::VT_NEGATE, static_cast<uint8_t>(negate), 0);
   }
   void add_quoted(bool quoted) {
     fbb_.AddElement<uint8_t>(XSearch::VT_QUOTED, static_cast<uint8_t>(quoted), 0);
@@ -1013,21 +1005,18 @@ struct XSearchBuilder {
 inline flatbuffers::Offset<XSearch> CreateXSearch(
     flatbuffers::FlatBufferBuilder &_fbb,
     flatbuffers::Offset<flatbuffers::String> expression = 0,
-    bool negate = false,
     bool quoted = false,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XSegment>>> segments = 0) {
   XSearchBuilder builder_(_fbb);
   builder_.add_segments(segments);
   builder_.add_expression(expression);
   builder_.add_quoted(quoted);
-  builder_.add_negate(negate);
   return builder_.Finish();
 }
 
 inline flatbuffers::Offset<XSearch> CreateXSearchDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     const char *expression = nullptr,
-    bool negate = false,
     bool quoted = false,
     const std::vector<flatbuffers::Offset<XBlueprintBlue::XSegment>> *segments = nullptr) {
   auto expression__ = expression ? _fbb.CreateString(expression) : 0;
@@ -1035,7 +1024,6 @@ inline flatbuffers::Offset<XSearch> CreateXSearchDirect(
   return XBlueprintBlue::CreateXSearch(
       _fbb,
       expression__,
-      negate,
       quoted,
       segments__);
 }

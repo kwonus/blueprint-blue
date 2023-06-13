@@ -96,14 +96,10 @@ struct XFind FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   typedef XFindBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_FIND = 4,
-    VT_NEGATE = 6,
-    VT_FOUND = 8
+    VT_FOUND = 6
   };
   const flatbuffers::String *find() const {
     return GetPointer<const flatbuffers::String *>(VT_FIND);
-  }
-  bool negate() const {
-    return GetField<uint8_t>(VT_NEGATE, 0) != 0;
   }
   const flatbuffers::Vector<flatbuffers::Offset<XSearchResults::XFound>> *found() const {
     return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<XSearchResults::XFound>> *>(VT_FOUND);
@@ -112,7 +108,6 @@ struct XFind FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     return VerifyTableStart(verifier) &&
            VerifyOffsetRequired(verifier, VT_FIND) &&
            verifier.VerifyString(find()) &&
-           VerifyField<uint8_t>(verifier, VT_NEGATE, 1) &&
            VerifyOffset(verifier, VT_FOUND) &&
            verifier.VerifyVector(found()) &&
            verifier.VerifyVectorOfTables(found()) &&
@@ -126,9 +121,6 @@ struct XFindBuilder {
   flatbuffers::uoffset_t start_;
   void add_find(flatbuffers::Offset<flatbuffers::String> find) {
     fbb_.AddOffset(XFind::VT_FIND, find);
-  }
-  void add_negate(bool negate) {
-    fbb_.AddElement<uint8_t>(XFind::VT_NEGATE, static_cast<uint8_t>(negate), 0);
   }
   void add_found(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XSearchResults::XFound>>> found) {
     fbb_.AddOffset(XFind::VT_FOUND, found);
@@ -148,26 +140,22 @@ struct XFindBuilder {
 inline flatbuffers::Offset<XFind> CreateXFind(
     flatbuffers::FlatBufferBuilder &_fbb,
     flatbuffers::Offset<flatbuffers::String> find = 0,
-    bool negate = false,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XSearchResults::XFound>>> found = 0) {
   XFindBuilder builder_(_fbb);
   builder_.add_found(found);
   builder_.add_find(find);
-  builder_.add_negate(negate);
   return builder_.Finish();
 }
 
 inline flatbuffers::Offset<XFind> CreateXFindDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     const char *find = nullptr,
-    bool negate = false,
     const std::vector<flatbuffers::Offset<XSearchResults::XFound>> *found = nullptr) {
   auto find__ = find ? _fbb.CreateString(find) : 0;
   auto found__ = found ? _fbb.CreateVector<flatbuffers::Offset<XSearchResults::XFound>>(*found) : 0;
   return XSearchResults::CreateXFind(
       _fbb,
       find__,
-      negate,
       found__);
 }
 

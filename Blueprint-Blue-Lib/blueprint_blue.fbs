@@ -64,7 +64,6 @@ table XStatement (fs_serializer) {
 
 table XSearch (fs_serializer) {
     expression:  string      (required);
-    negate:      bool        = false;
     quoted:      bool        = false;
     segments:  [ XSegment ]  (required);
 }
