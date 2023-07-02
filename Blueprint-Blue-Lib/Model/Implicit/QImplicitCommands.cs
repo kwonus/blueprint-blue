@@ -39,10 +39,10 @@
                     else
                         this.Context.AddError("Unable to expand history item: $" + invoke.Command.ToString());
                 }
-                else if (part.GetType() == typeof(QUtilize))
+                else if (part.GetType() == typeof(QInvoke))
                 {
                     mcount++;
-                    var utilize = (QUtilize)part;
+                    var utilize = (QInvoke)part;
                     var expand = this.Context.Expand(utilize.Label);
                     if (!string.IsNullOrEmpty(expand.Expansion))
                         stmt.Append(expand.Expansion);
@@ -57,10 +57,6 @@
                     continue;
                 }
                 if (part.GetType() == typeof(QInvoke))
-                {
-                    ;
-                }
-                else if (part.GetType() == typeof(QUtilize))
                 {
                     ;
                 }
@@ -79,11 +75,7 @@
             foreach (var part in this.Parts)
             {
                 if (part == null) continue;
-                if (part.GetType() == typeof(QUtilize))
-                {
-                    ;
-                }
-                else if (part.GetType() == typeof(QInvoke))
+                if (part.GetType() == typeof(QInvoke))
                 {
                     ;
                 }
@@ -124,18 +116,18 @@
                         yield return (QVariable)candidate;
             }
         }
-        public QMacro? Macro
+        public QApply? Macro
         {
             get
             {
                 int cnt = 0;
                 foreach (var candidate in this.ExpandedParts)
-                    if (candidate.GetType() == typeof(QMacro))
+                    if (candidate.GetType() == typeof(QApply))
                         cnt++;
                 if (cnt == 1)
                     foreach (var candidate in this.ExpandedParts)
-                        if (candidate.GetType() == typeof(QMacro))
-                            return (QMacro)candidate;
+                        if (candidate.GetType() == typeof(QApply))
+                            return (QApply)candidate;
                 return null;
             }
         }
@@ -154,18 +146,18 @@
                 return null;
             }
         }
-        public QDisplay? Display
+        public QLimit? Display
         {
             get
             {
                 int cnt = 0;
                 foreach (var candidate in this.ExpandedParts)
-                    if (candidate.GetType() == typeof(QDisplay))
+                    if (candidate.GetType() == typeof(QLimit))
                         cnt++;
                 if (cnt == 1)
                     foreach (var candidate in this.ExpandedParts)
-                        if (candidate.GetType() == typeof(QDisplay))
-                            return (QDisplay)candidate;
+                        if (candidate.GetType() == typeof(QLimit))
+                            return (QLimit)candidate;
                 return null;
             }
         }

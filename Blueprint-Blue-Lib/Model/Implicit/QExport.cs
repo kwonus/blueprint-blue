@@ -16,12 +16,12 @@ namespace Blueprint.Blue
         }
 
         public string FileSpec { get; private set; }
-        public FileCreateMode FileCreationMode  { get; private set; }
+        public FileCreateMode CreationMode  { get; private set; }
 
         private QExport(QContext env, string text, string spec, FileCreateMode mode) : base(env, text, "export")
         {
             this.FileSpec = spec;
-            this.FileCreationMode = mode;
+            this.CreationMode = mode;
         }
         public static QExport? Create(QContext env, string text, Parsed[] args)
         {

@@ -5,6 +5,9 @@ namespace Blueprint.Blue
 {
     public class QReview : QExplicitCommand, ICommand
     {
+        uint? MaxCount { get; set; }
+        DateTime? Since { get; set; }
+        DateTime? Until { get; set; }
         string[] Arguments { get; set; }
         public QReview(QContext env, string text, Parsed[] args) : base(env, text, "review")
         {

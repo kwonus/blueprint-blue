@@ -21,11 +21,10 @@ namespace Blueprint.Blue
             switch (command)
             {
                 case "clear":   result = QVariable.Create(env, clause.text, clause.children);   break;
-                case "invoke":  result = QInvoke.Create(env, clause.text, clause.children);     break; // invoke history
+                case "invoke":  result = QInvoke.Create(env, clause.text, clause.children);     break; // invoke history/command or label/macro
                 case "filter":  result = QFilter.Create(env, clause.text, clause.children);     break;
                 case "search":  result = QFind.Create(env, clause.text, clause.children);       break;
-                case "utilize": result = QUtilize.Create(env, clause.text, clause.children);    break; // utilize macro
-                case "apply":   result = QMacro.Create(env, clause.text, clause.children);      break; // apply macro
+                case "apply":   result = QApply.Create(env, clause.text, clause.children);      break; // apply macro
                 case "setting": result = QVariable.Create(env, clause.text, clause.children);   break;
 
                 case "implicit_singletons":
@@ -36,7 +35,7 @@ namespace Blueprint.Blue
 
                         switch (sub)
                         {
-                            case "print":  result = QDisplay.Create(env, subordinate.text, subordinate.children);   break;
+                            case "print":  result = QLimit.Create(env, subordinate.text, subordinate.children);   break;
                             case "export": result = QExport.Create(env, subordinate.text, subordinate.children);    break;
                         }
                         if (result != null)
