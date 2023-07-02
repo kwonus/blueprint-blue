@@ -1,4 +1,6 @@
-﻿namespace Blueprint.Blue
+﻿// AVX-Quelle specification: 2.0.3.701
+//
+namespace Blueprint.Blue
 {
     using Pinshot.PEG;
     using System;
@@ -52,7 +54,7 @@
             return "span: " + this.ToString();
         }
     }
-    public class QFuzzy
+    public class QSimilarity
     {
         public static byte DEFAULT
         {
@@ -63,17 +65,17 @@
         }
         public byte Value { get; private set; }
         public bool AutomaticLemmaMatching { get; private set; }
-        public QFuzzy()
+        public QSimilarity()
         {
-            this.Value = QFuzzy.DEFAULT;
+            this.Value = QSimilarity.DEFAULT;
             this.AutomaticLemmaMatching = false;
         }
-        public QFuzzy(byte val)
+        public QSimilarity(byte val)
         {
             this.Value = val >= (byte) XThreshold.FUZZY_MIN && val <= (byte) XThreshold.EXACT ? val : (byte) 0;
             this.AutomaticLemmaMatching = (val >= 33);
         }
-        public QFuzzy(string val)
+        public QSimilarity(string val)
         {
             this.AutomaticLemmaMatching = val.EndsWith('!');
             string value = !this.AutomaticLemmaMatching ? val : val.Substring(0, val.Length - 1);
@@ -92,7 +94,7 @@
             }
             catch
             {
-                this.Value = QFuzzy.DEFAULT;
+                this.Value = QSimilarity.DEFAULT;
             }
         }
         public static byte FromString(string val)
@@ -316,7 +318,7 @@
                 case "lexicon": return QLexicalDomain.DEFAULT.ToString();
                 case "display": return QLexicalDomain.DEFAULT.ToString();
                 case "format":  return QFormat.DEFAULT.ToString();
-                case "similarity": return QFuzzy.DEFAULT.ToString();
+                case "similarity": return QSimilarity.DEFAULT.ToString();
             }
             return string.Empty;
         }
@@ -324,19 +326,7 @@
         {
             if (args.Length == 1)
             { 
-                if (args[0].rule == "global_reset")
-                {
-                    return new QClear(env, text, args[0].rule, true);
-                }
-                else if (args[0].rule == "local_reset")
-                {
-                    return new QClear(env, text, args[0].rule, false);
-                }
-                else if (args[0].rule == "local_current")
-                {
-                    return new QCurrent(env, text, args[0].rule, false);
-                }
-                else if((args[0].children.Length == 2)
+                if((args[0].children.Length == 2)
                 &&  args[0].children[0].rule.EndsWith("_key", StringComparison.InvariantCultureIgnoreCase)
                 &&  args[0].children[1].rule.EndsWith("_option", StringComparison.InvariantCultureIgnoreCase))
                 {

@@ -17,7 +17,7 @@
                             sw.WriteLine(this.Lexicon.AsYaml());
                         if (this.Display.Value != QLexicalDisplay.DEFAULT)
                             sw.WriteLine(this.Display.AsYaml());
-                        if (this.Similarity.Value != QFuzzy.DEFAULT)
+                        if (this.Similarity.Value != QSimilarity.DEFAULT)
                             sw.WriteLine(this.Similarity.AsYaml());
                         if (this.Format.Value != QFormat.DEFAULT)
                             sw.WriteLine(this.Format.AsYaml());
@@ -53,7 +53,7 @@
                             case "display": this.Display = new QLexicalDisplay(trimmed); break;
                             case "format":  this.Format = new QFormat(kv[1]); break;
                             case "similarity":
-                                            this.Similarity = new QFuzzy(trimmed); break;
+                                            this.Similarity = new QSimilarity(trimmed); break;
                         }
                     }
                 }
@@ -64,7 +64,7 @@
         public QLexicalDomain  Lexicon    { get; set; }
         public QLexicalDisplay Display    { get; set; }
         public QSpan           Span       { get; set; }
-        public QFuzzy          Similarity { get; set; }
+        public QSimilarity          Similarity { get; set; }
 
         private string? BackingStore;
 #pragma warning disable CS8618
@@ -96,7 +96,7 @@
             this.Lexicon = new QLexicalDomain();
             this.Display = new QLexicalDisplay();
             this.Span    = new QSpan();
-            this.Similarity = new QFuzzy();
+            this.Similarity = new QSimilarity();
             return this;
         }
         public QSettings CopyFrom(QSettings source)
@@ -105,7 +105,7 @@
             this.Lexicon = new QLexicalDomain(source.Lexicon.Value);
             this.Display = new QLexicalDisplay(source.Display.Value);
             this.Span    = new QSpan(source.Span.Value);
-            this.Similarity = new QFuzzy(source.Similarity.Value);
+            this.Similarity = new QSimilarity(source.Similarity.Value);
 
             return this;
         }

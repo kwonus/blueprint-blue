@@ -13,7 +13,7 @@ namespace Blueprint.Blue
         }
         public List<uint> Fields { get; private set; }
 
-        private QLimit(QContext env, string text, IEnumerable<uint> fields) : base(env, text, "display")
+        private QLimit(QContext env, string text, IEnumerable<uint> fields) : base(env, text, "limit")
         {
             this.Fields = new();
 
