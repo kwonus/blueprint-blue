@@ -18,7 +18,7 @@
                     stmt.Errors.Add("See parse diagnostic for syntax errors.");
                     stmt.IsValid = false;
                 }
-                else if (root.result.Length == 1) // all parses in Quell should result in a single statement
+                else if (root.result.Length == 1) // all parses in Quelle should result in a single statement
                 {
                     if (root.result[0].text.StartsWith('@'))
                     {

@@ -77,42 +77,31 @@ namespace Blueprint.Blue
         }
         public QSimilarity(string val)
         {
-            this.AutomaticLemmaMatching = val.EndsWith('!');
-            string value = !this.AutomaticLemmaMatching ? val : val.Substring(0, val.Length - 1);
-            if (value.Equals("none", StringComparison.InvariantCultureIgnoreCase))
-            {
-                this.Value = (byte) XThreshold.NONE;  // 0
-            }
-            else if (value.Equals("exact", StringComparison.InvariantCultureIgnoreCase))
-            {
-                this.Value = (byte) XThreshold.EXACT; // 100
-            }
-            else try
-            {
-                var ival = int.Parse(val);
-                this.Value = ival >= (byte)XThreshold.FUZZY_MIN && ival <= (byte)XThreshold.EXACT ? (byte)ival : (byte)0;
-            }
-            catch
-            {
-                this.Value = QSimilarity.DEFAULT;
-            }
+            var result = QSimilarity.FromString(val);
+            this.AutomaticLemmaMatching = result.automaticLemmaMatching;
+            this.Value = result.threshold;
         }
-        public static byte FromString(string val)
+        public static (bool automaticLemmaMatching, byte threshold) FromString(string val)
         {
-            string test = val.Trim().ToLower();
-            if (val.Equals("none"))
-                return 0;
-            if (val.Equals("exact") || val.Equals("exact"))
-                return 100;
-            if (val.Length != 2)
-                return 0;
+            (bool automaticLemmaMatching, byte threshold) result;
+
+            result.automaticLemmaMatching = val.EndsWith('!');
+            string value = !result.automaticLemmaMatching ? val : val.Substring(0, val.Length - 1).Trim();
+
+            if (value.Equals("none", StringComparison.InvariantCultureIgnoreCase))
+                return (false, 0);
+            if (value.Equals("exact", StringComparison.InvariantCultureIgnoreCase))
+                return (false, 100);
+            if (value.Length != 2)
+                return (false, QSimilarity.DEFAULT);
             try
             {
-                return (byte)UInt16.Parse(val);
+                result.threshold = (byte)UInt16.Parse(value);
+                return result;
             }
             catch
             {
-                return 0;
+                return (false, QSimilarity.DEFAULT);
             }
         }
         public override string ToString()

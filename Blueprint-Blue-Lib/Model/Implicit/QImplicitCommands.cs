@@ -182,7 +182,7 @@
                     if (command.rule.Equals("vector", StringComparison.InvariantCultureIgnoreCase)
                     ||  command.rule.Equals("macro_vector", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        foreach (var clause in command.children)
+                        foreach (Parsed clause in command.children)
                         {
                             var objects = QImplicitCommand.Create(context, clause);
                             var test = false;
@@ -190,8 +190,8 @@
                             foreach (var obj in objects)
                             {
                                 commandSet.Parts.Add(obj);
+                                valid = true;
                             }
-                            valid = test;
                             if (!valid)
                                 //    break;
                                 Console.WriteLine("Error clause; continuing for debugging purposes only!!!");

@@ -67,7 +67,7 @@ namespace Blueprint_Blue_Test
         [TestMethod]
         public void CreateMacro()
         {
-            string stmt = "%exact = 1 || Exacto";
+            string stmt = "%similarity = 75! %lexicon = dual || Fuzziness";
 
             var root = QStatement.Parse(stmt);
 
@@ -83,24 +83,30 @@ namespace Blueprint_Blue_Test
                 var commands = root.blueprint.Commands;
                 Assert.IsNotNull(commands.Macro);
                 if (commands.Macro != null)
-                    Assert.IsTrue(commands.Macro.Label == "Exacto");
+                    Assert.IsTrue(commands.Macro.Label == "Fuzziness");
 
                 var parts = commands.ExpandedParts;
-                Assert.IsTrue(parts.Count == 2);
+                Assert.IsTrue(parts.Count == 3);
                 var part = parts[0];
                 Assert.IsTrue(part.Verb == "set");
                 var setter = (QSet)part;
-                Assert.IsTrue(setter.Key == "exact");
-                Assert.IsTrue(setter.Value == "1");
+                Assert.IsTrue(setter.Key == "similarity");
+                Assert.IsTrue(setter.Value == "75!");
+
+                part = parts[1];
+                Assert.IsTrue(part.Verb == "set");
+                setter = (QSet)part;
+                Assert.IsTrue(setter.Key == "lexicon");
+                Assert.IsTrue(setter.Value == "dual");
             }
         }
         [TestMethod]
         public void ExecuteMacro()
         {
-            string stmt = "%exact = 1 || Exacto";
+            string stmt = "%similarity = 75! %lexicon = dual || Fuzziness";
             var ignore = QStatement.Parse(stmt);  // ignore result; just make sure that maco is defined as thus
 
-            stmt = "$Exacto";
+            stmt = "$Fuzziness";
             var root = QStatement.Parse(stmt);
 
             Assert.IsNotNull(root.fatal);
