@@ -8,11 +8,17 @@ namespace Blueprint.Blue
         public string Label { get; set; }
         public QExpand(QContext env, string text, Parsed[] args) : base(env, text, "expand")
         {
-            this.Label = args.Length == 1 ? args[0].text : "";
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                this.Label = string.Empty;
+                return;
+            }
+            this.Label = args != null && args.Length == 1 ? args[0].text : string.Empty;
         }
         public override void AddArgs(XCommand command)
         {
-            command.Arguments.Add(this.Label);
+            if (command != null && command.Arguments != null)
+                command.Arguments.Add(this.Label);
         }
     }
 }

@@ -287,7 +287,7 @@ namespace Blueprint_Blue_Test
             }
         }
         [TestMethod]
-        public void AbsorpionOnMacro()
+        public void AbsorptionOnMacro()
         {
             // A current bug in the grammar does not allow the setting in first position of the statement
             //
@@ -299,7 +299,7 @@ namespace Blueprint_Blue_Test
             Assert.IsNotNull(root.blueprint);
 
             Assert.IsTrue(root.blueprint.IsValid);
-            Assert.IsNotNull(root.blueprint.Commands);
+            Assert.IsNotNull(root.blueprint.Singleton);
 
             if (root.blueprint.Commands != null) // silence the compiler of warnings
             {

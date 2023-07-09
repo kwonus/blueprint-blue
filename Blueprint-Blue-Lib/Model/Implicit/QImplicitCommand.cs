@@ -20,12 +20,12 @@ namespace Blueprint.Blue
 
             switch (command)
             {
-                case "clear":   result = QVariable.Create(env, clause.text, clause.children);   break;
-                case "invoke":  result = QInvoke.Create(env, clause.text, clause.children);     break; // invoke history/command or label/macro
-                case "filter":  result = QFilter.Create(env, clause.text, clause.children);     break;
-                case "search":  result = QFind.Create(env, clause.text, clause.children);       break;
-                case "apply":   result = QApply.Create(env, clause.text, clause.children);      break; // apply macro
-                case "setting": result = QVariable.Create(env, clause.text, clause.children);   break;
+                case "clear":       result = QVariable.Create(env, clause.text, clause.children);   break;
+                case "invocation":  result = QInvoke.Create(env, clause.text, clause.children);     break; // invoke history/command or label/macro
+                case "filter":      result = QFilter.Create(env, clause.text, clause.children);     break;
+                case "search":      result = QFind.Create(env, clause.text, clause.children);       break;
+                case "apply":       result = QApply.Create(env, clause.text, clause.children);      break; // apply macro
+                case "setting":     result = QVariable.Create(env, clause.text, clause.children);   break;
 
                 case "implicit_singletons":
                 {

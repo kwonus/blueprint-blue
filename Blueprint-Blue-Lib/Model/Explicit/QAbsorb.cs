@@ -17,7 +17,7 @@ namespace Blueprint.Blue
                 this.Command = 0;
                 return;
             }
-            this.Generic = text.Trim();
+            this.Generic = args != null && args.Length == 1 ? args[0].text : string.Empty;
             bool numerics = true;
             uint accumulator = 0;
             for (int i = 0; i < this.Generic.Length; i++)

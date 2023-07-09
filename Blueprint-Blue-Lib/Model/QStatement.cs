@@ -102,8 +102,8 @@ namespace Blueprint.Blue
                 var blue = blueprint.Create(root.pinshot);
                 if (blue.IsValid)
                 {
-                    if (!opaque)
-                        blue.MaintainState();  // side-effects: AddHistory() & AddMacro()
+                    if ((blue.Commands != null) && !opaque) // We never expand singletons; and only expand implicit commands when opaque is false
+                        blue.MaintainState();  // includes side-effects for: AddHistory() & AddMacro()
                     root.blueprint = blue;
                 }
                 var error = root.pinshot.error;
