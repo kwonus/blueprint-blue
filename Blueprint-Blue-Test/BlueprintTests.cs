@@ -148,11 +148,6 @@ namespace Blueprint_Blue_Test
 
             Assert.IsTrue(root.blueprint.IsValid);
             Assert.IsNotNull(root.blueprint.Commands);
-
-            if (root.blueprint.Commands != null) // silence the compiler of warnings
-            {
-                ;
-            }
         }
         [TestMethod]
         public void SearchWithPOS()
@@ -166,11 +161,6 @@ namespace Blueprint_Blue_Test
 
             Assert.IsTrue(root.blueprint.IsValid);
             Assert.IsNotNull(root.blueprint.Commands);
-
-            if (root.blueprint.Commands != null) // silence the compiler of warnings
-            {
-                ;
-            }
         }
         [TestMethod]
         public void StatementWithElipsis()
@@ -183,12 +173,6 @@ namespace Blueprint_Blue_Test
             Assert.IsNotNull(root.blueprint);
 
             Assert.IsTrue(root.blueprint.IsValid);
-            Assert.IsNotNull(root.blueprint.Commands);
-
-            if (root.blueprint.Commands != null) // silence the compiler of warnings
-            {
-                ;
-            }
         }
         [TestMethod]
         public void StatementWithOutput()
@@ -202,11 +186,6 @@ namespace Blueprint_Blue_Test
 
             Assert.IsTrue(root.blueprint.IsValid);
             Assert.IsNotNull(root.blueprint.Commands);
-
-            if (root.blueprint.Commands != null) // silence the compiler of warnings
-            {
-                ;
-            }
         }
         [TestMethod]
         public void GlobalResetControls()
@@ -222,11 +201,6 @@ namespace Blueprint_Blue_Test
 
             Assert.IsTrue(root.blueprint.IsValid);
             Assert.IsNotNull(root.blueprint.Singleton);
-
-            if (root.blueprint.Commands != null) // silence the compiler of warnings
-            {
-                ;
-            }
         }
         [TestMethod]
         public void InitializeHistory()
@@ -240,11 +214,6 @@ namespace Blueprint_Blue_Test
 
             Assert.IsTrue(root.blueprint.IsValid);
             Assert.IsNotNull(root.blueprint.Singleton);
-
-            if (root.blueprint.Commands != null) // silence the compiler of warnings
-            {
-                ;
-            }
         }
         [TestMethod]
         public void LocalCurrentOnHistory()
@@ -260,11 +229,6 @@ namespace Blueprint_Blue_Test
 
             Assert.IsTrue(root.blueprint.IsValid);
             Assert.IsNotNull(root.blueprint.Commands);
-
-            if (root.blueprint.Commands != null) // silence the compiler of warnings
-            {
-                ;
-            }
         }
         [TestMethod]
         public void LocalCurrentonMacro()
@@ -280,11 +244,6 @@ namespace Blueprint_Blue_Test
 
             Assert.IsTrue(root.blueprint.IsValid);
             Assert.IsNotNull(root.blueprint.Commands);
-
-            if (root.blueprint.Commands != null) // silence the compiler of warnings
-            {
-                ;
-            }
         }
         [TestMethod]
         public void AbsorptionOnMacro()
@@ -300,11 +259,231 @@ namespace Blueprint_Blue_Test
 
             Assert.IsTrue(root.blueprint.IsValid);
             Assert.IsNotNull(root.blueprint.Singleton);
+        }
+        [TestMethod]
+        public void SearchSmorgasburg()
+        {
+            // A current bug in the grammar does not allow the setting in first position of the statement
+            //
+            string stmt = "\"/BoV/&in|out&/prep/ /det/ begin* God \\create\\\"";
+            var root = QStatement.Parse(stmt);
 
-            if (root.blueprint.Commands != null) // silence the compiler of warnings
-            {
-                ;
-            }
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
+        }
+        [TestMethod]
+        public void SearchQuoted()
+        {
+            // A current bug in the grammar does not allow the setting in first position of the statement
+            //
+            string stmt = "\"In the beginning\"";
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
+        }
+        [TestMethod]
+        public void SearchWildcardStart()
+        {
+            // A current bug in the grammar does not allow the setting in first position of the statement
+            //
+            string stmt = "*ing";
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
+        }
+        [TestMethod]
+        public void SearchWildcardEnd()
+        {
+            // A current bug in the grammar does not allow the setting in first position of the statement
+            //
+            string stmt = "begin*";
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
+        }
+        [TestMethod]
+        public void SearchTransition()
+        {
+            // A current bug in the grammar does not allow the setting in first position of the statement
+            //
+            string stmt = "/BoV/";
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
+        }
+        [TestMethod]
+        public void SearchWordPair()
+        {
+            // A current bug in the grammar does not allow the setting in first position of the statement
+            //
+            string stmt = "This|That";
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
+        }
+        [TestMethod]
+        public void SearchPOS()
+        {
+            // A current bug in the grammar does not allow the setting in first position of the statement
+            //
+            string stmt = "/prep/";
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
+        }
+        [TestMethod]
+        public void SearchLemma()
+        {
+            // A current bug in the grammar does not allow the setting in first position of the statement
+            //
+            string stmt = "\\create\\";
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
+        }
+        [TestMethod]
+        public void SearchAndedFeatures()
+        {
+            // A current bug in the grammar does not allow the setting in first position of the statement
+            //
+            string stmt = "the&/det/";
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
+        }
+        [TestMethod]
+        public void SearchNUPOS()
+        {
+            // A current bug in the grammar does not allow the setting in first position of the statement
+            //
+            string stmt = "#av-dc";
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
+        }
+        [TestMethod]
+        public void SearchStrongs()
+        {
+            // A current bug in the grammar does not allow the setting in first position of the statement
+            //
+            string stmt = "3205:H";
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
+        }
+        [TestMethod]
+        public void SearchPunctuation()
+        {
+            // A current bug in the grammar does not allow the setting in first position of the statement
+            //
+            string stmt = "/?/";
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
+        }
+        [TestMethod]
+        public void SearchDeltaAndDecor()
+        {
+            // A current bug in the grammar does not allow the setting in first position of the statement
+            //
+            string stmt = "/Jesus/&/delta/";
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
+        }
+        [TestMethod]
+        public void SearchPOS16()
+        {
+            // A current bug in the grammar does not allow the setting in first position of the statement
+            //
+            string stmt = "#1234";
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
+        }
+        [TestMethod]
+        public void SearchPOS32()
+        {
+            // A current bug in the grammar does not allow the setting in first position of the statement
+            //
+            string stmt = "#12345678";
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
         }
     }
 }
