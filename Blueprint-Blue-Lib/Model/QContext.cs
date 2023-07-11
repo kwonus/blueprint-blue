@@ -10,8 +10,9 @@
 
     public class QContext
     {
-        public QSettings GlobalSettings { get; set; }
-        public QSettings LocalSettings  { get; set; }
+        public QSettings GlobalSettings { get; internal set; }
+        public QSettings LocalSettings  { get; internal set; }
+        public uint InvocationCount     { get; internal set; }
 
         public List<string> AsYaml()
         {
@@ -60,7 +61,7 @@
         {
             BlueprintBlue.FuzzyLex.BlueprintLex.Initialize(QContext.AVXObjects);
             this.Statement = statement;
-
+            this.InvocationCount = 0; // This can be updated when Create() is called on Implicit clauses
             this.GlobalSettings = statement.GlobalSettings;
             this.LocalSettings  = new QSettings(this.GlobalSettings);
 

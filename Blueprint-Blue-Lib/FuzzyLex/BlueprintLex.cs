@@ -55,6 +55,7 @@ namespace BlueprintBlue.FuzzyLex
         {
             if (text.Length > 0 && key != 0)
             {
+                this.wkey = key;
                 this.Lemma = text;
                 var lemma = new NUPhoneGen(text);
                 this.PLemma = lemma.Phonetic;
@@ -75,6 +76,7 @@ namespace BlueprintBlue.FuzzyLex
             }
             else
             {
+                this.wkey = 0;
                 this.Lemma = string.Empty;
                 this.PLemma = string.Empty;
                 this.ELemma = new byte[0];

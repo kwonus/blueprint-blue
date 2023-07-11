@@ -261,11 +261,26 @@ namespace Blueprint_Blue_Test
             Assert.IsNotNull(root.blueprint.Singleton);
         }
         [TestMethod]
-        public void SearchSmorgasburg()
+        public void SearchSmorgasburgOrderedSimple()
         {
             // A current bug in the grammar does not allow the setting in first position of the statement
             //
             string stmt = "\"/BoV/&in|out&/prep/ /det/ begin* God \\create\\\"";
+            var root = QStatement.Parse(stmt);
+
+            Assert.IsNotNull(root.fatal);
+            Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
+            Assert.IsNotNull(root.blueprint);
+
+            Assert.IsTrue(root.blueprint.IsValid);
+            Assert.IsNotNull(root.blueprint.Commands);
+        }
+        [TestMethod]
+        public void SearchSmorgasburgUnorderedCompound()
+        {
+            // A current bug in the grammar does not allow the setting in first position of the statement
+            //
+            string stmt = "/BoV/&in|out&/prep/ + /det/ begin* ; God \\create\\";
             var root = QStatement.Parse(stmt);
 
             Assert.IsNotNull(root.fatal);
