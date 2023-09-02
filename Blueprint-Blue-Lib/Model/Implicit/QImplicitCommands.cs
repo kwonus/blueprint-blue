@@ -177,6 +177,20 @@
 
             if (stmt.rule.Equals("statement", StringComparison.InvariantCultureIgnoreCase) && (stmt.children.Length == 1))
             {
+                uint macro_cnt = 0;
+                foreach (var command in stmt.children)
+                {
+                    if (command.rule.Equals("vector", StringComparison.InvariantCultureIgnoreCase)
+                    || command.rule.Equals("macro_vector", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        foreach (Parsed clause in command.children)
+                        {
+                            if (clause.rule.Equals("invocation"))
+                                macro_cnt++;
+                        }
+                    }
+                }
+                context.InvocationCount = macro_cnt;
                 foreach (var command in stmt.children)
                 {
                     if (command.rule.Equals("vector", StringComparison.InvariantCultureIgnoreCase)
@@ -184,12 +198,11 @@
                     {
                         foreach (Parsed clause in command.children)
                         {
-                            var objects = QImplicitCommand.Create(context, clause);
-                            var test = false;
+                            var segments = QImplicitCommand.Create(context, clause);
 
-                            foreach (var obj in objects)
+                            foreach (var segment in segments)
                             {
-                                commandSet.Parts.Add(obj);
+                                commandSet.Parts.Add(segment);
                                 valid = true;
                             }
                             if (!valid)
