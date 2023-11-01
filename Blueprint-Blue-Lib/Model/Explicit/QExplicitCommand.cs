@@ -25,7 +25,7 @@ namespace Blueprint.Blue
             {
                 Settings = this.Context.AsMessage(),
                 Singleton = command,
-                Status = XStatusEnum.COMPLETED,
+                Status = XStatusEnum.OKAY,
                 Help = "https://to-be-defined-later.html"
             }
             : new XBlueprint()

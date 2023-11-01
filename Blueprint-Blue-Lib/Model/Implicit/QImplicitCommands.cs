@@ -254,7 +254,7 @@
             {
                 Settings = this.Context.AsMessage(),
                 Search = new List<XSearch>(),
-                Status = XStatusEnum.FEEDBACK_EXPECTED,
+                Status = XStatusEnum.OKAY,
                 Help = "https://to-be-defined-later.html"
             }
             : new XBlueprint()
@@ -289,11 +289,6 @@
                 }
             }
             return request;
-        }
-        // Obsolete ... rendering is now driven directly from C++::AVXSearch library
-        public XSearchResults.XResults AsRenderingRequest(XSearchResults.XResults results, UInt32 scope)
-        {
-            return new XSearchResults.XResults() { Results = results.Results,  Scope = scope };
         }
     }
 }

@@ -7,6 +7,7 @@
     using System.Collections.Generic;
     using System.IO;
     using BlueprintBlue.FuzzyLex;
+    using AVXLib;
 
     public class QContext
     {
@@ -50,16 +51,15 @@
         public string HistoryPath { get; private set; } // not used yet
         public string MacroPath { get; private set; }   // not used yet
 
-        public static AVXLib.ObjectTable AVXObjects { get; internal set; } = AVXLib.ObjectTable.Create(@"C:\src\Digital-AV\omega\AVX-Omega.data");
         static QContext()
         {
-            BlueprintLex.Initialize(QContext.AVXObjects);
+            BlueprintLex.Initialize(ObjectTable.AVXObjects);
         }
         private Dictionary<UInt32, QExpandableStatement> History = new();
 
         public QContext(QStatement statement, string session)
         {
-            BlueprintBlue.FuzzyLex.BlueprintLex.Initialize(QContext.AVXObjects);
+            BlueprintBlue.FuzzyLex.BlueprintLex.Initialize(ObjectTable.AVXObjects);
             this.Statement = statement;
             this.InvocationCount = 0; // This can be updated when Create() is called on Implicit clauses
             this.GlobalSettings = statement.GlobalSettings;
@@ -90,7 +90,7 @@
             {
                 this.AddWarning("A session context has not been provided");
             }
-            if (!QContext.AVXObjects.Mem.valid)
+            if (!ObjectTable.AVXObjects.Mem.valid)
             {
                 this.AddError("Unable to load AVX Data. Without this library, other things will break");
             }

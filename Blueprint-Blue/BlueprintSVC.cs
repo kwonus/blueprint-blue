@@ -9,6 +9,7 @@ using System.Runtime.ExceptionServices;
 using Blueprint.Blue;
 using XBlueprintBlue;
 using FlatSharp;
+using AVXLib;
 
 namespace Blueprint_Blue
 {
@@ -18,7 +19,7 @@ namespace Blueprint_Blue
 
         public BlueprintSVC()
         {
-            var forceInitialization = QContext.AVXObjects;
+            var forceInitialization = ObjectTable.AVXObjects;
 
             this.CommandSequence = new();
         }

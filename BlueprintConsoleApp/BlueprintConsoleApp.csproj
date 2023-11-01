@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\NUPhone\PhonemeEmbeddings\PhonemeEmbeddings.csproj" />
     <ProjectReference Include="..\Blueprint-Blue-Lib\Blueprint-Blue-Lib.csproj" />
   </ItemGroup>
 

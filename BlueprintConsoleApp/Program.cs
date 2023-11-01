@@ -6,6 +6,9 @@ namespace BlueprintConsoleApp
     using System;
     using FlatSharp;
     using XBlueprintBlue;
+    using AVXLib;
+    using PhonemeEmbeddings;
+    using static System.Net.Mime.MediaTypeNames;
 
     internal class Program
     {
@@ -30,11 +33,77 @@ namespace BlueprintConsoleApp
 //      static string[] TestStmt = { "@Help find", "format=@", "help", "please + help ... time of|for&/noun/ need + greetings" };
 //      static string[] TestStmt = { "%exact = 1 || Exacto", "$Exacto", "-- spoke", @"%exact = default %exact::1 %format::json ""help ... time [of need]"" + please + help time of|for&/noun/ need + greetings < Genesis [1 2 10] => c:\filename" };
 
-        static AVXLib.ObjectTable AVX = QContext.AVXObjects;
+        static AVXLib.ObjectTable AVX = ObjectTable.AVXObjects;
+        static void WritePhoneticRecord(UInt16 key, string text, StreamWriter txt, BinaryWriter bin)
+        {
+            var normalized = text.Replace("/", "");
+
+            if (!string.IsNullOrEmpty(normalized))
+            {
+                var hex = String.Format("{0:X04}", key);
+
+                if (LexiconIPA.Instance.ipa_primatives.ContainsKey(normalized))
+                {
+                    txt.Write(hex + "\t");
+                    bin.Write(key);
+                    int i = 0;
+                    foreach (var variant in LexiconIPA.Instance.ipa_primatives[normalized])
+                    {
+                        if (i++ > 0)
+                        {
+                            txt.Write('/');
+                            bin.Write('/');
+                        }
+                        txt.Write(variant);
+                        bin.Write(variant);
+                    }
+                    txt.WriteLine("\t(" + text + ")");
+                    bin.Write('\0');
+                }
+                else
+                {
+                    var nuphone = (new NUPhoneGen(normalized)).Phonetic;
+                    if (!string.IsNullOrWhiteSpace(nuphone))
+                    {
+                        txt.WriteLine(hex + "\t" + nuphone + "\t(" + text + ")");
+
+                        bin.Write(key);
+                        bin.Write(nuphone);
+                        bin.Write('\0');
+                    }
+                }
+            }
+        }
         static void Main(string[] args)
         {
             try
             {
+                var lex = AVX.lexicon;
+                var oov = AVX.oov;
+
+                var nuphone = (new NUPhoneGen("dodavah")).Phonetic;
+
+                StreamWriter txt = File.CreateText("C:\\src\\AVX\\z-series\\AV-Phonetics.ascii");
+                var dxi = File.Create("C:\\src\\AVX\\z-series\\AV-Phonetics.dxi");
+                BinaryWriter bin = new BinaryWriter(dxi, System.Text.Encoding.UTF8);
+
+                if (txt != null && bin != null)
+                {
+                    for (UInt16 key = 1; key <= lex.RecordCount; key++)
+                    {
+                        var text = lex.GetLexModern(key);
+                            
+                        WritePhoneticRecord(key, text, txt, bin);
+                    }
+                    foreach (var key in oov.Keys)
+                    {
+                        var text = oov.GetEntry(key).oov.text.ToString();
+
+                        WritePhoneticRecord(key, text, txt, bin);
+                    }
+                    txt.Close();
+                    bin.Close();
+                }
                 Console.Write("> ");
                 for (string line = Console.ReadLine(); true; line = Console.ReadLine())
                 {

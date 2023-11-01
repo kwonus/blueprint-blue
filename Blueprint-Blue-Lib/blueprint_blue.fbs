@@ -10,28 +10,15 @@ enum XLexEnum:   byte { AV = 1, AVX = 2, BOTH = 3 }
 enum XFmtEnum:   byte { JSON = 0, TEXT = 1, HTML = 2, MD = 3 }
 enum XLangEnum:  byte { H = 1, G = 2, X = 0 }
 enum XUserEnum:  byte { ANONYMOUS = 0, EXISTING = 1, NEW = 2, RESET = 3, UNKNOWN = 4 }
-enum XStatusEnum:byte { COMPLETED = 0, FEEDBACK_EXPECTED = 1, ERROR = 2, UNKNOWN = 3 }
-//   When Status == COMPLETED: there is no further action required by avx-command [same is true for ERROR and UNKNOWN] // although reporting status or error to the user may still be warrented
-//   When Status == ACTION_REQUIRED: the verb will not be complete until avx-command performs additional actions
-//   When Status == FEEDBACK_REQUESTED: this is similar to ACTION_REQUIRED, but a return message from avx-command is also expected subsequently
-//   (feedback message facillitates search summaries to be written into the command history; blueprint-blue manages all user-persisted data)
-
-//table QuelleRequest (fs_serializer) {
-//    command:     string      (required);
-//    user:        XUser;  //  Eventually, this could become required for web-hosted instances of this service
-//}
-
-table XUser (fs_serializer) {
-    username:    string      (required);
-    disposition: XUserEnum   = ANONYMOUS;
-}
+enum XStatusEnum:byte { OKAY = 0, ERROR = -128 }
 
 table XBlueprint (fs_serializer) { // was: XRequest
+    command:     string      (required);
     settings:    XSettings   (required);
     search:    [ XSearch ];
     scope:     [ XScope ];
     singleton:   XCommand;
-    status:      XStatusEnum = UNKNOWN;  // required
+    status:      XStatusEnum = ERROR;  // required
     help:        string      (required); // url of help-file for singleton.command xor search.expression  [likely on github for automatic markdown to html conversion]
     warnings:  [ string ];
     errors:    [ string ];
@@ -97,12 +84,22 @@ table XFeature (fs_serializer) {
     match:       XCompare    (required);
 }
 
+// Most of the Blueprint-Blue flatbuffer object is generated from the Pinshot-Blue parse (Rust FFI).
+// However, XWord is now generated using the NUPhone assembly (C#).
+// This way, AVX-Search can perform fuzzy matches, w/o requiring a C++ implementation for English-to-IPA
+// (NUPhone comparison library will be ported to C++)
+
+table XLex (fs_serializer) {
+    key:         uint16 = 0;             // zero is a valid value for OOV items (items found neither in lexicon, nor in OOV-Lemmata)
+    variants:  [ string ];
+}
+
 table XWord (fs_serializer) {
-    wkeys:     [ uint16 ] (required);
+    lex:       [ XLex ] (required);
 }
 
 table XLemma (fs_serializer) {
-    lemmata:   [ uint16 ] (required);
+    lemmata:   [ XLex ] (required);
 }
 
 table XPOS32 (fs_serializer) {

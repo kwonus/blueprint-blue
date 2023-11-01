@@ -2,6 +2,7 @@ namespace Blueprint_Blue_Test
 {
     using Pinshot.Blue;
     using Blueprint.Blue;
+    using AVXLib;
 
     [TestClass]
     public class BlueprintTests
@@ -29,19 +30,17 @@ namespace Blueprint_Blue_Test
             Assert.IsTrue(string.IsNullOrEmpty(root.fatal));
             Assert.IsNotNull(root.blueprint);
 
-            Assert.IsNotNull(QContext.AVXObjects);
+            Assert.IsNotNull(ObjectTable.AVXObjects);
 
-#if INCLUDE_DEPRECATED_BEHAVIOR
-            Assert.IsNotNull(QContext.AVXObjects.written);
-#endif
-            Assert.IsNotNull(QContext.AVXObjects.lexicon);
-            Assert.IsNotNull(QContext.AVXObjects.lemmata);
-            Assert.IsNotNull(QContext.AVXObjects.oov);
+            Assert.IsNotNull(ObjectTable.AVXObjects.written);
+            Assert.IsNotNull(ObjectTable.AVXObjects.lexicon);
+            Assert.IsNotNull(ObjectTable.AVXObjects.lemmata);
+            Assert.IsNotNull(ObjectTable.AVXObjects.oov);
 
-            Assert.IsTrue(QContext.AVXObjects.lexicon.GetReverseLex("in") > 0);
+            Assert.IsTrue(ObjectTable.AVXObjects.lexicon.GetReverseLex("in") > 0);
             //Assert.IsTrue(QContext.AVXObjects.lexicon.); // TODO: TO DO: refactor lexical methods from written to lexicon object
-            Assert.IsTrue(QContext.AVXObjects.lemmata.FindLemmataUsingWordKey(1).Length > 0);
-            Assert.IsTrue(QContext.AVXObjects.oov.GetReverseEntry("elm") != 0);
+            Assert.IsTrue(ObjectTable.AVXObjects.lemmata.FindLemmataUsingWordKey(1).Length > 0);
+            Assert.IsTrue(ObjectTable.AVXObjects.oov.GetReverseEntry("elm") != 0);
         }
         [TestMethod]
         public void HelpWithArgument()

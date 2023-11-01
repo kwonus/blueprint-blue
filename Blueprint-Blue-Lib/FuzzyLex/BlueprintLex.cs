@@ -94,9 +94,16 @@ namespace BlueprintBlue.FuzzyLex
                 UInt16 cnt = avxobjects.lexicon.RecordCount;
                 for (UInt16 wkey = 1; wkey < cnt; wkey++)
                 {
-                    var record = avxobjects.lexicon.GetRecord(wkey);
-                    if (record.valid)
-                        new BlueprintLex(wkey, record.entry);
+                    try
+                    {
+                        var record = avxobjects.lexicon.GetRecord(wkey);
+                        if (record.valid)
+                            new BlueprintLex(wkey, record.entry);
+                    }
+                    catch
+                    {
+                        Console.WriteLine(wkey.ToString());
+                    }
                 }
                 BlueprintLemma.Initialize(avxobjects); // safe reciprocle inits
             }

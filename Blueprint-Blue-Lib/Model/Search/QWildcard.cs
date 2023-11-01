@@ -1,5 +1,6 @@
 namespace Blueprint.Blue
 {
+    using AVXLib;
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace Blueprint.Blue
             int star = normalized.IndexOf('*');
             if (star >= 0)
             {
-                var lexicon = QContext.AVXObjects.Mem.Lexicon.Slice(1).ToArray();
+                var lexicon = ObjectTable.AVXObjects.Mem.Lexicon.Slice(1).ToArray();
 
                 HashSet<UInt16> words = new();
                 if (star == 0)
@@ -93,8 +94,12 @@ namespace Blueprint.Blue
         }
         public override XFeature AsMessage()
         {
-            var keys = new List<UInt16>(this.WordKeys);
-            var word = new XWord() { Wkeys = keys };
+            var lexes = new List<XLex>();
+            foreach (var key in this.WordKeys)
+            {
+                lexes.Add(new XLex() { Key = key });
+            }
+            var word = new XWord() { Lex = lexes };
             var compare = new XCompare(word);
             var feature = new XFeature { Feature = this.Text, Negate = false, Rule = "wildcard", Match = compare };
 

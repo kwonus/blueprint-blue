@@ -8,10 +8,10 @@
 
 // Ensure the included flatbuffers.h is the same version as when this file was
 // generated, otherwise it may not be compatible.
-// static_assert(FLATBUFFERS_VERSION_MAJOR == 22 &&
-//               FLATBUFFERS_VERSION_MINOR == 10 &&
-//               FLATBUFFERS_VERSION_REVISION == 26,
-//              "Non-compatible flatbuffers version included");
+//static_assert(FLATBUFFERS_VERSION_MAJOR == 22 &&
+//              FLATBUFFERS_VERSION_MINOR == 10 &&
+//              FLATBUFFERS_VERSION_REVISION == 26,
+//             "Non-compatible flatbuffers version included");
 
 namespace XSearchResults {
 
@@ -27,24 +27,66 @@ struct XFoundBuilder;
 struct XMatch;
 struct XMatchBuilder;
 
+enum XResultStatusEnum : int8_t {
+  XResultStatusEnum_ERROR = -128,
+  XResultStatusEnum_OKAY = 0,
+  XResultStatusEnum_WARNING = 1,
+  XResultStatusEnum_MIN = XResultStatusEnum_ERROR,
+  XResultStatusEnum_MAX = XResultStatusEnum_WARNING
+};
+
+inline const XResultStatusEnum (&EnumValuesXResultStatusEnum())[3] {
+  static const XResultStatusEnum values[] = {
+    XResultStatusEnum_ERROR,
+    XResultStatusEnum_OKAY,
+    XResultStatusEnum_WARNING
+  };
+  return values;
+}
+
+inline const char *EnumNameXResultStatusEnum(XResultStatusEnum e) {
+  switch (e) {
+    case XResultStatusEnum_ERROR: return "ERROR";
+    case XResultStatusEnum_OKAY: return "OKAY";
+    case XResultStatusEnum_WARNING: return "WARNING";
+    default: return "";
+  }
+}
+
 struct XResults FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   typedef XResultsBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RESULTS = 4,
-    VT_SCOPE = 6
+    VT_STATUS = 6,
+    VT_MESSAGE = 8,
+    VT_SCOPE_OT = 10,
+    VT_SCOPE_NT = 12
   };
   const flatbuffers::Vector<flatbuffers::Offset<XSearchResults::XFind>> *results() const {
     return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<XSearchResults::XFind>> *>(VT_RESULTS);
   }
-  uint32_t scope() const {
-    return GetField<uint32_t>(VT_SCOPE, 0);
+  XSearchResults::XResultStatusEnum status() const {
+    return static_cast<XSearchResults::XResultStatusEnum>(GetField<int8_t>(VT_STATUS, -128));
+  }
+  const flatbuffers::String *message() const {
+    return GetPointer<const flatbuffers::String *>(VT_MESSAGE);
+  }
+  uint64_t scope_ot() const {
+    return GetField<uint64_t>(VT_SCOPE_OT, 0);
+  }
+  uint32_t scope_nt() const {
+    return GetField<uint32_t>(VT_SCOPE_NT, 0);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffsetRequired(verifier, VT_RESULTS) &&
            verifier.VerifyVector(results()) &&
            verifier.VerifyVectorOfTables(results()) &&
-           VerifyField<uint32_t>(verifier, VT_SCOPE, 4) &&
+           VerifyField<int8_t>(verifier, VT_STATUS, 1) &&
+           VerifyOffsetRequired(verifier, VT_MESSAGE) &&
+           verifier.VerifyString(message()) &&
+           VerifyField<uint64_t>(verifier, VT_SCOPE_OT, 8) &&
+           VerifyField<uint32_t>(verifier, VT_SCOPE_NT, 4) &&
            verifier.EndTable();
   }
 };
@@ -56,8 +98,17 @@ struct XResultsBuilder {
   void add_results(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XSearchResults::XFind>>> results) {
     fbb_.AddOffset(XResults::VT_RESULTS, results);
   }
-  void add_scope(uint32_t scope) {
-    fbb_.AddElement<uint32_t>(XResults::VT_SCOPE, scope, 0);
+  void add_status(XSearchResults::XResultStatusEnum status) {
+    fbb_.AddElement<int8_t>(XResults::VT_STATUS, static_cast<int8_t>(status), -128);
+  }
+  void add_message(flatbuffers::Offset<flatbuffers::String> message) {
+    fbb_.AddOffset(XResults::VT_MESSAGE, message);
+  }
+  void add_scope_ot(uint64_t scope_ot) {
+    fbb_.AddElement<uint64_t>(XResults::VT_SCOPE_OT, scope_ot, 0);
+  }
+  void add_scope_nt(uint32_t scope_nt) {
+    fbb_.AddElement<uint32_t>(XResults::VT_SCOPE_NT, scope_nt, 0);
   }
   explicit XResultsBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -67,6 +118,7 @@ struct XResultsBuilder {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<XResults>(end);
     fbb_.Required(o, XResults::VT_RESULTS);
+    fbb_.Required(o, XResults::VT_MESSAGE);
     return o;
   }
 };
@@ -74,22 +126,35 @@ struct XResultsBuilder {
 inline flatbuffers::Offset<XResults> CreateXResults(
     flatbuffers::FlatBufferBuilder &_fbb,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XSearchResults::XFind>>> results = 0,
-    uint32_t scope = 0) {
+    XSearchResults::XResultStatusEnum status = XSearchResults::XResultStatusEnum_ERROR,
+    flatbuffers::Offset<flatbuffers::String> message = 0,
+    uint64_t scope_ot = 0,
+    uint32_t scope_nt = 0) {
   XResultsBuilder builder_(_fbb);
-  builder_.add_scope(scope);
+  builder_.add_scope_ot(scope_ot);
+  builder_.add_scope_nt(scope_nt);
+  builder_.add_message(message);
   builder_.add_results(results);
+  builder_.add_status(status);
   return builder_.Finish();
 }
 
 inline flatbuffers::Offset<XResults> CreateXResultsDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     const std::vector<flatbuffers::Offset<XSearchResults::XFind>> *results = nullptr,
-    uint32_t scope = 0) {
+    XSearchResults::XResultStatusEnum status = XSearchResults::XResultStatusEnum_ERROR,
+    const char *message = nullptr,
+    uint64_t scope_ot = 0,
+    uint32_t scope_nt = 0) {
   auto results__ = results ? _fbb.CreateVector<flatbuffers::Offset<XSearchResults::XFind>>(*results) : 0;
+  auto message__ = message ? _fbb.CreateString(message) : 0;
   return XSearchResults::CreateXResults(
       _fbb,
       results__,
-      scope);
+      status,
+      message__,
+      scope_ot,
+      scope_nt);
 }
 
 struct XFind FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {

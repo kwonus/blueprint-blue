@@ -2,9 +2,20 @@
 
 namespace XSearchResults;
 
+enum XResultStatusEnum:byte { OKAY = 0, WARNING = 1, ERROR = -128 }
+
+// table XRender (fs_serializer) { // conceptual-only; we utilize other format or POCO for Render requests
+//  results:   [ XFind ]   (required);
+//  start:       uint32 = 0; // required (zero is not a valid start coordinate)
+//  until:       uint32 = 0; // required (must be >= start)
+// }
+
 table XResults (fs_serializer) {
     results:   [ XFind ]   (required);
-    scope:       uint32 = 0; // This is zero when returned from a search-request; it needs to be set when submitted as a render-request;
+    status:      XResultStatusEnum = ERROR;  // required
+    message:     string    (required);  // empty string is normal when no errors and no warnings
+    scope_ot:    uint64 = 0; // One bit per book
+    scope_nt:    uint32 = 0; // One bit per book
 }
 
 table XFind (fs_serializer) {
@@ -14,14 +25,14 @@ table XFind (fs_serializer) {
 
 table XFound (fs_serializer) {
     start:       uint32 = 0; // required (zero is not a valid start coordinate)
-    until:       uint32 = 0; // required (zero is not a valid start coordinate)
+    until:       uint32 = 0; // required (must be >= start)
     matches:   [ XMatch ]  (required);
 }
 
 table XMatch (fs_serializer) {
     fragment:    string    (required);
     feature:     string    (required);
-    coordinates: uint32 = 0; // required; match represents coordinates of matching feature: BB_CC_VV_WW (zero is not a valid start coordinate)
+    coordinates:  uint32 = 0; // required; match represents coordinates of matching feature: BB_CC_VV_WW (start <= coordinate <= until)
 }
 
 root_type XResults;
