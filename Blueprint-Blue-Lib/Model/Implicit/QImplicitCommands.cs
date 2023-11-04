@@ -252,6 +252,7 @@
             var request = this.Context.Statement.IsValid && (this.Context.Statement.Errors.Count == 0)
             ? new XBlueprint()
             {
+                Command = this.ExpandedText,
                 Settings = this.Context.AsMessage(),
                 Search = new List<XSearch>(),
                 Status = XStatusEnum.OKAY,
@@ -259,6 +260,7 @@
             }
             : new XBlueprint()
             {
+                Command = this.ExpandedText,
                 Settings = this.Context.AsMessage(),
                 Search = new List<XSearch>(),
                 Status = XStatusEnum.ERROR,

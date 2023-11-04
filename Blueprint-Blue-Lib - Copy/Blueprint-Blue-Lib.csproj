@@ -1,15 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <RootNamespace>BlueprintBlue</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-	
+
   <ItemGroup>
-	  <FlatSharpSchema Include="blueprint_blue.fbs" />
-	  <FlatSharpSchema Include="avx_search.fbs" />
+	  <FlatSharpSchema Include="blueprint_request.fbs" />
+	  <FlatSharpSchema Include="blueprint_reply.fbs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Digital-AV\omega\foundations\csharp\AVXLib\AVXLib.csproj" />
-    <ProjectReference Include="..\..\NUPhone\PhonemeEmbeddings\PhonemeEmbeddings.csproj" />
   </ItemGroup>
 
 </Project>

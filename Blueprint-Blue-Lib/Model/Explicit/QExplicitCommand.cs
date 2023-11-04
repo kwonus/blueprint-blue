@@ -23,6 +23,7 @@ namespace Blueprint.Blue
             var request = this.Context.Statement.IsValid && (this.Context.Statement.Errors.Count == 0)
             ? new XBlueprint()
             {
+                Command = this.Text,
                 Settings = this.Context.AsMessage(),
                 Singleton = command,
                 Status = XStatusEnum.OKAY,
@@ -30,6 +31,7 @@ namespace Blueprint.Blue
             }
             : new XBlueprint()
             {
+                Command = this.Text,
                 Settings = this.Context.AsMessage(),
                 Singleton = command,
                 Status = XStatusEnum.ERROR,

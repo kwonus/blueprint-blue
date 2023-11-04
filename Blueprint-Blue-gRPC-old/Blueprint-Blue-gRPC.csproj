@@ -1,28 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <RootNamespace>BlueprintBlue</RootNamespace>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <RootNamespace>Blueprint_Blue_gRPC</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-	
-  <ItemGroup>
-	  <FlatSharpSchema Include="blueprint_blue.fbs" />
-	  <FlatSharpSchema Include="avx_search.fbs" />
-  </ItemGroup>
 
+	<ItemGroup>
+		<FlatSharpSchema Include="blueprint_request.fbs" />
+		<FlatSharpSchema Include="blueprint_reply.fbs" />
+	</ItemGroup>
+	
   <ItemGroup>
     <PackageReference Include="FlatSharp.Compiler" Version="7.1.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="FlatSharp.Runtime" Version="7.1.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\Digital-AV\omega\foundations\csharp\AVXLib\AVXLib.csproj" />
-    <ProjectReference Include="..\..\NUPhone\PhonemeEmbeddings\PhonemeEmbeddings.csproj" />
+    <PackageReference Include="Grpc" Version="2.46.6" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.52.0" />
+    <PackageReference Include="Grpc.Core" Version="2.46.6" />
   </ItemGroup>
 
 </Project>

@@ -50,6 +50,7 @@ namespace Blueprint.Blue
                 }
                 return new XBlueprint()
                 {
+                    Command = this.Text,
                     Settings = this.Context.AsMessage(),
                     Errors = this.Context.Statement.Errors.Count > 0 ? this.Context.Statement.Errors : new() { "Unexpected error or ill-defined request" },
                     Status = XStatusEnum.ERROR,
