@@ -1,6 +1,7 @@
 namespace Blueprint.Blue
 {
     using BlueprintBlue;
+    using FlatSharp;
     using Pinshot.Blue;
     using Pinshot.PEG;
     using System;
@@ -57,6 +58,17 @@ namespace Blueprint.Blue
                     Help = "to be defined later"
                 };
             }
+        }
+        public static byte[] Serialize(XBlueprint xblueprint)
+        {
+            if (xblueprint != null)
+            {
+                int maxBytesNeeded = XBlueprint.Serializer.GetMaxSize(xblueprint);
+                byte[] bytes = new byte[maxBytesNeeded];
+                int bytesWritten = XBlueprint.Serializer.Write(bytes, xblueprint);
+                return bytes;
+            }
+            return new byte[0];
         }
 
         public void AddError(string message)
