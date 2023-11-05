@@ -52,7 +52,7 @@ namespace Blueprint.Blue
             }
             else
             {
-                env.AddError("A coomand in the statement is ill-defined: " + clause.text);
+                env.AddError("A command in the statement is ill-defined: " + clause.text);
             }
         }
     }
