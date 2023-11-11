@@ -11,16 +11,44 @@ namespace Blueprint.Blue
     public class QWord : QFeature, IFeature
     {
         public UInt16[] WordKeys { get; set; }
+        public HashSet<string> Phonetic { get; private set; }
         private string Text;
+
+        private bool AddPhonetics()
+        {
+            if (this.WordKeys != null)
+            {
+                foreach (var key in this.WordKeys)
+                {
+                    var modern = ObjectTable.AVXObjects.lexicon.GetLexModern(key);
+                    var phone = new NUPhoneGen(modern);
+                    if (!this.Phonetic.Contains(phone.Phonetic))
+                        this.Phonetic.Add(phone.Phonetic);
+                }
+                return this.WordKeys.Length > 0;
+            }
+            return false;
+        }
+        private void AddRawPhonetics(string word)
+        {
+            var phone = new NUPhoneGen(word);
+            if (!this.Phonetic.Contains(phone.Phonetic))
+                this.Phonetic.Add(phone.Phonetic);
+        }
 
         public QWord(QFind search, string text, Parsed parse, bool negate) : base(search, text, parse, negate)
         {
+            this.Phonetic = new();
+
             var wkey = ObjectTable.AVXObjects.lexicon.GetReverseLex(text);
             this.WordKeys = (wkey != 0) ? new UInt16[1] { wkey } : new UInt16[0];
+            if (!AddPhonetics())
+                AddRawPhonetics(text);
+
             this.Text = text;
             if (this.WordKeys.Length == 0)
             {
-                this.Search.Context.AddError("A word was specified that could not be found in the lexicon: " + text);
+                this.Search.Context.AddWarning("'" + text + "' is not in the lexicon (only sounds-alike searching can be used to match this token).");
             }
         }
         public override IEnumerable<string> AsYaml()

@@ -8,31 +8,57 @@ namespace Blueprint.Blue
     using PhonemeEmbeddings;
     using AVXLib.Framework;
     using AVXLib;
+    using AVXLib.Memory;
 
     public class QLemma : QFeature, IFeature
     {
         public UInt16[] Lemmata { get; private set; }
+        public HashSet<string> Phonetic { get; private set; }
 
+        private bool AddLemmata(UInt16[] lemmata)
+        {
+            if (lemmata != null)
+            {
+                this.Lemmata = lemmata;
+                foreach (var key in lemmata)
+                {
+                    var modern = ObjectTable.AVXObjects.lexicon.GetLexModern(key);
+                    var phone = new NUPhoneGen(modern);
+                    if (!this.Phonetic.Contains(phone.Phonetic))
+                        this.Phonetic.Add(phone.Phonetic);
+                }
+                return true;
+            }
+            this.Lemmata = new UInt16[0];
+            return false;
+        }
+        private void AddRawPhonetics(string word)
+        {
+            this.Lemmata = new UInt16[0];
+
+            var phone = new NUPhoneGen(word);
+            if (!this.Phonetic.Contains(phone.Phonetic))
+                this.Phonetic.Add(phone.Phonetic);
+        }
         public QLemma(QFind search, string text, Parsed parse, bool negate) : base(search, text, parse, negate)
         {
+            this.Phonetic = new();
+
             var normalized = text.ToLower();
+
             var lex = ObjectTable.AVXObjects.lexicon.GetReverseLexExtensive(normalized)[0];
 
             if (lex > 0)
             {
                 var lemmas = ObjectTable.AVXObjects.lemmata.FindLemmataUsingWordKey(lex);
-
-                if (lemmas != null) 
+                if (AddLemmata(lemmas)) 
                 {
-                    this.Lemmata = lemmas;
                     return;  // If it is OOV, we can infer that this is a lemma
                 }
-
                 lemmas = ObjectTable.AVXObjects.lemmata.FindLemmataInList(lex);
 
-                if (lemmas != null)
+                if (AddLemmata(lemmas))
                 {
-                    this.Lemmata = lemmas;
                     return;  // If it is OOV, we can infer that this is a lemma
                 }
                 this.Lemmata = new UInt16[0];
@@ -43,21 +69,19 @@ namespace Blueprint.Blue
             {
                 var lemmas = ObjectTable.AVXObjects.lemmata.FindLemmataUsingWordKey(oov);
 
-                if (lemmas != null)
+                if (AddLemmata(lemmas))
                 {
-                    this.Lemmata = lemmas;
                     return;  // If it is OOV, we can infer that this is a lemma
                 }
 
                 lemmas = ObjectTable.AVXObjects.lemmata.FindLemmataInList(oov);
 
-                if (lemmas != null)
+                if (AddLemmata(lemmas))
                 {
-                    this.Lemmata = lemmas;
                     return;  // If it is OOV, we can infer that this is a lemma
                 }
             }
-            this.Lemmata = new UInt16[0];
+            AddRawPhonetics(normalized);
         }
         public override IEnumerable<string> AsYaml()
         {

@@ -30,7 +30,7 @@ namespace Blueprint.Blue
             if (parse.rule.Equals("feature", StringComparison.InvariantCultureIgnoreCase) && (parse.children.Length == 1))
             {
                 bool positive = true;
-                int cnt = 0;
+                int cnt = 1;
                 int idx = 0;
                 if (parse.children[0].rule.Equals("not", StringComparison.InvariantCultureIgnoreCase) && (parse.children.Length == 2))
                 {
