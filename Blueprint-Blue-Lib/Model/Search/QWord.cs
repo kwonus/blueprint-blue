@@ -11,7 +11,7 @@ namespace Blueprint.Blue
     public class QWord : QFeature, IFeature
     {
         public UInt16[] WordKeys { get; set; }
-        public HashSet<string> Phonetic { get; private set; }
+        public HashSet<string> Phonetics { get; private set; }
         private string Text;
 
         private bool AddPhonetics()
@@ -22,8 +22,8 @@ namespace Blueprint.Blue
                 {
                     var modern = ObjectTable.AVXObjects.lexicon.GetLexModern(key);
                     var phone = new NUPhoneGen(modern);
-                    if (!this.Phonetic.Contains(phone.Phonetic))
-                        this.Phonetic.Add(phone.Phonetic);
+                    if (!this.Phonetics.Contains(phone.Phonetic))
+                        this.Phonetics.Add(phone.Phonetic);
                 }
                 return this.WordKeys.Length > 0;
             }
@@ -32,13 +32,13 @@ namespace Blueprint.Blue
         private void AddRawPhonetics(string word)
         {
             var phone = new NUPhoneGen(word);
-            if (!this.Phonetic.Contains(phone.Phonetic))
-                this.Phonetic.Add(phone.Phonetic);
+            if (!this.Phonetics.Contains(phone.Phonetic))
+                this.Phonetics.Add(phone.Phonetic);
         }
 
         public QWord(QFind search, string text, Parsed parse, bool negate) : base(search, text, parse, negate)
         {
-            this.Phonetic = new();
+            this.Phonetics = new();
 
             var wkey = ObjectTable.AVXObjects.lexicon.GetReverseLex(text);
             this.WordKeys = (wkey != 0) ? new UInt16[1] { wkey } : new UInt16[0];
@@ -65,19 +65,31 @@ namespace Blueprint.Blue
 
                 result.Append(word.ToString());
             }
-            yield return (delimiter.Length > 0) ? result.ToString() + " ]" : "";
+            if (delimiter.Length > 0)
+                yield return result.ToString() + " ]";
+
+            result.Clear();
+            delimiter = "\"";
+            result.Append("  phonetics: [ ");
+            foreach (var phonetic in this.Phonetics)
+            {
+                result.Append(delimiter);
+                if (delimiter.Length > 1)
+                    delimiter = "\", \"";
+
+                result.Append(phonetic.Trim());
+            }
+            if (delimiter.Length > 0)
+                yield return result.ToString() + "\" ]";
         }
         public override XFeature AsMessage()
         {
-            var nuphone = this.Text.Length > 0 ? (new NUPhoneGen(this.Text)).Phonetic : string.Empty;
-            var nuphones = (nuphone.Length > 0) ? new List<string>() { nuphone } : new List<string>();
-
             var lexes = new List<XLex>();
             foreach (var key in this.WordKeys)
             {
-                if (nuphone.Length > 0)
+                if (this.Phonetics.Count > 0)
                 {
-                    lexes.Add(new XLex() { Key = key, Variants = nuphones });
+                    lexes.Add(new XLex() { Key = key, Variants = this.Phonetics.ToList() });
                 }
                 else
                 {

@@ -92,6 +92,7 @@ table XFeature (fs_serializer) {
 table XLex (fs_serializer) {
     key:         uint16 = 0;             // zero is a valid value for OOV items (items found neither in lexicon, nor in OOV-Lemmata)
     variants:  [ string ];
+    phonetics: [ string ];
 }
 
 table XWord (fs_serializer) {

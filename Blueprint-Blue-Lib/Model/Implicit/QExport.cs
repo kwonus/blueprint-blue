@@ -38,5 +38,10 @@ namespace Blueprint.Blue
             }
             return null;
         }
+        public override List<string> AsYaml()
+        {
+            return [ "filespec: \"" + this.FileSpec + "\"" ];
+        }
     }
+
 }

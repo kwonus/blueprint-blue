@@ -339,5 +339,9 @@ namespace Blueprint.Blue
             }
             return null;
         }
+        public override List<string> AsYaml()
+        {
+            return !string.IsNullOrWhiteSpace(this.Key) ? [ this.Key + ": \"" + this.Value + "\"" ] : [ ];
+        }
     }
 }

@@ -4,6 +4,7 @@ namespace Blueprint.Blue
     using System.Collections.Generic;
     using System.Linq;
     using System;
+    using System.Text;
 
     public class QLimit : QImplicitCommand, ICommand
     {
@@ -32,6 +33,21 @@ namespace Blueprint.Blue
                 ;
             }
             return null;
+        }
+        public override List<string> AsYaml()
+        {
+            string delimiter = "";
+            var result = new StringBuilder("  fields: [ ", 48);
+            foreach (var field in this.Fields)
+            {
+                if (delimiter.Length > 0)
+                    result.Append(delimiter);
+                else
+                    delimiter = ", ";
+
+                result.Append(field.ToString());
+            }
+            return (delimiter.Length > 0) ? [ result.ToString() + " ]" ] : [ ];
         }
     }
 }
