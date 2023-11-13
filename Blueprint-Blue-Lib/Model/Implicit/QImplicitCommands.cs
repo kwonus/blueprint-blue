@@ -139,7 +139,7 @@
                 foreach (var candidate in this.ExpandedParts)
                     if (candidate.GetType() == typeof(QExport))
                         cnt++;
-                if (cnt == 1)
+                if (cnt >= 1) // TO DO: this should be == 1, but a bug is adding it twice
                     foreach (var candidate in this.ExpandedParts)
                         if (candidate.GetType() == typeof(QExport))
                             return (QExport)candidate;

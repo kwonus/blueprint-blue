@@ -9,7 +9,6 @@ enum XOutEnum:   byte { AV = 1, AVX = 2 }
 enum XLexEnum:   byte { AV = 1, AVX = 2, BOTH = 3 }
 enum XFmtEnum:   byte { JSON = 0, TEXT = 1, HTML = 2, MD = 3 }
 enum XLangEnum:  byte { H = 1, G = 2, X = 0 }
-enum XUserEnum:  byte { ANONYMOUS = 0, EXISTING = 1, NEW = 2, RESET = 3, UNKNOWN = 4 }
 enum XStatusEnum:byte { OKAY = 0, ERROR = -128 }
 
 table XBlueprint (fs_serializer) { // was: XRequest

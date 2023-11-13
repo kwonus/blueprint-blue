@@ -64,7 +64,7 @@
         public QLexicalDomain  Lexicon    { get; set; }
         public QLexicalDisplay Display    { get; set; }
         public QSpan           Span       { get; set; }
-        public QSimilarity          Similarity { get; set; }
+        public QSimilarity     Similarity { get; set; }
 
         private string? BackingStore;
 #pragma warning disable CS8618

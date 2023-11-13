@@ -37,7 +37,7 @@ namespace Blueprint.Blue
         public override List<string> AsYaml()
         {
             string delimiter = "";
-            var result = new StringBuilder("  fields: [ ", 48);
+            var result = new StringBuilder("fields: [ ", 48);
             foreach (var field in this.Fields)
             {
                 if (delimiter.Length > 0)

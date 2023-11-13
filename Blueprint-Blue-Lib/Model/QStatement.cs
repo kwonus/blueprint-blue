@@ -36,7 +36,7 @@ namespace Blueprint.Blue
             this.Commands= null;
             this.GlobalSettings = new QSettings(@"C:\Users\Me\AVX\Quelle\settings.quelle");
             this.LocalSettings = new QSettings(this.GlobalSettings);
-            this.Context = new QContext(this, @"C:\Users\Me\AVX");  // notional placeholder for now (base this on actual username/home
+            this.Context = new QContext(this);  // notional placeholder for now (base this on actual username/home
         }
         public XBlueprint Blueprint
         {

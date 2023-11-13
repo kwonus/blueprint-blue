@@ -42,8 +42,32 @@
             return new XSettings() { Similarity = this.LocalSettings.Similarity.ToString(), Span = this.LocalSettings.Span.Value, Format = xformat, Lexicon = xdomain, Display = xdisplay };
         }
 
-        public string   User   { get; set; }
-        public string   Session{ get; set; }
+        public string SessionAsString //pseudo-random-identifier (might not be needed)
+        {
+            get => Uniqueness.ToString() + ":" + Ticks.ToString();
+        }
+        public (UInt64 part1, UInt64 part2, Int32 ticks) Session //pseudo-random-identifier (might not be needed)
+        {
+            get
+            {
+                (UInt64 part1, UInt64 part2, Int32 ticks) result = (0, 0, this.Ticks);
+                var bytes = this.Uniqueness.ToByteArray();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    if (i < 32)
+                    {
+                        result.part1 <<= 8;
+                        result.part1 |= bytes[i];
+                    }
+                    else
+                    {
+                        result.part2 <<= 8;
+                        result.part2 |= bytes[i];
+                    }
+                }
+                return result;
+            }
+        }
         public UInt16[]?Fields { get; set; }
 
         public QStatement Statement { get; private set; }
@@ -51,44 +75,43 @@
         public string HistoryPath { get; private set; } // not used yet
         public string MacroPath { get; private set; }   // not used yet
 
+        private Guid Uniqueness;
+        private Int32 Ticks;
+
         static QContext()
         {
             BlueprintLex.Initialize(ObjectTable.AVXObjects);
         }
         private Dictionary<UInt32, QExpandableStatement> History = new();
 
-        public QContext(QStatement statement, string session)
+        public QContext(QStatement statement)
         {
+            this.Uniqueness = Guid.NewGuid();
+            this.Ticks = Environment.TickCount;
+
             BlueprintBlue.FuzzyLex.BlueprintLex.Initialize(ObjectTable.AVXObjects);
             this.Statement = statement;
             this.InvocationCount = 0; // This can be updated when Create() is called on Implicit clauses
             this.GlobalSettings = statement.GlobalSettings;
             this.LocalSettings  = new QSettings(this.GlobalSettings);
 
-            this.User    = string.Empty;
-            this.Session = session.Replace("\\", "/"); // always use unix-style path-spec
             this.Fields  = null;    // Null means that no fields were provided; In Quelle, this is different than an empty array of fields
             this.HistoryPath = string.Empty;
             this.MacroPath = string.Empty;
 
-            if (!string.IsNullOrEmpty(this.Session))
-            {
-                if (Directory.Exists(this.Session)) // If session is a valid folder-path, then macros and history can be found here.
-                {
-                    var quelle = session.EndsWith("/Quelle", StringComparison.InvariantCultureIgnoreCase) || session.EndsWith("/Quelle/", StringComparison.InvariantCultureIgnoreCase);
-                    var folder = quelle ? this.Session : Path.Combine(this.Session, "Quelle");
+            string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AV-Bible");
 
-                    this.HistoryPath = Path.Combine(folder, "History.Quelle").Replace("\\", "/");
-                    this.MacroPath = Path.Combine(folder, "Labels").Replace("\\", "/");
-                }
-                else
-                {
-                    this.AddWarning("A session context was provided that does not represents a valid path");
-                }
+            if (!string.IsNullOrEmpty(folder))
+            {
+                if (!Directory.Exists(folder))
+                    Directory.CreateDirectory(folder);
+
+                this.HistoryPath = Path.Combine(folder, "History.Quelle").Replace("\\", "/");
+                this.MacroPath = Path.Combine(folder, "Labels").Replace("\\", "/");
             }
             else
             {
-                this.AddWarning("A session context has not been provided");
+                this.AddWarning("A session context cannot be established");
             }
             if (!ObjectTable.AVXObjects.Mem.valid)
             {

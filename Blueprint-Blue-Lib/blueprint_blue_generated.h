@@ -233,67 +233,25 @@ inline const char *EnumNameXLangEnum(XLangEnum e) {
   return EnumNamesXLangEnum()[index];
 }
 
-enum XUserEnum : int8_t {
-  XUserEnum_ANONYMOUS = 0,
-  XUserEnum_EXISTING = 1,
-  XUserEnum_NEW = 2,
-  XUserEnum_RESET = 3,
-  XUserEnum_UNKNOWN = 4,
-  XUserEnum_MIN = XUserEnum_ANONYMOUS,
-  XUserEnum_MAX = XUserEnum_UNKNOWN
-};
-
-inline const XUserEnum (&EnumValuesXUserEnum())[5] {
-  static const XUserEnum values[] = {
-    XUserEnum_ANONYMOUS,
-    XUserEnum_EXISTING,
-    XUserEnum_NEW,
-    XUserEnum_RESET,
-    XUserEnum_UNKNOWN
-  };
-  return values;
-}
-
-inline const char * const *EnumNamesXUserEnum() {
-  static const char * const names[6] = {
-    "ANONYMOUS",
-    "EXISTING",
-    "NEW",
-    "RESET",
-    "UNKNOWN",
-    nullptr
-  };
-  return names;
-}
-
-inline const char *EnumNameXUserEnum(XUserEnum e) {
-  if (flatbuffers::IsOutRange(e, XUserEnum_ANONYMOUS, XUserEnum_UNKNOWN)) return "";
-  const size_t index = static_cast<size_t>(e);
-  return EnumNamesXUserEnum()[index];
-}
-
 enum XStatusEnum : int8_t {
-  XStatusEnum_UNKNOWN = -128,
+  XStatusEnum_ERROR = -128,
   XStatusEnum_OKAY = 0,
-  XStatusEnum_ERROR = 1,
-  XStatusEnum_MIN = XStatusEnum_UNKNOWN,
-  XStatusEnum_MAX = XStatusEnum_ERROR
+  XStatusEnum_MIN = XStatusEnum_ERROR,
+  XStatusEnum_MAX = XStatusEnum_OKAY
 };
 
-inline const XStatusEnum (&EnumValuesXStatusEnum())[3] {
+inline const XStatusEnum (&EnumValuesXStatusEnum())[2] {
   static const XStatusEnum values[] = {
-    XStatusEnum_UNKNOWN,
-    XStatusEnum_OKAY,
-    XStatusEnum_ERROR
+    XStatusEnum_ERROR,
+    XStatusEnum_OKAY
   };
   return values;
 }
 
 inline const char *EnumNameXStatusEnum(XStatusEnum e) {
   switch (e) {
-    case XStatusEnum_UNKNOWN: return "UNKNOWN";
-    case XStatusEnum_OKAY: return "OKAY";
     case XStatusEnum_ERROR: return "ERROR";
+    case XStatusEnum_OKAY: return "OKAY";
     default: return "";
   }
 }
@@ -507,7 +465,7 @@ inline flatbuffers::Offset<XBlueprint> CreateXBlueprint(
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XSearch>>> search = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XScope>>> scope = 0,
     flatbuffers::Offset<XBlueprintBlue::XCommand> singleton = 0,
-    XBlueprintBlue::XStatusEnum status = XBlueprintBlue::XStatusEnum_UNKNOWN,
+    XBlueprintBlue::XStatusEnum status = XBlueprintBlue::XStatusEnum_ERROR,
     flatbuffers::Offset<flatbuffers::String> help = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> warnings = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> errors = 0) {
@@ -531,7 +489,7 @@ inline flatbuffers::Offset<XBlueprint> CreateXBlueprintDirect(
     const std::vector<flatbuffers::Offset<XBlueprintBlue::XSearch>> *search = nullptr,
     const std::vector<flatbuffers::Offset<XBlueprintBlue::XScope>> *scope = nullptr,
     flatbuffers::Offset<XBlueprintBlue::XCommand> singleton = 0,
-    XBlueprintBlue::XStatusEnum status = XBlueprintBlue::XStatusEnum_UNKNOWN,
+    XBlueprintBlue::XStatusEnum status = XBlueprintBlue::XStatusEnum_ERROR,
     const char *help = nullptr,
     const std::vector<flatbuffers::Offset<flatbuffers::String>> *warnings = nullptr,
     const std::vector<flatbuffers::Offset<flatbuffers::String>> *errors = nullptr) {
@@ -1283,7 +1241,8 @@ struct XLex FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   typedef XLexBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_KEY = 4,
-    VT_VARIANTS = 6
+    VT_VARIANTS = 6,
+    VT_PHONETICS = 8
   };
   uint16_t key() const {
     return GetField<uint16_t>(VT_KEY, 0);
@@ -1291,12 +1250,18 @@ struct XLex FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *variants() const {
     return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *>(VT_VARIANTS);
   }
+  const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *phonetics() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *>(VT_PHONETICS);
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint16_t>(verifier, VT_KEY, 2) &&
            VerifyOffset(verifier, VT_VARIANTS) &&
            verifier.VerifyVector(variants()) &&
            verifier.VerifyVectorOfStrings(variants()) &&
+           VerifyOffset(verifier, VT_PHONETICS) &&
+           verifier.VerifyVector(phonetics()) &&
+           verifier.VerifyVectorOfStrings(phonetics()) &&
            verifier.EndTable();
   }
 };
@@ -1310,6 +1275,9 @@ struct XLexBuilder {
   }
   void add_variants(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> variants) {
     fbb_.AddOffset(XLex::VT_VARIANTS, variants);
+  }
+  void add_phonetics(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> phonetics) {
+    fbb_.AddOffset(XLex::VT_PHONETICS, phonetics);
   }
   explicit XLexBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1325,8 +1293,10 @@ struct XLexBuilder {
 inline flatbuffers::Offset<XLex> CreateXLex(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint16_t key = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> variants = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> variants = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> phonetics = 0) {
   XLexBuilder builder_(_fbb);
+  builder_.add_phonetics(phonetics);
   builder_.add_variants(variants);
   builder_.add_key(key);
   return builder_.Finish();
@@ -1335,12 +1305,15 @@ inline flatbuffers::Offset<XLex> CreateXLex(
 inline flatbuffers::Offset<XLex> CreateXLexDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint16_t key = 0,
-    const std::vector<flatbuffers::Offset<flatbuffers::String>> *variants = nullptr) {
+    const std::vector<flatbuffers::Offset<flatbuffers::String>> *variants = nullptr,
+    const std::vector<flatbuffers::Offset<flatbuffers::String>> *phonetics = nullptr) {
   auto variants__ = variants ? _fbb.CreateVector<flatbuffers::Offset<flatbuffers::String>>(*variants) : 0;
+  auto phonetics__ = phonetics ? _fbb.CreateVector<flatbuffers::Offset<flatbuffers::String>>(*phonetics) : 0;
   return XBlueprintBlue::CreateXLex(
       _fbb,
       key,
-      variants__);
+      variants__,
+      phonetics__);
 }
 
 struct XWord FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {

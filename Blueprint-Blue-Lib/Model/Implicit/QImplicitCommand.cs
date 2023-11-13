@@ -41,7 +41,6 @@ namespace Blueprint.Blue
                         if (result != null)
                         {
                             yield return result;
-                            result = null;
                         }
                     }
                 }   break;
