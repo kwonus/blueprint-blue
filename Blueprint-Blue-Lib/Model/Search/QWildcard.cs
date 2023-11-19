@@ -97,7 +97,7 @@ namespace Blueprint.Blue
             var lexes = new List<XLex>();
             foreach (var key in this.WordKeys)
             {
-                lexes.Add(new XLex() { Key = key });
+                lexes.Add(new XLex() { Key = key, Phonetics = [] });
             }
             var word = new XWord() { Lex = lexes };
             var compare = new XCompare(word);

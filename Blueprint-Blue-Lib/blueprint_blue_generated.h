@@ -1241,14 +1241,10 @@ struct XLex FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   typedef XLexBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_KEY = 4,
-    VT_VARIANTS = 6,
-    VT_PHONETICS = 8
+    VT_PHONETICS = 6
   };
   uint16_t key() const {
     return GetField<uint16_t>(VT_KEY, 0);
-  }
-  const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *variants() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *>(VT_VARIANTS);
   }
   const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *phonetics() const {
     return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *>(VT_PHONETICS);
@@ -1256,10 +1252,7 @@ struct XLex FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint16_t>(verifier, VT_KEY, 2) &&
-           VerifyOffset(verifier, VT_VARIANTS) &&
-           verifier.VerifyVector(variants()) &&
-           verifier.VerifyVectorOfStrings(variants()) &&
-           VerifyOffset(verifier, VT_PHONETICS) &&
+           VerifyOffsetRequired(verifier, VT_PHONETICS) &&
            verifier.VerifyVector(phonetics()) &&
            verifier.VerifyVectorOfStrings(phonetics()) &&
            verifier.EndTable();
@@ -1273,9 +1266,6 @@ struct XLexBuilder {
   void add_key(uint16_t key) {
     fbb_.AddElement<uint16_t>(XLex::VT_KEY, key, 0);
   }
-  void add_variants(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> variants) {
-    fbb_.AddOffset(XLex::VT_VARIANTS, variants);
-  }
   void add_phonetics(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> phonetics) {
     fbb_.AddOffset(XLex::VT_PHONETICS, phonetics);
   }
@@ -1286,6 +1276,7 @@ struct XLexBuilder {
   flatbuffers::Offset<XLex> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<XLex>(end);
+    fbb_.Required(o, XLex::VT_PHONETICS);
     return o;
   }
 };
@@ -1293,11 +1284,9 @@ struct XLexBuilder {
 inline flatbuffers::Offset<XLex> CreateXLex(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint16_t key = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> variants = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> phonetics = 0) {
   XLexBuilder builder_(_fbb);
   builder_.add_phonetics(phonetics);
-  builder_.add_variants(variants);
   builder_.add_key(key);
   return builder_.Finish();
 }
@@ -1305,14 +1294,11 @@ inline flatbuffers::Offset<XLex> CreateXLex(
 inline flatbuffers::Offset<XLex> CreateXLexDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint16_t key = 0,
-    const std::vector<flatbuffers::Offset<flatbuffers::String>> *variants = nullptr,
     const std::vector<flatbuffers::Offset<flatbuffers::String>> *phonetics = nullptr) {
-  auto variants__ = variants ? _fbb.CreateVector<flatbuffers::Offset<flatbuffers::String>>(*variants) : 0;
   auto phonetics__ = phonetics ? _fbb.CreateVector<flatbuffers::Offset<flatbuffers::String>>(*phonetics) : 0;
   return XBlueprintBlue::CreateXLex(
       _fbb,
       key,
-      variants__,
       phonetics__);
 }
 

@@ -90,8 +90,7 @@ table XFeature (fs_serializer) {
 
 table XLex (fs_serializer) {
     key:         uint16 = 0;             // zero is a valid value for OOV items (items found neither in lexicon, nor in OOV-Lemmata)
-    variants:  [ string ];
-    phonetics: [ string ];
+    phonetics: [ string ] (required);    // required, but may be empty (in the case of QWildcard: we do not find phonetic variants for all lexicon matches)
 }
 
 table XWord (fs_serializer) {

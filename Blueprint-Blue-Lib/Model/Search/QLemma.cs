@@ -128,11 +128,11 @@ namespace Blueprint.Blue
                 }
                 if (this.Phonetics.Count > 0)
                 {
-                    lexes.Add(new XLex() { Key = key, Variants = this.Phonetics.ToList() });
+                    lexes.Add(new XLex() { Key = key, Phonetics = this.Phonetics.ToList() });
                 }
                 else
                 {
-                    lexes.Add(new XLex() { Key = key });
+                    lexes.Add(new XLex() { Key = key, Phonetics = [] });
                 }
             }
             var lemma = new XLemma() { Lemmata = lexes };
