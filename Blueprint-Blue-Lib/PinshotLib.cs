@@ -1,6 +1,7 @@
 ﻿
 namespace Pinshot.Blue
 {
+    using Blueprint.Blue;
     using Pinshot.PEG;
     using System;
     using System.IO;
@@ -8,14 +9,27 @@ namespace Pinshot.Blue
     using System.Runtime.Serialization.Json;
     using System.Text;
 
-    internal static class Pinshot_RustFFI
+    public static class Pinshot_RustFFI
     {
+        [DllImport("pinshot_blue.dll", EntryPoint = "assert_grammar_revision")]
+        internal static extern UInt32 assert_grammar_revision(UInt32 revision);
         [DllImport("pinshot_blue.dll", EntryPoint = "create_quelle_parse_raw")]
         internal static extern ParsedStatementHandle pinshot_blue_raw_parse(string stmt);
         [DllImport("pinshot_blue.dll", EntryPoint = "create_quelle_parse")]
         internal static extern ParsedStatementHandle pinshot_blue_parse(string stmt);
         [DllImport("pinshot_blue.dll", EntryPoint = "delete_quelle_parse")]
         internal static extern void pinshot_blue_free(IntPtr memory);
+
+        public static (UInt32 expected, bool okay) LibraryVersion
+        {
+            get
+            {
+                UInt32 expected = 2_0_3_1123; // "2.0.3.B23" == 203_1123
+                UInt32 version = assert_grammar_revision(expected);
+
+                return (expected, (version != 0));
+            }
+        }
     }
 
     internal class ParsedStatementHandle : SafeHandle

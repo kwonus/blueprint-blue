@@ -49,20 +49,20 @@ table XStatement (fs_serializer) {
 }
 
 table XSearch (fs_serializer) {
-    expression:  string      (required);
+    expression:  string       (required); // segment
     quoted:      bool        = false;
-    segments:  [ XSegment ]  (required);
-}
-
-table XSegment (fs_serializer) {
-    segment:     string      (required);
-    anchored:    bool        = false;
     fragments:  [ XFragment ] (required);
 }
 
 table XFragment (fs_serializer) {
     fragment:    string      (required);
-    features:  [ XFeature ]  (required);
+    anchored:    bool        = false;
+    required:  [ XOption ]   (required); // AND conditions (all must match)
+}
+
+table XOption (fs_serializer) {
+    option:      string      (required);
+    features:  [ XFeature ]  (required); // OR conditions (any can match)
 }
 
 union XCompare {

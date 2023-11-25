@@ -4,12 +4,14 @@ namespace Blueprint.Blue
     using System;
     using System.Collections.Generic;
     using XBlueprintBlue;
+    using static AVXLib.Framework.Numerics;
+
     public class QFind : QImplicitCommand, ICommand
     {
         public bool IsQuoted { get; set; }
-        public List<QSearchSegment> Segments { get; set; }
         private bool Valid;
-
+        public List<QFragment> Fragments { get; private set; }
+ 
         public override string Expand()
         {
             if (!this.Valid)
@@ -20,7 +22,7 @@ namespace Blueprint.Blue
 
         private QFind(QContext env, string text, Parsed[] args) : base(env, text, "find")
         {
-            this.Segments = new();
+            this.Fragments = new();
             this.Valid = (args.Length > 0 && args[0].children.Length > 0);
             if (this.Valid)
             {
@@ -42,22 +44,22 @@ namespace Blueprint.Blue
             {
                 foreach (var arg in args[0].children)
                 {
-                    QSearchSegment seg;
+                    QFragment frag;
 
-                    this.Valid = arg.rule.Equals("segment") && (arg.children.Length > 0);
+                    this.Valid = arg.rule.Equals("fragment") && (arg.children.Length > 0);
                     if (this.Valid)
                     {
-                        seg = new QSearchSegment(this, arg.text, arg.children, anchored: this.IsQuoted);
+                        frag = new QFragment(this, arg.text, arg.children, anchored: this.IsQuoted);
                     }
                     else
                     {
                         this.Valid = arg.rule.Equals("unanchored") && (arg.children.Length > 0);
                         if (!this.Valid)
                             break;
-                        seg = new QSearchSegment(this, arg.children[0].text, arg.children[0].children, anchored: false);
+                        frag = new QFragment(this, arg.children[0].text, arg.children[0].children, anchored: false);
                     }
                     if (this.Valid)
-                        this.Segments.Add(seg);
+                        this.Fragments.Add(frag);
                     else
                         break;
                 }
@@ -70,18 +72,19 @@ namespace Blueprint.Blue
 
             return search.Valid ? search : null;
         }
-        public override List<string> AsYaml()
+        override public List<string> AsYaml()
         {
             var yaml = new List<string>();
             if (this.Valid)
             {
-                yaml.Add("- find: " + this.Text);
+                yaml.Add("  segment: " + this.Text);
                 yaml.Add("  quoted: " + this.IsQuoted.ToString().ToLower());
+                yaml.Add("- fragment: " + this.Text);
 
-                foreach (var segment in this.Segments)
+                foreach (var fragment in this.Fragments)
                 {
-                    var segments_yaml = segment.AsYaml();
-                    foreach (var line in segments_yaml)
+                    var fragment_yaml = fragment.AsYaml();
+                    foreach (var line in fragment_yaml)
                     {
                         yaml.Add("  " + line);
                     }
@@ -91,11 +94,11 @@ namespace Blueprint.Blue
         }
         public XSearch AsMessage()
         {
-            var search = new XSearch { Expression = this.Text, Quoted = this.IsQuoted, Segments = new List<XSegment>() };
+            var search = new XSearch { Expression = this.Text, Quoted = this.IsQuoted, Fragments = new List<XFragment>() };
 
-            foreach (var segment in this.Segments)
+            foreach (var fragment in this.Fragments)
             {
-                search.Segments.Add(segment.AsMessage());
+                search.Fragments.Add(fragment.AsMessage());
             }
             return search;
         }
