@@ -5,6 +5,8 @@ namespace Blueprint.Blue
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
     using XBlueprintBlue;
+    using YamlDotNet.Serialization;
+
     public interface IFeature
     {
         string Text { get; }
@@ -16,7 +18,9 @@ namespace Blueprint.Blue
     {
         public string Text { get; private set; }
         public bool Negate { get; private set; }
+        [YamlIgnore]
         public Parsed Parse { get; private set; }
+        [YamlIgnore]
         public QFind Search { get; private set; }
         protected QFeature(QFind context, string text, Parsed parse, bool negate)
         {

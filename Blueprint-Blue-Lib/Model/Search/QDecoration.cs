@@ -14,8 +14,7 @@ namespace Blueprint.Blue
         }
         public override IEnumerable<string> AsYaml()
         {
-            yield return "- feature: " + this.Text;
-            yield return "  decoration: 0x" + this.Decoration.ToString("X");
+            return ICommand.YamlSerializer(this);
         }
         public override XFeature AsMessage()
         {

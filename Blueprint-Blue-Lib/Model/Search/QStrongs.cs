@@ -36,8 +36,7 @@
         }
         public override IEnumerable<string> AsYaml()
         {
-            yield return "- feature: " + this.Text;
-            yield return "  strongs: " + this.Strongs.lang + this.Strongs.number;
+            return ICommand.YamlSerializer(this);
         }
         public override XFeature AsMessage()
         {

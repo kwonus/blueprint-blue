@@ -17,13 +17,7 @@
 
         public List<string> AsYaml()
         {
-            var yaml = new List<string>();
-            yaml.Add("settings:");
-            foreach (var line in this.LocalSettings.AsYaml())
-            {
-                yaml.Add("  " + line);
-            }
-            return yaml;
+            return ICommand.YamlSerializer(this);
         }
         public XSettings AsMessage()
         {

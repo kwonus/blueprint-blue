@@ -13,7 +13,7 @@
         }
         public override IEnumerable<string> AsYaml()
         {
-            yield return string.Empty;  // this method is not wired in yet !!!!
+            return ICommand.YamlSerializer(this);
         }
         public override XFeature AsMessage()
         {

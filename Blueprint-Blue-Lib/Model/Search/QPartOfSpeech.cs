@@ -12,7 +12,6 @@ namespace Blueprint.Blue
     {
         public UInt16 PnPos12 { get; private set; }
         public UInt32 Pos32   { get; private set; }
-        public bool Negate { get; private set; }
 
         private static Dictionary<string, (UInt16 pnpos, bool negate)> PnPosTable { get; set; } = new()
         {
@@ -83,14 +82,12 @@ namespace Blueprint.Blue
 
             this.PnPos12 = 0;
             this.Pos32 = 0;
-            this.Negate = false;
 
             var entry = Lookup(pnpos);
 
             if (entry.found)
             {
                 this.PnPos12 = entry.result.pnpos;
-                this.Negate = entry.result.negate;
             }
             else if (parse.children.Length == 1)
             {
@@ -102,13 +99,6 @@ namespace Blueprint.Blue
                     {
                         if (child.rule == "nupos")
                         {
-                            this.Pos32 = AVText.FiveBitEncoding.EncodePOS(pos);
-                        }
-                        else if (child.rule == "nupos_not")
-                        {
-                            this.Negate = true;
-                            if (pos.StartsWith('!'))
-                                pos = pos.Substring(1);
                             this.Pos32 = AVText.FiveBitEncoding.EncodePOS(pos);
                         }
                         else if (child.rule == "pos32")
@@ -133,17 +123,7 @@ namespace Blueprint.Blue
         }
         public override IEnumerable<string> AsYaml()
         {
-            yield return "- feature: " + this.Text;
-            if (this.PnPos12 != 0)
-            {
-                yield return "  negate: " + this.Negate.ToString().ToLower();
-                yield return "  pos16: 0x" + this.PnPos12.ToString("X");
-            }
-            else if (this.Pos32 != 0)
-            {
-                yield return "  negate: " + this.Negate.ToString().ToLower();
-                yield return "  pos32: 0x" + this.PnPos12.ToString("X");
-            }
+            return ICommand.YamlSerializer(this);
         }
         public override XFeature AsMessage()
         {

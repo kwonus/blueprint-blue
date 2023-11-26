@@ -13,8 +13,7 @@ namespace Blueprint.Blue
         }
         public override IEnumerable<string> AsYaml()
         {
-            yield return "- feature: " + this.Text;
-            yield return "  punctuation: 0x" + this.Punctuation.ToString("X");
+            return ICommand.YamlSerializer(this);
         }
         public override XFeature AsMessage()
         {

@@ -3,10 +3,13 @@ namespace Blueprint.Blue
     using Pinshot.PEG;
     using System.Collections.Generic;
     using XBlueprintBlue;
+    using YamlDotNet.Serialization;
+
     public class QFragment
     {
         private string Text;
-        public List<MatchAny> MatchAll { get; private set; }
+        public List<QMatchAny> MatchAll { get; private set; }
+        [YamlIgnore]
         public QFind Search { get; private set; }
         public bool Anchored { get; private set; }
 
@@ -19,7 +22,7 @@ namespace Blueprint.Blue
 
             foreach (var arg in args)
             {
-                var option = new MatchAny(context, arg.text, arg.children);
+                var option = new QMatchAny(context, arg.text, arg.children);
                 if (option != null)
                     this.MatchAll.Add(option);
                 else
@@ -28,20 +31,7 @@ namespace Blueprint.Blue
         }
         public List<string> AsYaml()
         {
-            var yaml = new List<string>();
-
-            yaml.Add("anchored: " + this.Anchored.ToString().ToLower());
-            yaml.Add("- options: " + this.Text);
-
-            foreach (var feature in this.MatchAll)
-            {
-                var fragment_yaml = feature.AsYaml();
-                foreach (var line in fragment_yaml)
-                {
-                    yaml.Add("  " + line);
-                }
-            }
-            return yaml;
+            return ICommand.YamlSerializer(this);
         }
         public XFragment AsMessage()
         {

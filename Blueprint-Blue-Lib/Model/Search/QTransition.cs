@@ -14,10 +14,7 @@
         }
         public override IEnumerable<string> AsYaml()
         {
-            yield return "- feature: " + this.Text;
-            if (this.Negate)
-                yield return "  positive: false";
-            yield return "  transition: " + this.Transition.ToString();
+            return ICommand.YamlSerializer(this);
         }
         public override XFeature AsMessage()
         {

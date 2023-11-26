@@ -78,19 +78,7 @@ namespace Blueprint.Blue
         }
         public override IEnumerable<string> AsYaml()
         {
-            yield return "- feature: " + this.Text;
-            string delimiter = "";
-            var result = new StringBuilder("  wkeys: [ ", 48);
-            foreach (var word in this.WordKeys)
-            {
-                if (delimiter.Length > 0)
-                    result.Append(delimiter);
-                else
-                    delimiter = ", ";
-
-                result.Append(word.ToString());
-            }
-            yield return (delimiter.Length > 0) ? result.ToString() + " ]" : "";
+            return ICommand.YamlSerializer(this);
         }
         public override XFeature AsMessage()
         {
