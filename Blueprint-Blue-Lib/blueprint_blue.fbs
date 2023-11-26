@@ -57,7 +57,7 @@ table XSearch (fs_serializer) {
 table XFragment (fs_serializer) {
     fragment:    string      (required);
     anchored:    bool        = false;
-    required:  [ XOption ]   (required); // AND conditions (all must match)
+    require:   [ XOption ]   (required); // AND conditions (all must match)
 }
 
 table XOption (fs_serializer) {

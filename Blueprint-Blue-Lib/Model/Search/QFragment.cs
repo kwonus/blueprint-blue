@@ -6,22 +6,22 @@ namespace Blueprint.Blue
     public class QFragment
     {
         private string Text;
-        public List<QOptionGroup> Options { get; private set; }
+        public List<MatchAny> MatchAll { get; private set; }
         public QFind Search { get; private set; }
         public bool Anchored { get; private set; }
 
         public QFragment(QFind context, string text, Parsed[] args, bool anchored = false)
         {
             this.Text = text;
-            this.Options = new();
+            this.MatchAll = new();
             this.Search = context;
             this.Anchored = anchored;
 
             foreach (var arg in args)
             {
-                var option = new QOptionGroup(context, arg.text, arg.children);
+                var option = new MatchAny(context, arg.text, arg.children);
                 if (option != null)
-                    this.Options.Add(option);
+                    this.MatchAll.Add(option);
                 else
                     this.Search.Context.AddError("A feature was identified that could not be parsed: " + text);
             }
@@ -33,7 +33,7 @@ namespace Blueprint.Blue
             yaml.Add("anchored: " + this.Anchored.ToString().ToLower());
             yaml.Add("- options: " + this.Text);
 
-            foreach (var feature in this.Options)
+            foreach (var feature in this.MatchAll)
             {
                 var fragment_yaml = feature.AsYaml();
                 foreach (var line in fragment_yaml)
@@ -45,11 +45,11 @@ namespace Blueprint.Blue
         }
         public XFragment AsMessage()
         {
-            var fragment = new XFragment { Fragment = this.Text, Required = new List<XOption>() };
+            var fragment = new XFragment { Fragment = this.Text, Require = new List<XOption>() };
 
-            foreach (var feature in this.Options)
+            foreach (var feature in this.MatchAll)
             {
-                fragment.Required.Add(feature.AsMessage());
+                fragment.Require.Add(feature.AsMessage());
             }
             return fragment;
         }

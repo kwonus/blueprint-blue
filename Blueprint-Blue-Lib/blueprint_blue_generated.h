@@ -8,10 +8,10 @@
 
 // Ensure the included flatbuffers.h is the same version as when this file was
 // generated, otherwise it may not be compatible.
-//static_assert(FLATBUFFERS_VERSION_MAJOR == 22 &&
-//              FLATBUFFERS_VERSION_MINOR == 10 &&
-//              FLATBUFFERS_VERSION_REVISION == 26,
-//             "Non-compatible flatbuffers version included");
+static_assert(FLATBUFFERS_VERSION_MAJOR == 23 &&
+              FLATBUFFERS_VERSION_MINOR == 5 &&
+              FLATBUFFERS_VERSION_REVISION == 26,
+             "Non-compatible flatbuffers version included");
 
 namespace XBlueprintBlue {
 
@@ -30,11 +30,11 @@ struct XStatementBuilder;
 struct XSearch;
 struct XSearchBuilder;
 
-struct XSegment;
-struct XSegmentBuilder;
-
 struct XFragment;
 struct XFragmentBuilder;
+
+struct XOption;
+struct XOptionBuilder;
 
 struct XFeature;
 struct XFeatureBuilder;
@@ -126,7 +126,7 @@ inline const char * const *EnumNamesXOutEnum() {
 }
 
 inline const char *EnumNameXOutEnum(XOutEnum e) {
-  if (flatbuffers::IsOutRange(e, XOutEnum_AV, XOutEnum_AVX)) return "";
+  if (::flatbuffers::IsOutRange(e, XOutEnum_AV, XOutEnum_AVX)) return "";
   const size_t index = static_cast<size_t>(e) - static_cast<size_t>(XOutEnum_AV);
   return EnumNamesXOutEnum()[index];
 }
@@ -159,7 +159,7 @@ inline const char * const *EnumNamesXLexEnum() {
 }
 
 inline const char *EnumNameXLexEnum(XLexEnum e) {
-  if (flatbuffers::IsOutRange(e, XLexEnum_AV, XLexEnum_BOTH)) return "";
+  if (::flatbuffers::IsOutRange(e, XLexEnum_AV, XLexEnum_BOTH)) return "";
   const size_t index = static_cast<size_t>(e) - static_cast<size_t>(XLexEnum_AV);
   return EnumNamesXLexEnum()[index];
 }
@@ -195,7 +195,7 @@ inline const char * const *EnumNamesXFmtEnum() {
 }
 
 inline const char *EnumNameXFmtEnum(XFmtEnum e) {
-  if (flatbuffers::IsOutRange(e, XFmtEnum_JSON, XFmtEnum_MD)) return "";
+  if (::flatbuffers::IsOutRange(e, XFmtEnum_JSON, XFmtEnum_MD)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesXFmtEnum()[index];
 }
@@ -228,7 +228,7 @@ inline const char * const *EnumNamesXLangEnum() {
 }
 
 inline const char *EnumNameXLangEnum(XLangEnum e) {
-  if (flatbuffers::IsOutRange(e, XLangEnum_X, XLangEnum_G)) return "";
+  if (::flatbuffers::IsOutRange(e, XLangEnum_X, XLangEnum_G)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesXLangEnum()[index];
 }
@@ -302,7 +302,7 @@ inline const char * const *EnumNamesXCompare() {
 }
 
 inline const char *EnumNameXCompare(XCompare e) {
-  if (flatbuffers::IsOutRange(e, XCompare_NONE, XCompare_delta)) return "";
+  if (::flatbuffers::IsOutRange(e, XCompare_NONE, XCompare_delta)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesXCompare()[index];
 }
@@ -343,10 +343,10 @@ template<> struct XCompareTraits<XBlueprintBlue::XDelta> {
   static const XCompare enum_value = XCompare_delta;
 };
 
-bool VerifyXCompare(flatbuffers::Verifier &verifier, const void *obj, XCompare type);
-bool VerifyXCompareVector(flatbuffers::Verifier &verifier, const flatbuffers::Vector<flatbuffers::Offset<void>> *values, const flatbuffers::Vector<uint8_t> *types);
+bool VerifyXCompare(::flatbuffers::Verifier &verifier, const void *obj, XCompare type);
+bool VerifyXCompareVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
 
-struct XBlueprint FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct XBlueprint FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef XBlueprintBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_COMMAND = 4,
@@ -359,17 +359,17 @@ struct XBlueprint FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_WARNINGS = 18,
     VT_ERRORS = 20
   };
-  const flatbuffers::String *command() const {
-    return GetPointer<const flatbuffers::String *>(VT_COMMAND);
+  const ::flatbuffers::String *command() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_COMMAND);
   }
   const XBlueprintBlue::XSettings *settings() const {
     return GetPointer<const XBlueprintBlue::XSettings *>(VT_SETTINGS);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XSearch>> *search() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XSearch>> *>(VT_SEARCH);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XSearch>> *search() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XSearch>> *>(VT_SEARCH);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XScope>> *scope() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XScope>> *>(VT_SCOPE);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XScope>> *scope() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XScope>> *>(VT_SCOPE);
   }
   const XBlueprintBlue::XCommand *singleton() const {
     return GetPointer<const XBlueprintBlue::XCommand *>(VT_SINGLETON);
@@ -377,16 +377,16 @@ struct XBlueprint FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   XBlueprintBlue::XStatusEnum status() const {
     return static_cast<XBlueprintBlue::XStatusEnum>(GetField<int8_t>(VT_STATUS, -128));
   }
-  const flatbuffers::String *help() const {
-    return GetPointer<const flatbuffers::String *>(VT_HELP);
+  const ::flatbuffers::String *help() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_HELP);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *warnings() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *>(VT_WARNINGS);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *warnings() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *>(VT_WARNINGS);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *errors() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *>(VT_ERRORS);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *errors() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *>(VT_ERRORS);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffsetRequired(verifier, VT_COMMAND) &&
            verifier.VerifyString(command()) &&
@@ -415,42 +415,42 @@ struct XBlueprint FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct XBlueprintBuilder {
   typedef XBlueprint Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_command(flatbuffers::Offset<flatbuffers::String> command) {
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_command(::flatbuffers::Offset<::flatbuffers::String> command) {
     fbb_.AddOffset(XBlueprint::VT_COMMAND, command);
   }
-  void add_settings(flatbuffers::Offset<XBlueprintBlue::XSettings> settings) {
+  void add_settings(::flatbuffers::Offset<XBlueprintBlue::XSettings> settings) {
     fbb_.AddOffset(XBlueprint::VT_SETTINGS, settings);
   }
-  void add_search(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XSearch>>> search) {
+  void add_search(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XSearch>>> search) {
     fbb_.AddOffset(XBlueprint::VT_SEARCH, search);
   }
-  void add_scope(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XScope>>> scope) {
+  void add_scope(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XScope>>> scope) {
     fbb_.AddOffset(XBlueprint::VT_SCOPE, scope);
   }
-  void add_singleton(flatbuffers::Offset<XBlueprintBlue::XCommand> singleton) {
+  void add_singleton(::flatbuffers::Offset<XBlueprintBlue::XCommand> singleton) {
     fbb_.AddOffset(XBlueprint::VT_SINGLETON, singleton);
   }
   void add_status(XBlueprintBlue::XStatusEnum status) {
     fbb_.AddElement<int8_t>(XBlueprint::VT_STATUS, static_cast<int8_t>(status), -128);
   }
-  void add_help(flatbuffers::Offset<flatbuffers::String> help) {
+  void add_help(::flatbuffers::Offset<::flatbuffers::String> help) {
     fbb_.AddOffset(XBlueprint::VT_HELP, help);
   }
-  void add_warnings(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> warnings) {
+  void add_warnings(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> warnings) {
     fbb_.AddOffset(XBlueprint::VT_WARNINGS, warnings);
   }
-  void add_errors(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> errors) {
+  void add_errors(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> errors) {
     fbb_.AddOffset(XBlueprint::VT_ERRORS, errors);
   }
-  explicit XBlueprintBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit XBlueprintBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<XBlueprint> Finish() {
+  ::flatbuffers::Offset<XBlueprint> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XBlueprint>(end);
+    auto o = ::flatbuffers::Offset<XBlueprint>(end);
     fbb_.Required(o, XBlueprint::VT_COMMAND);
     fbb_.Required(o, XBlueprint::VT_SETTINGS);
     fbb_.Required(o, XBlueprint::VT_HELP);
@@ -458,17 +458,17 @@ struct XBlueprintBuilder {
   }
 };
 
-inline flatbuffers::Offset<XBlueprint> CreateXBlueprint(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::String> command = 0,
-    flatbuffers::Offset<XBlueprintBlue::XSettings> settings = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XSearch>>> search = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XScope>>> scope = 0,
-    flatbuffers::Offset<XBlueprintBlue::XCommand> singleton = 0,
+inline ::flatbuffers::Offset<XBlueprint> CreateXBlueprint(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> command = 0,
+    ::flatbuffers::Offset<XBlueprintBlue::XSettings> settings = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XSearch>>> search = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XScope>>> scope = 0,
+    ::flatbuffers::Offset<XBlueprintBlue::XCommand> singleton = 0,
     XBlueprintBlue::XStatusEnum status = XBlueprintBlue::XStatusEnum_ERROR,
-    flatbuffers::Offset<flatbuffers::String> help = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> warnings = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> errors = 0) {
+    ::flatbuffers::Offset<::flatbuffers::String> help = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> warnings = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> errors = 0) {
   XBlueprintBuilder builder_(_fbb);
   builder_.add_errors(errors);
   builder_.add_warnings(warnings);
@@ -482,23 +482,23 @@ inline flatbuffers::Offset<XBlueprint> CreateXBlueprint(
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<XBlueprint> CreateXBlueprintDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<XBlueprint> CreateXBlueprintDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *command = nullptr,
-    flatbuffers::Offset<XBlueprintBlue::XSettings> settings = 0,
-    const std::vector<flatbuffers::Offset<XBlueprintBlue::XSearch>> *search = nullptr,
-    const std::vector<flatbuffers::Offset<XBlueprintBlue::XScope>> *scope = nullptr,
-    flatbuffers::Offset<XBlueprintBlue::XCommand> singleton = 0,
+    ::flatbuffers::Offset<XBlueprintBlue::XSettings> settings = 0,
+    const std::vector<::flatbuffers::Offset<XBlueprintBlue::XSearch>> *search = nullptr,
+    const std::vector<::flatbuffers::Offset<XBlueprintBlue::XScope>> *scope = nullptr,
+    ::flatbuffers::Offset<XBlueprintBlue::XCommand> singleton = 0,
     XBlueprintBlue::XStatusEnum status = XBlueprintBlue::XStatusEnum_ERROR,
     const char *help = nullptr,
-    const std::vector<flatbuffers::Offset<flatbuffers::String>> *warnings = nullptr,
-    const std::vector<flatbuffers::Offset<flatbuffers::String>> *errors = nullptr) {
+    const std::vector<::flatbuffers::Offset<::flatbuffers::String>> *warnings = nullptr,
+    const std::vector<::flatbuffers::Offset<::flatbuffers::String>> *errors = nullptr) {
   auto command__ = command ? _fbb.CreateString(command) : 0;
-  auto search__ = search ? _fbb.CreateVector<flatbuffers::Offset<XBlueprintBlue::XSearch>>(*search) : 0;
-  auto scope__ = scope ? _fbb.CreateVector<flatbuffers::Offset<XBlueprintBlue::XScope>>(*scope) : 0;
+  auto search__ = search ? _fbb.CreateVector<::flatbuffers::Offset<XBlueprintBlue::XSearch>>(*search) : 0;
+  auto scope__ = scope ? _fbb.CreateVector<::flatbuffers::Offset<XBlueprintBlue::XScope>>(*scope) : 0;
   auto help__ = help ? _fbb.CreateString(help) : 0;
-  auto warnings__ = warnings ? _fbb.CreateVector<flatbuffers::Offset<flatbuffers::String>>(*warnings) : 0;
-  auto errors__ = errors ? _fbb.CreateVector<flatbuffers::Offset<flatbuffers::String>>(*errors) : 0;
+  auto warnings__ = warnings ? _fbb.CreateVector<::flatbuffers::Offset<::flatbuffers::String>>(*warnings) : 0;
+  auto errors__ = errors ? _fbb.CreateVector<::flatbuffers::Offset<::flatbuffers::String>>(*errors) : 0;
   return XBlueprintBlue::CreateXBlueprint(
       _fbb,
       command__,
@@ -512,7 +512,7 @@ inline flatbuffers::Offset<XBlueprint> CreateXBlueprintDirect(
       errors__);
 }
 
-struct XCommand FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct XCommand FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef XCommandBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_COMMAND = 4,
@@ -520,19 +520,19 @@ struct XCommand FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_ARGUMENTS = 8,
     VT_REPLY = 10
   };
-  const flatbuffers::String *command() const {
-    return GetPointer<const flatbuffers::String *>(VT_COMMAND);
+  const ::flatbuffers::String *command() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_COMMAND);
   }
-  const flatbuffers::String *verb() const {
-    return GetPointer<const flatbuffers::String *>(VT_VERB);
+  const ::flatbuffers::String *verb() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_VERB);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *arguments() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *>(VT_ARGUMENTS);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *arguments() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *>(VT_ARGUMENTS);
   }
   const XBlueprintBlue::XReply *reply() const {
     return GetPointer<const XBlueprintBlue::XReply *>(VT_REPLY);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffsetRequired(verifier, VT_COMMAND) &&
            verifier.VerifyString(command()) &&
@@ -549,39 +549,39 @@ struct XCommand FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct XCommandBuilder {
   typedef XCommand Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_command(flatbuffers::Offset<flatbuffers::String> command) {
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_command(::flatbuffers::Offset<::flatbuffers::String> command) {
     fbb_.AddOffset(XCommand::VT_COMMAND, command);
   }
-  void add_verb(flatbuffers::Offset<flatbuffers::String> verb) {
+  void add_verb(::flatbuffers::Offset<::flatbuffers::String> verb) {
     fbb_.AddOffset(XCommand::VT_VERB, verb);
   }
-  void add_arguments(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> arguments) {
+  void add_arguments(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> arguments) {
     fbb_.AddOffset(XCommand::VT_ARGUMENTS, arguments);
   }
-  void add_reply(flatbuffers::Offset<XBlueprintBlue::XReply> reply) {
+  void add_reply(::flatbuffers::Offset<XBlueprintBlue::XReply> reply) {
     fbb_.AddOffset(XCommand::VT_REPLY, reply);
   }
-  explicit XCommandBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit XCommandBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<XCommand> Finish() {
+  ::flatbuffers::Offset<XCommand> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XCommand>(end);
+    auto o = ::flatbuffers::Offset<XCommand>(end);
     fbb_.Required(o, XCommand::VT_COMMAND);
     fbb_.Required(o, XCommand::VT_VERB);
     return o;
   }
 };
 
-inline flatbuffers::Offset<XCommand> CreateXCommand(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::String> command = 0,
-    flatbuffers::Offset<flatbuffers::String> verb = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> arguments = 0,
-    flatbuffers::Offset<XBlueprintBlue::XReply> reply = 0) {
+inline ::flatbuffers::Offset<XCommand> CreateXCommand(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> command = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> verb = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> arguments = 0,
+    ::flatbuffers::Offset<XBlueprintBlue::XReply> reply = 0) {
   XCommandBuilder builder_(_fbb);
   builder_.add_reply(reply);
   builder_.add_arguments(arguments);
@@ -590,15 +590,15 @@ inline flatbuffers::Offset<XCommand> CreateXCommand(
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<XCommand> CreateXCommandDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<XCommand> CreateXCommandDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *command = nullptr,
     const char *verb = nullptr,
-    const std::vector<flatbuffers::Offset<flatbuffers::String>> *arguments = nullptr,
-    flatbuffers::Offset<XBlueprintBlue::XReply> reply = 0) {
+    const std::vector<::flatbuffers::Offset<::flatbuffers::String>> *arguments = nullptr,
+    ::flatbuffers::Offset<XBlueprintBlue::XReply> reply = 0) {
   auto command__ = command ? _fbb.CreateString(command) : 0;
   auto verb__ = verb ? _fbb.CreateString(verb) : 0;
-  auto arguments__ = arguments ? _fbb.CreateVector<flatbuffers::Offset<flatbuffers::String>>(*arguments) : 0;
+  auto arguments__ = arguments ? _fbb.CreateVector<::flatbuffers::Offset<::flatbuffers::String>>(*arguments) : 0;
   return XBlueprintBlue::CreateXCommand(
       _fbb,
       command__,
@@ -607,7 +607,7 @@ inline flatbuffers::Offset<XCommand> CreateXCommandDirect(
       reply);
 }
 
-struct XReply FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct XReply FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef XReplyBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_VERSION = 4,
@@ -616,22 +616,22 @@ struct XReply FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_MACRO = 10,
     VT_HISTORY = 12
   };
-  const flatbuffers::String *version() const {
-    return GetPointer<const flatbuffers::String *>(VT_VERSION);
+  const ::flatbuffers::String *version() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_VERSION);
   }
-  const flatbuffers::String *help() const {
-    return GetPointer<const flatbuffers::String *>(VT_HELP);
+  const ::flatbuffers::String *help() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_HELP);
   }
-  const flatbuffers::String *value() const {
-    return GetPointer<const flatbuffers::String *>(VT_VALUE);
+  const ::flatbuffers::String *value() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_VALUE);
   }
   const XBlueprintBlue::XStatement *macro() const {
     return GetPointer<const XBlueprintBlue::XStatement *>(VT_MACRO);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XStatement>> *history() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XStatement>> *>(VT_HISTORY);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XStatement>> *history() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XStatement>> *>(VT_HISTORY);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_VERSION) &&
            verifier.VerifyString(version()) &&
@@ -650,41 +650,41 @@ struct XReply FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct XReplyBuilder {
   typedef XReply Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_version(flatbuffers::Offset<flatbuffers::String> version) {
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_version(::flatbuffers::Offset<::flatbuffers::String> version) {
     fbb_.AddOffset(XReply::VT_VERSION, version);
   }
-  void add_help(flatbuffers::Offset<flatbuffers::String> help) {
+  void add_help(::flatbuffers::Offset<::flatbuffers::String> help) {
     fbb_.AddOffset(XReply::VT_HELP, help);
   }
-  void add_value(flatbuffers::Offset<flatbuffers::String> value) {
+  void add_value(::flatbuffers::Offset<::flatbuffers::String> value) {
     fbb_.AddOffset(XReply::VT_VALUE, value);
   }
-  void add_macro(flatbuffers::Offset<XBlueprintBlue::XStatement> macro) {
+  void add_macro(::flatbuffers::Offset<XBlueprintBlue::XStatement> macro) {
     fbb_.AddOffset(XReply::VT_MACRO, macro);
   }
-  void add_history(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XStatement>>> history) {
+  void add_history(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XStatement>>> history) {
     fbb_.AddOffset(XReply::VT_HISTORY, history);
   }
-  explicit XReplyBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit XReplyBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<XReply> Finish() {
+  ::flatbuffers::Offset<XReply> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XReply>(end);
+    auto o = ::flatbuffers::Offset<XReply>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<XReply> CreateXReply(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::String> version = 0,
-    flatbuffers::Offset<flatbuffers::String> help = 0,
-    flatbuffers::Offset<flatbuffers::String> value = 0,
-    flatbuffers::Offset<XBlueprintBlue::XStatement> macro = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XStatement>>> history = 0) {
+inline ::flatbuffers::Offset<XReply> CreateXReply(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> version = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> help = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> value = 0,
+    ::flatbuffers::Offset<XBlueprintBlue::XStatement> macro = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XStatement>>> history = 0) {
   XReplyBuilder builder_(_fbb);
   builder_.add_history(history);
   builder_.add_macro(macro);
@@ -694,17 +694,17 @@ inline flatbuffers::Offset<XReply> CreateXReply(
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<XReply> CreateXReplyDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<XReply> CreateXReplyDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *version = nullptr,
     const char *help = nullptr,
     const char *value = nullptr,
-    flatbuffers::Offset<XBlueprintBlue::XStatement> macro = 0,
-    const std::vector<flatbuffers::Offset<XBlueprintBlue::XStatement>> *history = nullptr) {
+    ::flatbuffers::Offset<XBlueprintBlue::XStatement> macro = 0,
+    const std::vector<::flatbuffers::Offset<XBlueprintBlue::XStatement>> *history = nullptr) {
   auto version__ = version ? _fbb.CreateString(version) : 0;
   auto help__ = help ? _fbb.CreateString(help) : 0;
   auto value__ = value ? _fbb.CreateString(value) : 0;
-  auto history__ = history ? _fbb.CreateVector<flatbuffers::Offset<XBlueprintBlue::XStatement>>(*history) : 0;
+  auto history__ = history ? _fbb.CreateVector<::flatbuffers::Offset<XBlueprintBlue::XStatement>>(*history) : 0;
   return XBlueprintBlue::CreateXReply(
       _fbb,
       version__,
@@ -714,7 +714,7 @@ inline flatbuffers::Offset<XReply> CreateXReplyDirect(
       history__);
 }
 
-struct XStatement FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct XStatement FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef XStatementBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_ID = 4,
@@ -728,25 +728,25 @@ struct XStatement FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint32_t id() const {
     return GetField<uint32_t>(VT_ID, 0);
   }
-  const flatbuffers::String *label() const {
-    return GetPointer<const flatbuffers::String *>(VT_LABEL);
+  const ::flatbuffers::String *label() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_LABEL);
   }
   uint64_t time() const {
     return GetField<uint64_t>(VT_TIME, 0);
   }
-  const flatbuffers::String *stmt() const {
-    return GetPointer<const flatbuffers::String *>(VT_STMT);
+  const ::flatbuffers::String *stmt() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_STMT);
   }
-  const flatbuffers::String *expd() const {
-    return GetPointer<const flatbuffers::String *>(VT_EXPD);
+  const ::flatbuffers::String *expd() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_EXPD);
   }
-  const flatbuffers::String *summary() const {
-    return GetPointer<const flatbuffers::String *>(VT_SUMMARY);
+  const ::flatbuffers::String *summary() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_SUMMARY);
   }
   const XBlueprintBlue::XSettings *settings() const {
     return GetPointer<const XBlueprintBlue::XSettings *>(VT_SETTINGS);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_ID, 4) &&
            VerifyOffset(verifier, VT_LABEL) &&
@@ -766,36 +766,36 @@ struct XStatement FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct XStatementBuilder {
   typedef XStatement Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_id(uint32_t id) {
     fbb_.AddElement<uint32_t>(XStatement::VT_ID, id, 0);
   }
-  void add_label(flatbuffers::Offset<flatbuffers::String> label) {
+  void add_label(::flatbuffers::Offset<::flatbuffers::String> label) {
     fbb_.AddOffset(XStatement::VT_LABEL, label);
   }
   void add_time(uint64_t time) {
     fbb_.AddElement<uint64_t>(XStatement::VT_TIME, time, 0);
   }
-  void add_stmt(flatbuffers::Offset<flatbuffers::String> stmt) {
+  void add_stmt(::flatbuffers::Offset<::flatbuffers::String> stmt) {
     fbb_.AddOffset(XStatement::VT_STMT, stmt);
   }
-  void add_expd(flatbuffers::Offset<flatbuffers::String> expd) {
+  void add_expd(::flatbuffers::Offset<::flatbuffers::String> expd) {
     fbb_.AddOffset(XStatement::VT_EXPD, expd);
   }
-  void add_summary(flatbuffers::Offset<flatbuffers::String> summary) {
+  void add_summary(::flatbuffers::Offset<::flatbuffers::String> summary) {
     fbb_.AddOffset(XStatement::VT_SUMMARY, summary);
   }
-  void add_settings(flatbuffers::Offset<XBlueprintBlue::XSettings> settings) {
+  void add_settings(::flatbuffers::Offset<XBlueprintBlue::XSettings> settings) {
     fbb_.AddOffset(XStatement::VT_SETTINGS, settings);
   }
-  explicit XStatementBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit XStatementBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<XStatement> Finish() {
+  ::flatbuffers::Offset<XStatement> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XStatement>(end);
+    auto o = ::flatbuffers::Offset<XStatement>(end);
     fbb_.Required(o, XStatement::VT_STMT);
     fbb_.Required(o, XStatement::VT_EXPD);
     fbb_.Required(o, XStatement::VT_SETTINGS);
@@ -803,15 +803,15 @@ struct XStatementBuilder {
   }
 };
 
-inline flatbuffers::Offset<XStatement> CreateXStatement(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<XStatement> CreateXStatement(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t id = 0,
-    flatbuffers::Offset<flatbuffers::String> label = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> label = 0,
     uint64_t time = 0,
-    flatbuffers::Offset<flatbuffers::String> stmt = 0,
-    flatbuffers::Offset<flatbuffers::String> expd = 0,
-    flatbuffers::Offset<flatbuffers::String> summary = 0,
-    flatbuffers::Offset<XBlueprintBlue::XSettings> settings = 0) {
+    ::flatbuffers::Offset<::flatbuffers::String> stmt = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> expd = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> summary = 0,
+    ::flatbuffers::Offset<XBlueprintBlue::XSettings> settings = 0) {
   XStatementBuilder builder_(_fbb);
   builder_.add_time(time);
   builder_.add_settings(settings);
@@ -823,15 +823,15 @@ inline flatbuffers::Offset<XStatement> CreateXStatement(
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<XStatement> CreateXStatementDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<XStatement> CreateXStatementDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t id = 0,
     const char *label = nullptr,
     uint64_t time = 0,
     const char *stmt = nullptr,
     const char *expd = nullptr,
     const char *summary = nullptr,
-    flatbuffers::Offset<XBlueprintBlue::XSettings> settings = 0) {
+    ::flatbuffers::Offset<XBlueprintBlue::XSettings> settings = 0) {
   auto label__ = label ? _fbb.CreateString(label) : 0;
   auto stmt__ = stmt ? _fbb.CreateString(stmt) : 0;
   auto expd__ = expd ? _fbb.CreateString(expd) : 0;
@@ -847,107 +847,27 @@ inline flatbuffers::Offset<XStatement> CreateXStatementDirect(
       settings);
 }
 
-struct XSearch FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct XSearch FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef XSearchBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_EXPRESSION = 4,
     VT_QUOTED = 6,
-    VT_SEGMENTS = 8
+    VT_FRAGMENTS = 8
   };
-  const flatbuffers::String *expression() const {
-    return GetPointer<const flatbuffers::String *>(VT_EXPRESSION);
+  const ::flatbuffers::String *expression() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_EXPRESSION);
   }
   bool quoted() const {
     return GetField<uint8_t>(VT_QUOTED, 0) != 0;
   }
-  const flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XSegment>> *segments() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XSegment>> *>(VT_SEGMENTS);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XFragment>> *fragments() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XFragment>> *>(VT_FRAGMENTS);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffsetRequired(verifier, VT_EXPRESSION) &&
            verifier.VerifyString(expression()) &&
            VerifyField<uint8_t>(verifier, VT_QUOTED, 1) &&
-           VerifyOffsetRequired(verifier, VT_SEGMENTS) &&
-           verifier.VerifyVector(segments()) &&
-           verifier.VerifyVectorOfTables(segments()) &&
-           verifier.EndTable();
-  }
-};
-
-struct XSearchBuilder {
-  typedef XSearch Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_expression(flatbuffers::Offset<flatbuffers::String> expression) {
-    fbb_.AddOffset(XSearch::VT_EXPRESSION, expression);
-  }
-  void add_quoted(bool quoted) {
-    fbb_.AddElement<uint8_t>(XSearch::VT_QUOTED, static_cast<uint8_t>(quoted), 0);
-  }
-  void add_segments(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XSegment>>> segments) {
-    fbb_.AddOffset(XSearch::VT_SEGMENTS, segments);
-  }
-  explicit XSearchBuilder(flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  flatbuffers::Offset<XSearch> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XSearch>(end);
-    fbb_.Required(o, XSearch::VT_EXPRESSION);
-    fbb_.Required(o, XSearch::VT_SEGMENTS);
-    return o;
-  }
-};
-
-inline flatbuffers::Offset<XSearch> CreateXSearch(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::String> expression = 0,
-    bool quoted = false,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XSegment>>> segments = 0) {
-  XSearchBuilder builder_(_fbb);
-  builder_.add_segments(segments);
-  builder_.add_expression(expression);
-  builder_.add_quoted(quoted);
-  return builder_.Finish();
-}
-
-inline flatbuffers::Offset<XSearch> CreateXSearchDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    const char *expression = nullptr,
-    bool quoted = false,
-    const std::vector<flatbuffers::Offset<XBlueprintBlue::XSegment>> *segments = nullptr) {
-  auto expression__ = expression ? _fbb.CreateString(expression) : 0;
-  auto segments__ = segments ? _fbb.CreateVector<flatbuffers::Offset<XBlueprintBlue::XSegment>>(*segments) : 0;
-  return XBlueprintBlue::CreateXSearch(
-      _fbb,
-      expression__,
-      quoted,
-      segments__);
-}
-
-struct XSegment FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
-  typedef XSegmentBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_SEGMENT = 4,
-    VT_ANCHORED = 6,
-    VT_FRAGMENTS = 8
-  };
-  const flatbuffers::String *segment() const {
-    return GetPointer<const flatbuffers::String *>(VT_SEGMENT);
-  }
-  bool anchored() const {
-    return GetField<uint8_t>(VT_ANCHORED, 0) != 0;
-  }
-  const flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XFragment>> *fragments() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XFragment>> *>(VT_FRAGMENTS);
-  }
-  bool Verify(flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyOffsetRequired(verifier, VT_SEGMENT) &&
-           verifier.VerifyString(segment()) &&
-           VerifyField<uint8_t>(verifier, VT_ANCHORED, 1) &&
            VerifyOffsetRequired(verifier, VT_FRAGMENTS) &&
            verifier.VerifyVector(fragments()) &&
            verifier.VerifyVectorOfTables(fragments()) &&
@@ -955,74 +875,154 @@ struct XSegment FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   }
 };
 
-struct XSegmentBuilder {
-  typedef XSegment Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_segment(flatbuffers::Offset<flatbuffers::String> segment) {
-    fbb_.AddOffset(XSegment::VT_SEGMENT, segment);
+struct XSearchBuilder {
+  typedef XSearch Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_expression(::flatbuffers::Offset<::flatbuffers::String> expression) {
+    fbb_.AddOffset(XSearch::VT_EXPRESSION, expression);
   }
-  void add_anchored(bool anchored) {
-    fbb_.AddElement<uint8_t>(XSegment::VT_ANCHORED, static_cast<uint8_t>(anchored), 0);
+  void add_quoted(bool quoted) {
+    fbb_.AddElement<uint8_t>(XSearch::VT_QUOTED, static_cast<uint8_t>(quoted), 0);
   }
-  void add_fragments(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XFragment>>> fragments) {
-    fbb_.AddOffset(XSegment::VT_FRAGMENTS, fragments);
+  void add_fragments(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XFragment>>> fragments) {
+    fbb_.AddOffset(XSearch::VT_FRAGMENTS, fragments);
   }
-  explicit XSegmentBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit XSearchBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<XSegment> Finish() {
+  ::flatbuffers::Offset<XSearch> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XSegment>(end);
-    fbb_.Required(o, XSegment::VT_SEGMENT);
-    fbb_.Required(o, XSegment::VT_FRAGMENTS);
+    auto o = ::flatbuffers::Offset<XSearch>(end);
+    fbb_.Required(o, XSearch::VT_EXPRESSION);
+    fbb_.Required(o, XSearch::VT_FRAGMENTS);
     return o;
   }
 };
 
-inline flatbuffers::Offset<XSegment> CreateXSegment(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::String> segment = 0,
-    bool anchored = false,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XFragment>>> fragments = 0) {
-  XSegmentBuilder builder_(_fbb);
+inline ::flatbuffers::Offset<XSearch> CreateXSearch(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> expression = 0,
+    bool quoted = false,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XFragment>>> fragments = 0) {
+  XSearchBuilder builder_(_fbb);
   builder_.add_fragments(fragments);
-  builder_.add_segment(segment);
+  builder_.add_expression(expression);
+  builder_.add_quoted(quoted);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<XSearch> CreateXSearchDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *expression = nullptr,
+    bool quoted = false,
+    const std::vector<::flatbuffers::Offset<XBlueprintBlue::XFragment>> *fragments = nullptr) {
+  auto expression__ = expression ? _fbb.CreateString(expression) : 0;
+  auto fragments__ = fragments ? _fbb.CreateVector<::flatbuffers::Offset<XBlueprintBlue::XFragment>>(*fragments) : 0;
+  return XBlueprintBlue::CreateXSearch(
+      _fbb,
+      expression__,
+      quoted,
+      fragments__);
+}
+
+struct XFragment FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef XFragmentBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_FRAGMENT = 4,
+    VT_ANCHORED = 6,
+    VT_REQUIRE = 8
+  };
+  const ::flatbuffers::String *fragment() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_FRAGMENT);
+  }
+  bool anchored() const {
+    return GetField<uint8_t>(VT_ANCHORED, 0) != 0;
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XOption>> *require() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XOption>> *>(VT_REQUIRE);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffsetRequired(verifier, VT_FRAGMENT) &&
+           verifier.VerifyString(fragment()) &&
+           VerifyField<uint8_t>(verifier, VT_ANCHORED, 1) &&
+           VerifyOffsetRequired(verifier, VT_REQUIRE) &&
+           verifier.VerifyVector(require()) &&
+           verifier.VerifyVectorOfTables(require()) &&
+           verifier.EndTable();
+  }
+};
+
+struct XFragmentBuilder {
+  typedef XFragment Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_fragment(::flatbuffers::Offset<::flatbuffers::String> fragment) {
+    fbb_.AddOffset(XFragment::VT_FRAGMENT, fragment);
+  }
+  void add_anchored(bool anchored) {
+    fbb_.AddElement<uint8_t>(XFragment::VT_ANCHORED, static_cast<uint8_t>(anchored), 0);
+  }
+  void add_require(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XOption>>> require) {
+    fbb_.AddOffset(XFragment::VT_REQUIRE, require);
+  }
+  explicit XFragmentBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<XFragment> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<XFragment>(end);
+    fbb_.Required(o, XFragment::VT_FRAGMENT);
+    fbb_.Required(o, XFragment::VT_REQUIRE);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<XFragment> CreateXFragment(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> fragment = 0,
+    bool anchored = false,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XOption>>> require = 0) {
+  XFragmentBuilder builder_(_fbb);
+  builder_.add_require(require);
+  builder_.add_fragment(fragment);
   builder_.add_anchored(anchored);
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<XSegment> CreateXSegmentDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    const char *segment = nullptr,
+inline ::flatbuffers::Offset<XFragment> CreateXFragmentDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *fragment = nullptr,
     bool anchored = false,
-    const std::vector<flatbuffers::Offset<XBlueprintBlue::XFragment>> *fragments = nullptr) {
-  auto segment__ = segment ? _fbb.CreateString(segment) : 0;
-  auto fragments__ = fragments ? _fbb.CreateVector<flatbuffers::Offset<XBlueprintBlue::XFragment>>(*fragments) : 0;
-  return XBlueprintBlue::CreateXSegment(
+    const std::vector<::flatbuffers::Offset<XBlueprintBlue::XOption>> *require = nullptr) {
+  auto fragment__ = fragment ? _fbb.CreateString(fragment) : 0;
+  auto require__ = require ? _fbb.CreateVector<::flatbuffers::Offset<XBlueprintBlue::XOption>>(*require) : 0;
+  return XBlueprintBlue::CreateXFragment(
       _fbb,
-      segment__,
+      fragment__,
       anchored,
-      fragments__);
+      require__);
 }
 
-struct XFragment FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
-  typedef XFragmentBuilder Builder;
+struct XOption FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef XOptionBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_FRAGMENT = 4,
+    VT_OPTION = 4,
     VT_FEATURES = 6
   };
-  const flatbuffers::String *fragment() const {
-    return GetPointer<const flatbuffers::String *>(VT_FRAGMENT);
+  const ::flatbuffers::String *option() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_OPTION);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XFeature>> *features() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XFeature>> *>(VT_FEATURES);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XFeature>> *features() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XFeature>> *>(VT_FEATURES);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffsetRequired(verifier, VT_FRAGMENT) &&
-           verifier.VerifyString(fragment()) &&
+           VerifyOffsetRequired(verifier, VT_OPTION) &&
+           verifier.VerifyString(option()) &&
            VerifyOffsetRequired(verifier, VT_FEATURES) &&
            verifier.VerifyVector(features()) &&
            verifier.VerifyVectorOfTables(features()) &&
@@ -1030,52 +1030,52 @@ struct XFragment FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   }
 };
 
-struct XFragmentBuilder {
-  typedef XFragment Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_fragment(flatbuffers::Offset<flatbuffers::String> fragment) {
-    fbb_.AddOffset(XFragment::VT_FRAGMENT, fragment);
+struct XOptionBuilder {
+  typedef XOption Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_option(::flatbuffers::Offset<::flatbuffers::String> option) {
+    fbb_.AddOffset(XOption::VT_OPTION, option);
   }
-  void add_features(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XFeature>>> features) {
-    fbb_.AddOffset(XFragment::VT_FEATURES, features);
+  void add_features(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XFeature>>> features) {
+    fbb_.AddOffset(XOption::VT_FEATURES, features);
   }
-  explicit XFragmentBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit XOptionBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<XFragment> Finish() {
+  ::flatbuffers::Offset<XOption> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XFragment>(end);
-    fbb_.Required(o, XFragment::VT_FRAGMENT);
-    fbb_.Required(o, XFragment::VT_FEATURES);
+    auto o = ::flatbuffers::Offset<XOption>(end);
+    fbb_.Required(o, XOption::VT_OPTION);
+    fbb_.Required(o, XOption::VT_FEATURES);
     return o;
   }
 };
 
-inline flatbuffers::Offset<XFragment> CreateXFragment(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::String> fragment = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XFeature>>> features = 0) {
-  XFragmentBuilder builder_(_fbb);
+inline ::flatbuffers::Offset<XOption> CreateXOption(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> option = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XFeature>>> features = 0) {
+  XOptionBuilder builder_(_fbb);
   builder_.add_features(features);
-  builder_.add_fragment(fragment);
+  builder_.add_option(option);
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<XFragment> CreateXFragmentDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    const char *fragment = nullptr,
-    const std::vector<flatbuffers::Offset<XBlueprintBlue::XFeature>> *features = nullptr) {
-  auto fragment__ = fragment ? _fbb.CreateString(fragment) : 0;
-  auto features__ = features ? _fbb.CreateVector<flatbuffers::Offset<XBlueprintBlue::XFeature>>(*features) : 0;
-  return XBlueprintBlue::CreateXFragment(
+inline ::flatbuffers::Offset<XOption> CreateXOptionDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *option = nullptr,
+    const std::vector<::flatbuffers::Offset<XBlueprintBlue::XFeature>> *features = nullptr) {
+  auto option__ = option ? _fbb.CreateString(option) : 0;
+  auto features__ = features ? _fbb.CreateVector<::flatbuffers::Offset<XBlueprintBlue::XFeature>>(*features) : 0;
+  return XBlueprintBlue::CreateXOption(
       _fbb,
-      fragment__,
+      option__,
       features__);
 }
 
-struct XFeature FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct XFeature FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef XFeatureBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_FEATURE = 4,
@@ -1084,11 +1084,11 @@ struct XFeature FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_MATCH_TYPE = 10,
     VT_MATCH = 12
   };
-  const flatbuffers::String *feature() const {
-    return GetPointer<const flatbuffers::String *>(VT_FEATURE);
+  const ::flatbuffers::String *feature() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_FEATURE);
   }
-  const flatbuffers::String *rule() const {
-    return GetPointer<const flatbuffers::String *>(VT_RULE);
+  const ::flatbuffers::String *rule() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_RULE);
   }
   bool negate() const {
     return GetField<uint8_t>(VT_NEGATE, 0) != 0;
@@ -1124,7 +1124,7 @@ struct XFeature FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const XBlueprintBlue::XDelta *match_as_delta() const {
     return match_type() == XBlueprintBlue::XCompare_delta ? static_cast<const XBlueprintBlue::XDelta *>(match()) : nullptr;
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffsetRequired(verifier, VT_FEATURE) &&
            verifier.VerifyString(feature()) &&
@@ -1172,12 +1172,12 @@ template<> inline const XBlueprintBlue::XDelta *XFeature::match_as<XBlueprintBlu
 
 struct XFeatureBuilder {
   typedef XFeature Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_feature(flatbuffers::Offset<flatbuffers::String> feature) {
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_feature(::flatbuffers::Offset<::flatbuffers::String> feature) {
     fbb_.AddOffset(XFeature::VT_FEATURE, feature);
   }
-  void add_rule(flatbuffers::Offset<flatbuffers::String> rule) {
+  void add_rule(::flatbuffers::Offset<::flatbuffers::String> rule) {
     fbb_.AddOffset(XFeature::VT_RULE, rule);
   }
   void add_negate(bool negate) {
@@ -1186,16 +1186,16 @@ struct XFeatureBuilder {
   void add_match_type(XBlueprintBlue::XCompare match_type) {
     fbb_.AddElement<uint8_t>(XFeature::VT_MATCH_TYPE, static_cast<uint8_t>(match_type), 0);
   }
-  void add_match(flatbuffers::Offset<void> match) {
+  void add_match(::flatbuffers::Offset<void> match) {
     fbb_.AddOffset(XFeature::VT_MATCH, match);
   }
-  explicit XFeatureBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit XFeatureBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<XFeature> Finish() {
+  ::flatbuffers::Offset<XFeature> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XFeature>(end);
+    auto o = ::flatbuffers::Offset<XFeature>(end);
     fbb_.Required(o, XFeature::VT_FEATURE);
     fbb_.Required(o, XFeature::VT_RULE);
     fbb_.Required(o, XFeature::VT_MATCH);
@@ -1203,13 +1203,13 @@ struct XFeatureBuilder {
   }
 };
 
-inline flatbuffers::Offset<XFeature> CreateXFeature(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::String> feature = 0,
-    flatbuffers::Offset<flatbuffers::String> rule = 0,
+inline ::flatbuffers::Offset<XFeature> CreateXFeature(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> feature = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> rule = 0,
     bool negate = false,
     XBlueprintBlue::XCompare match_type = XBlueprintBlue::XCompare_NONE,
-    flatbuffers::Offset<void> match = 0) {
+    ::flatbuffers::Offset<void> match = 0) {
   XFeatureBuilder builder_(_fbb);
   builder_.add_match(match);
   builder_.add_rule(rule);
@@ -1219,13 +1219,13 @@ inline flatbuffers::Offset<XFeature> CreateXFeature(
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<XFeature> CreateXFeatureDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<XFeature> CreateXFeatureDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *feature = nullptr,
     const char *rule = nullptr,
     bool negate = false,
     XBlueprintBlue::XCompare match_type = XBlueprintBlue::XCompare_NONE,
-    flatbuffers::Offset<void> match = 0) {
+    ::flatbuffers::Offset<void> match = 0) {
   auto feature__ = feature ? _fbb.CreateString(feature) : 0;
   auto rule__ = rule ? _fbb.CreateString(rule) : 0;
   return XBlueprintBlue::CreateXFeature(
@@ -1237,7 +1237,7 @@ inline flatbuffers::Offset<XFeature> CreateXFeatureDirect(
       match);
 }
 
-struct XLex FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct XLex FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef XLexBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_KEY = 4,
@@ -1246,10 +1246,10 @@ struct XLex FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint16_t key() const {
     return GetField<uint16_t>(VT_KEY, 0);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *phonetics() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *>(VT_PHONETICS);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *phonetics() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *>(VT_PHONETICS);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint16_t>(verifier, VT_KEY, 2) &&
            VerifyOffsetRequired(verifier, VT_PHONETICS) &&
@@ -1261,56 +1261,56 @@ struct XLex FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct XLexBuilder {
   typedef XLex Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_key(uint16_t key) {
     fbb_.AddElement<uint16_t>(XLex::VT_KEY, key, 0);
   }
-  void add_phonetics(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> phonetics) {
+  void add_phonetics(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> phonetics) {
     fbb_.AddOffset(XLex::VT_PHONETICS, phonetics);
   }
-  explicit XLexBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit XLexBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<XLex> Finish() {
+  ::flatbuffers::Offset<XLex> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XLex>(end);
+    auto o = ::flatbuffers::Offset<XLex>(end);
     fbb_.Required(o, XLex::VT_PHONETICS);
     return o;
   }
 };
 
-inline flatbuffers::Offset<XLex> CreateXLex(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<XLex> CreateXLex(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint16_t key = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> phonetics = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> phonetics = 0) {
   XLexBuilder builder_(_fbb);
   builder_.add_phonetics(phonetics);
   builder_.add_key(key);
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<XLex> CreateXLexDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<XLex> CreateXLexDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint16_t key = 0,
-    const std::vector<flatbuffers::Offset<flatbuffers::String>> *phonetics = nullptr) {
-  auto phonetics__ = phonetics ? _fbb.CreateVector<flatbuffers::Offset<flatbuffers::String>>(*phonetics) : 0;
+    const std::vector<::flatbuffers::Offset<::flatbuffers::String>> *phonetics = nullptr) {
+  auto phonetics__ = phonetics ? _fbb.CreateVector<::flatbuffers::Offset<::flatbuffers::String>>(*phonetics) : 0;
   return XBlueprintBlue::CreateXLex(
       _fbb,
       key,
       phonetics__);
 }
 
-struct XWord FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct XWord FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef XWordBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_LEX = 4
   };
-  const flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XLex>> *lex() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XLex>> *>(VT_LEX);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XLex>> *lex() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XLex>> *>(VT_LEX);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffsetRequired(verifier, VT_LEX) &&
            verifier.VerifyVector(lex()) &&
@@ -1321,49 +1321,49 @@ struct XWord FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct XWordBuilder {
   typedef XWord Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_lex(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XLex>>> lex) {
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_lex(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XLex>>> lex) {
     fbb_.AddOffset(XWord::VT_LEX, lex);
   }
-  explicit XWordBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit XWordBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<XWord> Finish() {
+  ::flatbuffers::Offset<XWord> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XWord>(end);
+    auto o = ::flatbuffers::Offset<XWord>(end);
     fbb_.Required(o, XWord::VT_LEX);
     return o;
   }
 };
 
-inline flatbuffers::Offset<XWord> CreateXWord(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XLex>>> lex = 0) {
+inline ::flatbuffers::Offset<XWord> CreateXWord(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XLex>>> lex = 0) {
   XWordBuilder builder_(_fbb);
   builder_.add_lex(lex);
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<XWord> CreateXWordDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<flatbuffers::Offset<XBlueprintBlue::XLex>> *lex = nullptr) {
-  auto lex__ = lex ? _fbb.CreateVector<flatbuffers::Offset<XBlueprintBlue::XLex>>(*lex) : 0;
+inline ::flatbuffers::Offset<XWord> CreateXWordDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const std::vector<::flatbuffers::Offset<XBlueprintBlue::XLex>> *lex = nullptr) {
+  auto lex__ = lex ? _fbb.CreateVector<::flatbuffers::Offset<XBlueprintBlue::XLex>>(*lex) : 0;
   return XBlueprintBlue::CreateXWord(
       _fbb,
       lex__);
 }
 
-struct XLemma FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct XLemma FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef XLemmaBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_LEMMATA = 4
   };
-  const flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XLex>> *lemmata() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XLex>> *>(VT_LEMMATA);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XLex>> *lemmata() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XLex>> *>(VT_LEMMATA);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffsetRequired(verifier, VT_LEMMATA) &&
            verifier.VerifyVector(lemmata()) &&
@@ -1374,41 +1374,41 @@ struct XLemma FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct XLemmaBuilder {
   typedef XLemma Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_lemmata(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XLex>>> lemmata) {
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_lemmata(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XLex>>> lemmata) {
     fbb_.AddOffset(XLemma::VT_LEMMATA, lemmata);
   }
-  explicit XLemmaBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit XLemmaBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<XLemma> Finish() {
+  ::flatbuffers::Offset<XLemma> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XLemma>(end);
+    auto o = ::flatbuffers::Offset<XLemma>(end);
     fbb_.Required(o, XLemma::VT_LEMMATA);
     return o;
   }
 };
 
-inline flatbuffers::Offset<XLemma> CreateXLemma(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XBlueprintBlue::XLex>>> lemmata = 0) {
+inline ::flatbuffers::Offset<XLemma> CreateXLemma(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<XBlueprintBlue::XLex>>> lemmata = 0) {
   XLemmaBuilder builder_(_fbb);
   builder_.add_lemmata(lemmata);
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<XLemma> CreateXLemmaDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<flatbuffers::Offset<XBlueprintBlue::XLex>> *lemmata = nullptr) {
-  auto lemmata__ = lemmata ? _fbb.CreateVector<flatbuffers::Offset<XBlueprintBlue::XLex>>(*lemmata) : 0;
+inline ::flatbuffers::Offset<XLemma> CreateXLemmaDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const std::vector<::flatbuffers::Offset<XBlueprintBlue::XLex>> *lemmata = nullptr) {
+  auto lemmata__ = lemmata ? _fbb.CreateVector<::flatbuffers::Offset<XBlueprintBlue::XLex>>(*lemmata) : 0;
   return XBlueprintBlue::CreateXLemma(
       _fbb,
       lemmata__);
 }
 
-struct XPOS32 FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct XPOS32 FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef XPOS32Builder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_POS = 4
@@ -1416,7 +1416,7 @@ struct XPOS32 FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint32_t pos() const {
     return GetField<uint32_t>(VT_POS, 0);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_POS, 4) &&
            verifier.EndTable();
@@ -1425,31 +1425,31 @@ struct XPOS32 FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct XPOS32Builder {
   typedef XPOS32 Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_pos(uint32_t pos) {
     fbb_.AddElement<uint32_t>(XPOS32::VT_POS, pos, 0);
   }
-  explicit XPOS32Builder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit XPOS32Builder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<XPOS32> Finish() {
+  ::flatbuffers::Offset<XPOS32> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XPOS32>(end);
+    auto o = ::flatbuffers::Offset<XPOS32>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<XPOS32> CreateXPOS32(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<XPOS32> CreateXPOS32(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t pos = 0) {
   XPOS32Builder builder_(_fbb);
   builder_.add_pos(pos);
   return builder_.Finish();
 }
 
-struct XPOS16 FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct XPOS16 FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef XPOS16Builder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_PNPOS = 4
@@ -1457,7 +1457,7 @@ struct XPOS16 FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint16_t pnpos() const {
     return GetField<uint16_t>(VT_PNPOS, 0);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint16_t>(verifier, VT_PNPOS, 2) &&
            verifier.EndTable();
@@ -1466,31 +1466,31 @@ struct XPOS16 FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct XPOS16Builder {
   typedef XPOS16 Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_pnpos(uint16_t pnpos) {
     fbb_.AddElement<uint16_t>(XPOS16::VT_PNPOS, pnpos, 0);
   }
-  explicit XPOS16Builder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit XPOS16Builder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<XPOS16> Finish() {
+  ::flatbuffers::Offset<XPOS16> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XPOS16>(end);
+    auto o = ::flatbuffers::Offset<XPOS16>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<XPOS16> CreateXPOS16(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<XPOS16> CreateXPOS16(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint16_t pnpos = 0) {
   XPOS16Builder builder_(_fbb);
   builder_.add_pnpos(pnpos);
   return builder_.Finish();
 }
 
-struct XPunctuation FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct XPunctuation FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef XPunctuationBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_BITS = 4
@@ -1498,7 +1498,7 @@ struct XPunctuation FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint8_t bits() const {
     return GetField<uint8_t>(VT_BITS, 0);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_BITS, 1) &&
            verifier.EndTable();
@@ -1507,31 +1507,31 @@ struct XPunctuation FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct XPunctuationBuilder {
   typedef XPunctuation Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_bits(uint8_t bits) {
     fbb_.AddElement<uint8_t>(XPunctuation::VT_BITS, bits, 0);
   }
-  explicit XPunctuationBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit XPunctuationBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<XPunctuation> Finish() {
+  ::flatbuffers::Offset<XPunctuation> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XPunctuation>(end);
+    auto o = ::flatbuffers::Offset<XPunctuation>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<XPunctuation> CreateXPunctuation(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<XPunctuation> CreateXPunctuation(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint8_t bits = 0) {
   XPunctuationBuilder builder_(_fbb);
   builder_.add_bits(bits);
   return builder_.Finish();
 }
 
-struct XTransition FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct XTransition FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef XTransitionBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_BITS = 4
@@ -1539,7 +1539,7 @@ struct XTransition FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint8_t bits() const {
     return GetField<uint8_t>(VT_BITS, 0);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_BITS, 1) &&
            verifier.EndTable();
@@ -1548,31 +1548,31 @@ struct XTransition FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct XTransitionBuilder {
   typedef XTransition Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_bits(uint8_t bits) {
     fbb_.AddElement<uint8_t>(XTransition::VT_BITS, bits, 0);
   }
-  explicit XTransitionBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit XTransitionBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<XTransition> Finish() {
+  ::flatbuffers::Offset<XTransition> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XTransition>(end);
+    auto o = ::flatbuffers::Offset<XTransition>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<XTransition> CreateXTransition(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<XTransition> CreateXTransition(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint8_t bits = 0) {
   XTransitionBuilder builder_(_fbb);
   builder_.add_bits(bits);
   return builder_.Finish();
 }
 
-struct XStrongs FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct XStrongs FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef XStrongsBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_LANG = 4,
@@ -1584,7 +1584,7 @@ struct XStrongs FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint16_t number() const {
     return GetField<uint16_t>(VT_NUMBER, 0);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int8_t>(verifier, VT_LANG, 1) &&
            VerifyField<uint16_t>(verifier, VT_NUMBER, 2) &&
@@ -1594,27 +1594,27 @@ struct XStrongs FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct XStrongsBuilder {
   typedef XStrongs Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_lang(XBlueprintBlue::XLangEnum lang) {
     fbb_.AddElement<int8_t>(XStrongs::VT_LANG, static_cast<int8_t>(lang), 0);
   }
   void add_number(uint16_t number) {
     fbb_.AddElement<uint16_t>(XStrongs::VT_NUMBER, number, 0);
   }
-  explicit XStrongsBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit XStrongsBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<XStrongs> Finish() {
+  ::flatbuffers::Offset<XStrongs> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XStrongs>(end);
+    auto o = ::flatbuffers::Offset<XStrongs>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<XStrongs> CreateXStrongs(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<XStrongs> CreateXStrongs(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     XBlueprintBlue::XLangEnum lang = XBlueprintBlue::XLangEnum_X,
     uint16_t number = 0) {
   XStrongsBuilder builder_(_fbb);
@@ -1623,7 +1623,7 @@ inline flatbuffers::Offset<XStrongs> CreateXStrongs(
   return builder_.Finish();
 }
 
-struct XDelta FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct XDelta FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef XDeltaBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_DIFFERS = 4
@@ -1631,7 +1631,7 @@ struct XDelta FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   bool differs() const {
     return GetField<uint8_t>(VT_DIFFERS, 1) != 0;
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_DIFFERS, 1) &&
            verifier.EndTable();
@@ -1640,31 +1640,31 @@ struct XDelta FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct XDeltaBuilder {
   typedef XDelta Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_differs(bool differs) {
     fbb_.AddElement<uint8_t>(XDelta::VT_DIFFERS, static_cast<uint8_t>(differs), 1);
   }
-  explicit XDeltaBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit XDeltaBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<XDelta> Finish() {
+  ::flatbuffers::Offset<XDelta> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XDelta>(end);
+    auto o = ::flatbuffers::Offset<XDelta>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<XDelta> CreateXDelta(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<XDelta> CreateXDelta(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     bool differs = true) {
   XDeltaBuilder builder_(_fbb);
   builder_.add_differs(differs);
   return builder_.Finish();
 }
 
-struct XSettings FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct XSettings FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef XSettingsBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_SIMILARITY = 4,
@@ -1673,8 +1673,8 @@ struct XSettings FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_DISPLAY = 10,
     VT_FORMAT = 12
   };
-  const flatbuffers::String *similarity() const {
-    return GetPointer<const flatbuffers::String *>(VT_SIMILARITY);
+  const ::flatbuffers::String *similarity() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_SIMILARITY);
   }
   uint16_t span() const {
     return GetField<uint16_t>(VT_SPAN, 0);
@@ -1688,7 +1688,7 @@ struct XSettings FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   XBlueprintBlue::XFmtEnum format() const {
     return static_cast<XBlueprintBlue::XFmtEnum>(GetField<int8_t>(VT_FORMAT, 0));
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffsetRequired(verifier, VT_SIMILARITY) &&
            verifier.VerifyString(similarity()) &&
@@ -1702,9 +1702,9 @@ struct XSettings FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct XSettingsBuilder {
   typedef XSettings Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_similarity(flatbuffers::Offset<flatbuffers::String> similarity) {
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_similarity(::flatbuffers::Offset<::flatbuffers::String> similarity) {
     fbb_.AddOffset(XSettings::VT_SIMILARITY, similarity);
   }
   void add_span(uint16_t span) {
@@ -1719,21 +1719,21 @@ struct XSettingsBuilder {
   void add_format(XBlueprintBlue::XFmtEnum format) {
     fbb_.AddElement<int8_t>(XSettings::VT_FORMAT, static_cast<int8_t>(format), 0);
   }
-  explicit XSettingsBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit XSettingsBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<XSettings> Finish() {
+  ::flatbuffers::Offset<XSettings> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XSettings>(end);
+    auto o = ::flatbuffers::Offset<XSettings>(end);
     fbb_.Required(o, XSettings::VT_SIMILARITY);
     return o;
   }
 };
 
-inline flatbuffers::Offset<XSettings> CreateXSettings(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::String> similarity = 0,
+inline ::flatbuffers::Offset<XSettings> CreateXSettings(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> similarity = 0,
     uint16_t span = 0,
     XBlueprintBlue::XLexEnum lexicon = XBlueprintBlue::XLexEnum_BOTH,
     XBlueprintBlue::XOutEnum display = XBlueprintBlue::XOutEnum_AV,
@@ -1747,8 +1747,8 @@ inline flatbuffers::Offset<XSettings> CreateXSettings(
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<XSettings> CreateXSettingsDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<XSettings> CreateXSettingsDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *similarity = nullptr,
     uint16_t span = 0,
     XBlueprintBlue::XLexEnum lexicon = XBlueprintBlue::XLexEnum_BOTH,
@@ -1764,7 +1764,7 @@ inline flatbuffers::Offset<XSettings> CreateXSettingsDirect(
       format);
 }
 
-struct XScope FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct XScope FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef XScopeBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_BOOK = 4,
@@ -1784,7 +1784,7 @@ struct XScope FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint8_t vcount() const {
     return GetField<uint8_t>(VT_VCOUNT, 255);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_BOOK, 1) &&
            VerifyField<uint8_t>(verifier, VT_CHAPTER, 1) &&
@@ -1796,8 +1796,8 @@ struct XScope FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct XScopeBuilder {
   typedef XScope Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_book(uint8_t book) {
     fbb_.AddElement<uint8_t>(XScope::VT_BOOK, book, 0);
   }
@@ -1810,19 +1810,19 @@ struct XScopeBuilder {
   void add_vcount(uint8_t vcount) {
     fbb_.AddElement<uint8_t>(XScope::VT_VCOUNT, vcount, 255);
   }
-  explicit XScopeBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit XScopeBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<XScope> Finish() {
+  ::flatbuffers::Offset<XScope> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XScope>(end);
+    auto o = ::flatbuffers::Offset<XScope>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<XScope> CreateXScope(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<XScope> CreateXScope(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint8_t book = 0,
     uint8_t chapter = 0,
     uint8_t verse = 1,
@@ -1835,7 +1835,7 @@ inline flatbuffers::Offset<XScope> CreateXScope(
   return builder_.Finish();
 }
 
-inline bool VerifyXCompare(flatbuffers::Verifier &verifier, const void *obj, XCompare type) {
+inline bool VerifyXCompare(::flatbuffers::Verifier &verifier, const void *obj, XCompare type) {
   switch (type) {
     case XCompare_NONE: {
       return true;
@@ -1876,10 +1876,10 @@ inline bool VerifyXCompare(flatbuffers::Verifier &verifier, const void *obj, XCo
   }
 }
 
-inline bool VerifyXCompareVector(flatbuffers::Verifier &verifier, const flatbuffers::Vector<flatbuffers::Offset<void>> *values, const flatbuffers::Vector<uint8_t> *types) {
+inline bool VerifyXCompareVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types) {
   if (!values || !types) return !values && !types;
   if (values->size() != types->size()) return false;
-  for (flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
+  for (::flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
     if (!VerifyXCompare(
         verifier,  values->Get(i), types->GetEnum<XCompare>(i))) {
       return false;
@@ -1889,32 +1889,32 @@ inline bool VerifyXCompareVector(flatbuffers::Verifier &verifier, const flatbuff
 }
 
 inline const XBlueprintBlue::XBlueprint *GetXBlueprint(const void *buf) {
-  return flatbuffers::GetRoot<XBlueprintBlue::XBlueprint>(buf);
+  return ::flatbuffers::GetRoot<XBlueprintBlue::XBlueprint>(buf);
 }
 
 inline const XBlueprintBlue::XBlueprint *GetSizePrefixedXBlueprint(const void *buf) {
-  return flatbuffers::GetSizePrefixedRoot<XBlueprintBlue::XBlueprint>(buf);
+  return ::flatbuffers::GetSizePrefixedRoot<XBlueprintBlue::XBlueprint>(buf);
 }
 
 inline bool VerifyXBlueprintBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifyBuffer<XBlueprintBlue::XBlueprint>(nullptr);
 }
 
 inline bool VerifySizePrefixedXBlueprintBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifySizePrefixedBuffer<XBlueprintBlue::XBlueprint>(nullptr);
 }
 
 inline void FinishXBlueprintBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<XBlueprintBlue::XBlueprint> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<XBlueprintBlue::XBlueprint> root) {
   fbb.Finish(root);
 }
 
 inline void FinishSizePrefixedXBlueprintBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<XBlueprintBlue::XBlueprint> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<XBlueprintBlue::XBlueprint> root) {
   fbb.FinishSizePrefixed(root);
 }
 

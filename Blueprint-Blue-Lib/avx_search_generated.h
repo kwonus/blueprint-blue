@@ -8,10 +8,10 @@
 
 // Ensure the included flatbuffers.h is the same version as when this file was
 // generated, otherwise it may not be compatible.
-//static_assert(FLATBUFFERS_VERSION_MAJOR == 22 &&
-//              FLATBUFFERS_VERSION_MINOR == 10 &&
-//              FLATBUFFERS_VERSION_REVISION == 26,
-//             "Non-compatible flatbuffers version included");
+static_assert(FLATBUFFERS_VERSION_MAJOR == 23 &&
+              FLATBUFFERS_VERSION_MINOR == 5 &&
+              FLATBUFFERS_VERSION_REVISION == 26,
+             "Non-compatible flatbuffers version included");
 
 namespace XSearchResults {
 
@@ -53,7 +53,7 @@ inline const char *EnumNameXResultStatusEnum(XResultStatusEnum e) {
   }
 }
 
-struct XResults FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct XResults FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef XResultsBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RESULTS = 4,
@@ -62,14 +62,14 @@ struct XResults FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_SCOPE_OT = 10,
     VT_SCOPE_NT = 12
   };
-  const flatbuffers::Vector<flatbuffers::Offset<XSearchResults::XFind>> *results() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<XSearchResults::XFind>> *>(VT_RESULTS);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<XSearchResults::XFind>> *results() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<XSearchResults::XFind>> *>(VT_RESULTS);
   }
   XSearchResults::XResultStatusEnum status() const {
     return static_cast<XSearchResults::XResultStatusEnum>(GetField<int8_t>(VT_STATUS, -128));
   }
-  const flatbuffers::String *message() const {
-    return GetPointer<const flatbuffers::String *>(VT_MESSAGE);
+  const ::flatbuffers::String *message() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_MESSAGE);
   }
   uint64_t scope_ot() const {
     return GetField<uint64_t>(VT_SCOPE_OT, 0);
@@ -77,7 +77,7 @@ struct XResults FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint32_t scope_nt() const {
     return GetField<uint32_t>(VT_SCOPE_NT, 0);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffsetRequired(verifier, VT_RESULTS) &&
            verifier.VerifyVector(results()) &&
@@ -93,15 +93,15 @@ struct XResults FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct XResultsBuilder {
   typedef XResults Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_results(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XSearchResults::XFind>>> results) {
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_results(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<XSearchResults::XFind>>> results) {
     fbb_.AddOffset(XResults::VT_RESULTS, results);
   }
   void add_status(XSearchResults::XResultStatusEnum status) {
     fbb_.AddElement<int8_t>(XResults::VT_STATUS, static_cast<int8_t>(status), -128);
   }
-  void add_message(flatbuffers::Offset<flatbuffers::String> message) {
+  void add_message(::flatbuffers::Offset<::flatbuffers::String> message) {
     fbb_.AddOffset(XResults::VT_MESSAGE, message);
   }
   void add_scope_ot(uint64_t scope_ot) {
@@ -110,24 +110,24 @@ struct XResultsBuilder {
   void add_scope_nt(uint32_t scope_nt) {
     fbb_.AddElement<uint32_t>(XResults::VT_SCOPE_NT, scope_nt, 0);
   }
-  explicit XResultsBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit XResultsBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<XResults> Finish() {
+  ::flatbuffers::Offset<XResults> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XResults>(end);
+    auto o = ::flatbuffers::Offset<XResults>(end);
     fbb_.Required(o, XResults::VT_RESULTS);
     fbb_.Required(o, XResults::VT_MESSAGE);
     return o;
   }
 };
 
-inline flatbuffers::Offset<XResults> CreateXResults(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XSearchResults::XFind>>> results = 0,
+inline ::flatbuffers::Offset<XResults> CreateXResults(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<XSearchResults::XFind>>> results = 0,
     XSearchResults::XResultStatusEnum status = XSearchResults::XResultStatusEnum_ERROR,
-    flatbuffers::Offset<flatbuffers::String> message = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> message = 0,
     uint64_t scope_ot = 0,
     uint32_t scope_nt = 0) {
   XResultsBuilder builder_(_fbb);
@@ -139,14 +139,14 @@ inline flatbuffers::Offset<XResults> CreateXResults(
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<XResults> CreateXResultsDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<flatbuffers::Offset<XSearchResults::XFind>> *results = nullptr,
+inline ::flatbuffers::Offset<XResults> CreateXResultsDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const std::vector<::flatbuffers::Offset<XSearchResults::XFind>> *results = nullptr,
     XSearchResults::XResultStatusEnum status = XSearchResults::XResultStatusEnum_ERROR,
     const char *message = nullptr,
     uint64_t scope_ot = 0,
     uint32_t scope_nt = 0) {
-  auto results__ = results ? _fbb.CreateVector<flatbuffers::Offset<XSearchResults::XFind>>(*results) : 0;
+  auto results__ = results ? _fbb.CreateVector<::flatbuffers::Offset<XSearchResults::XFind>>(*results) : 0;
   auto message__ = message ? _fbb.CreateString(message) : 0;
   return XSearchResults::CreateXResults(
       _fbb,
@@ -157,19 +157,19 @@ inline flatbuffers::Offset<XResults> CreateXResultsDirect(
       scope_nt);
 }
 
-struct XFind FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct XFind FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef XFindBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_FIND = 4,
     VT_FOUND = 6
   };
-  const flatbuffers::String *find() const {
-    return GetPointer<const flatbuffers::String *>(VT_FIND);
+  const ::flatbuffers::String *find() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_FIND);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<XSearchResults::XFound>> *found() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<XSearchResults::XFound>> *>(VT_FOUND);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<XSearchResults::XFound>> *found() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<XSearchResults::XFound>> *>(VT_FOUND);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffsetRequired(verifier, VT_FIND) &&
            verifier.VerifyString(find()) &&
@@ -182,49 +182,49 @@ struct XFind FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct XFindBuilder {
   typedef XFind Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_find(flatbuffers::Offset<flatbuffers::String> find) {
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_find(::flatbuffers::Offset<::flatbuffers::String> find) {
     fbb_.AddOffset(XFind::VT_FIND, find);
   }
-  void add_found(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XSearchResults::XFound>>> found) {
+  void add_found(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<XSearchResults::XFound>>> found) {
     fbb_.AddOffset(XFind::VT_FOUND, found);
   }
-  explicit XFindBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit XFindBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<XFind> Finish() {
+  ::flatbuffers::Offset<XFind> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XFind>(end);
+    auto o = ::flatbuffers::Offset<XFind>(end);
     fbb_.Required(o, XFind::VT_FIND);
     return o;
   }
 };
 
-inline flatbuffers::Offset<XFind> CreateXFind(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::String> find = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XSearchResults::XFound>>> found = 0) {
+inline ::flatbuffers::Offset<XFind> CreateXFind(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> find = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<XSearchResults::XFound>>> found = 0) {
   XFindBuilder builder_(_fbb);
   builder_.add_found(found);
   builder_.add_find(find);
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<XFind> CreateXFindDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<XFind> CreateXFindDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *find = nullptr,
-    const std::vector<flatbuffers::Offset<XSearchResults::XFound>> *found = nullptr) {
+    const std::vector<::flatbuffers::Offset<XSearchResults::XFound>> *found = nullptr) {
   auto find__ = find ? _fbb.CreateString(find) : 0;
-  auto found__ = found ? _fbb.CreateVector<flatbuffers::Offset<XSearchResults::XFound>>(*found) : 0;
+  auto found__ = found ? _fbb.CreateVector<::flatbuffers::Offset<XSearchResults::XFound>>(*found) : 0;
   return XSearchResults::CreateXFind(
       _fbb,
       find__,
       found__);
 }
 
-struct XFound FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct XFound FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef XFoundBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_START = 4,
@@ -237,10 +237,10 @@ struct XFound FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint32_t until() const {
     return GetField<uint32_t>(VT_UNTIL, 0);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<XSearchResults::XMatch>> *matches() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<XSearchResults::XMatch>> *>(VT_MATCHES);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<XSearchResults::XMatch>> *matches() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<XSearchResults::XMatch>> *>(VT_MATCHES);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_START, 4) &&
            VerifyField<uint32_t>(verifier, VT_UNTIL, 4) &&
@@ -253,34 +253,34 @@ struct XFound FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct XFoundBuilder {
   typedef XFound Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_start(uint32_t start) {
     fbb_.AddElement<uint32_t>(XFound::VT_START, start, 0);
   }
   void add_until(uint32_t until) {
     fbb_.AddElement<uint32_t>(XFound::VT_UNTIL, until, 0);
   }
-  void add_matches(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XSearchResults::XMatch>>> matches) {
+  void add_matches(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<XSearchResults::XMatch>>> matches) {
     fbb_.AddOffset(XFound::VT_MATCHES, matches);
   }
-  explicit XFoundBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit XFoundBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<XFound> Finish() {
+  ::flatbuffers::Offset<XFound> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XFound>(end);
+    auto o = ::flatbuffers::Offset<XFound>(end);
     fbb_.Required(o, XFound::VT_MATCHES);
     return o;
   }
 };
 
-inline flatbuffers::Offset<XFound> CreateXFound(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<XFound> CreateXFound(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t start = 0,
     uint32_t until = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<XSearchResults::XMatch>>> matches = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<XSearchResults::XMatch>>> matches = 0) {
   XFoundBuilder builder_(_fbb);
   builder_.add_matches(matches);
   builder_.add_until(until);
@@ -288,12 +288,12 @@ inline flatbuffers::Offset<XFound> CreateXFound(
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<XFound> CreateXFoundDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<XFound> CreateXFoundDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t start = 0,
     uint32_t until = 0,
-    const std::vector<flatbuffers::Offset<XSearchResults::XMatch>> *matches = nullptr) {
-  auto matches__ = matches ? _fbb.CreateVector<flatbuffers::Offset<XSearchResults::XMatch>>(*matches) : 0;
+    const std::vector<::flatbuffers::Offset<XSearchResults::XMatch>> *matches = nullptr) {
+  auto matches__ = matches ? _fbb.CreateVector<::flatbuffers::Offset<XSearchResults::XMatch>>(*matches) : 0;
   return XSearchResults::CreateXFound(
       _fbb,
       start,
@@ -301,23 +301,23 @@ inline flatbuffers::Offset<XFound> CreateXFoundDirect(
       matches__);
 }
 
-struct XMatch FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct XMatch FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef XMatchBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_FRAGMENT = 4,
     VT_FEATURE = 6,
     VT_COORDINATES = 8
   };
-  const flatbuffers::String *fragment() const {
-    return GetPointer<const flatbuffers::String *>(VT_FRAGMENT);
+  const ::flatbuffers::String *fragment() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_FRAGMENT);
   }
-  const flatbuffers::String *feature() const {
-    return GetPointer<const flatbuffers::String *>(VT_FEATURE);
+  const ::flatbuffers::String *feature() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_FEATURE);
   }
   uint32_t coordinates() const {
     return GetField<uint32_t>(VT_COORDINATES, 0);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffsetRequired(verifier, VT_FRAGMENT) &&
            verifier.VerifyString(fragment()) &&
@@ -330,34 +330,34 @@ struct XMatch FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct XMatchBuilder {
   typedef XMatch Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_fragment(flatbuffers::Offset<flatbuffers::String> fragment) {
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_fragment(::flatbuffers::Offset<::flatbuffers::String> fragment) {
     fbb_.AddOffset(XMatch::VT_FRAGMENT, fragment);
   }
-  void add_feature(flatbuffers::Offset<flatbuffers::String> feature) {
+  void add_feature(::flatbuffers::Offset<::flatbuffers::String> feature) {
     fbb_.AddOffset(XMatch::VT_FEATURE, feature);
   }
   void add_coordinates(uint32_t coordinates) {
     fbb_.AddElement<uint32_t>(XMatch::VT_COORDINATES, coordinates, 0);
   }
-  explicit XMatchBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit XMatchBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<XMatch> Finish() {
+  ::flatbuffers::Offset<XMatch> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<XMatch>(end);
+    auto o = ::flatbuffers::Offset<XMatch>(end);
     fbb_.Required(o, XMatch::VT_FRAGMENT);
     fbb_.Required(o, XMatch::VT_FEATURE);
     return o;
   }
 };
 
-inline flatbuffers::Offset<XMatch> CreateXMatch(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::String> fragment = 0,
-    flatbuffers::Offset<flatbuffers::String> feature = 0,
+inline ::flatbuffers::Offset<XMatch> CreateXMatch(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> fragment = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> feature = 0,
     uint32_t coordinates = 0) {
   XMatchBuilder builder_(_fbb);
   builder_.add_coordinates(coordinates);
@@ -366,8 +366,8 @@ inline flatbuffers::Offset<XMatch> CreateXMatch(
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<XMatch> CreateXMatchDirect(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<XMatch> CreateXMatchDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *fragment = nullptr,
     const char *feature = nullptr,
     uint32_t coordinates = 0) {
@@ -381,32 +381,32 @@ inline flatbuffers::Offset<XMatch> CreateXMatchDirect(
 }
 
 inline const XSearchResults::XResults *GetXResults(const void *buf) {
-  return flatbuffers::GetRoot<XSearchResults::XResults>(buf);
+  return ::flatbuffers::GetRoot<XSearchResults::XResults>(buf);
 }
 
 inline const XSearchResults::XResults *GetSizePrefixedXResults(const void *buf) {
-  return flatbuffers::GetSizePrefixedRoot<XSearchResults::XResults>(buf);
+  return ::flatbuffers::GetSizePrefixedRoot<XSearchResults::XResults>(buf);
 }
 
 inline bool VerifyXResultsBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifyBuffer<XSearchResults::XResults>(nullptr);
 }
 
 inline bool VerifySizePrefixedXResultsBuffer(
-    flatbuffers::Verifier &verifier) {
+    ::flatbuffers::Verifier &verifier) {
   return verifier.VerifySizePrefixedBuffer<XSearchResults::XResults>(nullptr);
 }
 
 inline void FinishXResultsBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<XSearchResults::XResults> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<XSearchResults::XResults> root) {
   fbb.Finish(root);
 }
 
 inline void FinishSizePrefixedXResultsBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<XSearchResults::XResults> root) {
+    ::flatbuffers::FlatBufferBuilder &fbb,
+    ::flatbuffers::Offset<XSearchResults::XResults> root) {
   fbb.FinishSizePrefixed(root);
 }
 
