@@ -24,7 +24,7 @@ namespace Pinshot.Blue
         {
             get
             {
-                UInt32 expected = 2_0_3_1123; // "2.0.3.B23" == 203_1123
+                UInt32 expected = 2_0_3_1127; // "2.0.3.B27" == 2_0_3_1127
                 UInt32 version = assert_grammar_revision(expected);
 
                 return (expected, (version != 0));

@@ -33,7 +33,7 @@ namespace Blueprint.Blue
         }
         public static QFeature? Create(QFind search, string text, Parsed parse)
         {
-            if (parse.rule.Equals("feature", StringComparison.InvariantCultureIgnoreCase) && (parse.children.Length == 1))
+            if (parse.rule.Equals("feature", StringComparison.InvariantCultureIgnoreCase) && (parse.children.Length >= 1))
             {
                 bool positive = true;
                 int cnt = 1;
