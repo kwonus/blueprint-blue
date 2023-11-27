@@ -4,6 +4,7 @@ namespace Blueprint.Blue
     using System;
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
+    using System.Text.Json.Serialization;
     using XBlueprintBlue;
     using YamlDotNet.Serialization;
 
@@ -11,15 +12,16 @@ namespace Blueprint.Blue
     {
         string Text { get; }
         bool Negate { get; }
-        IEnumerable<string> AsYaml();
     }
 
     public abstract class QFeature : IFeature // This is mostly redundant with QSearchFeature. The inheritance aspect of this class needs to be preserved 
     {
         public string Text { get; private set; }
         public bool Negate { get; private set; }
+        [JsonIgnore]
         [YamlIgnore]
         public Parsed Parse { get; private set; }
+        [JsonIgnore]
         [YamlIgnore]
         public QFind Search { get; private set; }
         protected QFeature(QFind context, string text, Parsed parse, bool negate)
@@ -73,7 +75,6 @@ namespace Blueprint.Blue
             }
             return null;
         }
-        public abstract IEnumerable<string> AsYaml();
 
         public abstract XFeature AsMessage();
     }

@@ -121,10 +121,6 @@ namespace Blueprint.Blue
                 search.Context.AddError("Unable to determine part-ofospeech from: \"" + text + "\"");
             }
         }
-        public override IEnumerable<string> AsYaml()
-        {
-            return ICommand.YamlSerializer(this);
-        }
         public override XFeature AsMessage()
         {
             XCompare compare;

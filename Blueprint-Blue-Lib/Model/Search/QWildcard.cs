@@ -76,10 +76,6 @@ namespace Blueprint.Blue
                 this.WordKeys = new UInt16[0];
             }
         }
-        public override IEnumerable<string> AsYaml()
-        {
-            return ICommand.YamlSerializer(this);
-        }
         public override XFeature AsMessage()
         {
             var lexes = new List<XLex>();

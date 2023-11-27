@@ -34,10 +34,6 @@
             }
             this.Strongs = (0, 'X');
         }
-        public override IEnumerable<string> AsYaml()
-        {
-            return ICommand.YamlSerializer(this);
-        }
         public override XFeature AsMessage()
         {
             var strongs = new XStrongs() { Lang = this.Strongs.lang == 'G' ? XLangEnum.G : this.Strongs.lang == 'H' ? XLangEnum.H : XLangEnum.H, Number = this.Strongs.number };

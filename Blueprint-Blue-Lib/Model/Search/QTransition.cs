@@ -6,15 +6,10 @@
     public class QTransition : QFeature, IFeature
     {
         public byte Transition { get; set; }
-        public bool Negate { get; set; } = false;
 
         public QTransition(QFind search, string text, Parsed parse, bool negate) : base(search, text, parse, negate)
         {
             this.Transition = 0;
-        }
-        public override IEnumerable<string> AsYaml()
-        {
-            return ICommand.YamlSerializer(this);
         }
         public override XFeature AsMessage()
         {

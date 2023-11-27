@@ -3,6 +3,7 @@ namespace Blueprint.Blue
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;
+    using System.Text.Json;
     using XBlueprintBlue;
     using static AVXLib.Framework.Numerics;
 
@@ -74,23 +75,7 @@ namespace Blueprint.Blue
         }
         override public List<string> AsYaml()
         {
-            var yaml = new List<string>();
-            if (this.Valid)
-            {
-                yaml.Add("  segment: " + this.Text);
-                yaml.Add("  quoted: " + this.IsQuoted.ToString().ToLower());
-                yaml.Add("- fragment: " + this.Text);
-
-                foreach (var fragment in this.Fragments)
-                {
-                    var fragment_yaml = fragment.AsYaml();
-                    foreach (var line in fragment_yaml)
-                    {
-                        yaml.Add("  " + line);
-                    }
-                }
-            }
-            return yaml;
+            return ICommand.YamlSerializer(this);
         }
         public XSearch AsMessage()
         {

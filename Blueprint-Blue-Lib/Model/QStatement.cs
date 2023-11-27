@@ -6,7 +6,9 @@ namespace Blueprint.Blue
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;
+    using System.Text.Json.Serialization;
     using XBlueprintBlue;
+    using YamlDotNet.Serialization;
 
     public class QStatement
     {
@@ -38,6 +40,8 @@ namespace Blueprint.Blue
             this.LocalSettings = new QSettings(this.GlobalSettings);
             this.Context = new QContext(this);  // notional placeholder for now (base this on actual username/home
         }
+        [JsonIgnore]
+        [YamlIgnore]
         public XBlueprint Blueprint
         {
             get

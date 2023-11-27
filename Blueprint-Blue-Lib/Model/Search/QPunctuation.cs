@@ -11,10 +11,6 @@ namespace Blueprint.Blue
         {
             this.Punctuation = 0;
         }
-        public override IEnumerable<string> AsYaml()
-        {
-            return ICommand.YamlSerializer(this);
-        }
         public override XFeature AsMessage()
         {
             var decor = new XPunctuation() { Bits = this.Punctuation };

@@ -6,6 +6,8 @@
     using System.Collections.Generic;
     using System.Linq;
     using System;
+    using YamlDotNet.Serialization;
+    using System.Text.Json.Serialization;
 
     public class QImplicitCommands
     {
@@ -86,7 +88,8 @@
             }
             return result;
         }
-
+        [JsonIgnore]
+        [YamlIgnore]
         public IEnumerable<QFind> Searches
         {
             get
@@ -96,6 +99,8 @@
                         yield return (QFind)candidate;
             }
         }
+        [JsonIgnore]
+        [YamlIgnore]
         public IEnumerable<QFilter> Filters
         {
             get
@@ -105,6 +110,8 @@
                         yield return (QFilter)candidate;
             }
         }
+        [JsonIgnore]
+        [YamlIgnore]
         public IEnumerable<QVariable> Assignments
         {
             get

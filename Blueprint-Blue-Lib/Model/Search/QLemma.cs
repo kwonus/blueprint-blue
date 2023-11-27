@@ -9,6 +9,7 @@ namespace Blueprint.Blue
     using AVXLib.Framework;
     using AVXLib;
     using AVXLib.Memory;
+    using YamlDotNet.Serialization;
 
     public class QLemma : QFeature, IFeature
     {
@@ -83,10 +84,7 @@ namespace Blueprint.Blue
                 }
             }
         }
-        public override IEnumerable<string> AsYaml()
-        {
-            return ICommand.YamlSerializer(this);
-        }
+
         public override XFeature AsMessage()
         {
             var lexes = new List<XLex>();

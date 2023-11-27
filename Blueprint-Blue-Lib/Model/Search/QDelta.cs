@@ -11,10 +11,6 @@
         {
             this.hasDelta = false;
         }
-        public override IEnumerable<string> AsYaml()
-        {
-            return ICommand.YamlSerializer(this);
-        }
         public override XFeature AsMessage()
         {
             var delta = new XDelta() { Differs = this.hasDelta };

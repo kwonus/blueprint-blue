@@ -2,6 +2,7 @@ namespace Blueprint.Blue
 {
     using Pinshot.PEG;
     using System.Collections.Generic;
+    using System.Text.Json.Serialization;
     using XBlueprintBlue;
     using YamlDotNet.Serialization;
 
@@ -9,6 +10,7 @@ namespace Blueprint.Blue
     {
         private string Text;
         public List<QMatchAny> MatchAll { get; private set; }
+        [JsonIgnore]
         [YamlIgnore]
         public QFind Search { get; private set; }
         public bool Anchored { get; private set; }

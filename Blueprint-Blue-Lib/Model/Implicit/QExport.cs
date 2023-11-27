@@ -40,7 +40,7 @@ namespace Blueprint.Blue
         }
         public override List<string> AsYaml()
         {
-            return [ "filespec: \"" + this.FileSpec + "\"" ];
+            return ICommand.YamlSerializer(this);
         }
     }
 

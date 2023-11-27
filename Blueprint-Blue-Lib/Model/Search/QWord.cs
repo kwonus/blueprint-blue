@@ -12,7 +12,6 @@ namespace Blueprint.Blue
     {
         public UInt16[] WordKeys { get; set; }
         public HashSet<string> Phonetics { get; private set; }
-        private string Text;
 
         private bool AddPhonetics()
         {
@@ -45,15 +44,10 @@ namespace Blueprint.Blue
             if (!AddPhonetics())
                 AddRawPhonetics(text);
 
-            this.Text = text;
             if (this.WordKeys.Length == 0)
             {
                 this.Search.Context.AddWarning("'" + text + "' is not in the lexicon (only sounds-alike searching can be used to match this token).");
             }
-        }
-        public override IEnumerable<string> AsYaml()
-        {
-            return ICommand.YamlSerializer(this);
         }
         public override XFeature AsMessage()
         {

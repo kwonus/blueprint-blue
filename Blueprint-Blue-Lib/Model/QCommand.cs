@@ -3,6 +3,7 @@ namespace Blueprint.Blue
     using System.Collections.Generic;
     using System.IO;
     using System.Text;
+    using System.Text.Json;
     using XBlueprintBlue;
 
     public interface ICommand
@@ -15,11 +16,29 @@ namespace Blueprint.Blue
         string Expand();
         List<string> AsYaml();
 
+        static List<string> JsonSerializer(object obj)
+        {
+            JsonSerializerOptions options = new() { WriteIndented = true };
+
+            List<string> result = new();
+            string json = System.Text.Json.JsonSerializer.Serialize(obj, options);
+
+            string[] lines = json.Split([Environment.NewLine], StringSplitOptions.None);
+
+            foreach (string line in lines)
+            {
+                var trimmed = line.TrimEnd();
+                if (!string.IsNullOrEmpty(trimmed))
+                    result.Add(trimmed);
+            }
+            return result;
+        }
+
         static List<string> YamlSerializer(object obj)
         {
             List<string> result = new();
             YamlDotNet.Serialization.Serializer serializer = new();
- 
+
             using (var stream = new MemoryStream())
             {
                 // StreamWriter object that writes UTF-8 encoded text to the MemoryStream.
@@ -36,7 +55,7 @@ namespace Blueprint.Blue
                 {
                     for (string? line = reader.ReadLine(); line != null; line = reader.ReadLine())
                     {
-                        var trimmed = line.Trim();
+                        var trimmed = line.TrimEnd();
                         if (!string.IsNullOrEmpty(trimmed))
                             result.Add(trimmed);
                     }

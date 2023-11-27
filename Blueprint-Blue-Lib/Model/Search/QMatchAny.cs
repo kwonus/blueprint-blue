@@ -2,6 +2,7 @@
 {
     using Pinshot.PEG;
     using System.Collections.Generic;
+    using System.Text.Json.Serialization;
     using XBlueprintBlue;
     using YamlDotNet.Serialization;
 
@@ -9,6 +10,7 @@
     {
         private string Text;
         public List<QFeature> Features { get; private set; }
+        [JsonIgnore]
         [YamlIgnore]
         public QFind Search { get; private set; }
 

@@ -24,9 +24,7 @@ namespace Blueprint.Blue
         }
         public override List<string> AsYaml()
         {
-            var yaml = new List<string>();
-            yaml.Add("- include: " + this.Filter);
-            return yaml;
+            return ICommand.YamlSerializer(this);
         }
         public XScope AsMessage()
         {
