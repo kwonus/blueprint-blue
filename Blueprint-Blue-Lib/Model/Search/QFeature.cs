@@ -26,10 +26,15 @@ namespace Blueprint.Blue
         public QFind Search { get; private set; }
         protected QFeature(QFind context, string text, Parsed parse, bool negate)
         {
-            this.Text = text;
+            this.Text = text.Trim();
             this.Parse = parse;
             this.Search = context;
             this.Negate = negate;
+
+            if (this.Negate && this.Text.StartsWith('-'))
+            {
+                this.Text = this.Text.Length > 1 ? this.Text.Substring(1) : string.Empty;
+            }
         }
         public static QFeature? Create(QFind search, string text, Parsed parse)
         {
