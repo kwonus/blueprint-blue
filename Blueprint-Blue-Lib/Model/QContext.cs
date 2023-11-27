@@ -8,6 +8,8 @@
     using System.IO;
     using BlueprintBlue.FuzzyLex;
     using AVXLib;
+    using System.Text.Json.Serialization;
+    using YamlDotNet.Serialization;
 
     public class QContext
     {
@@ -40,6 +42,8 @@
         {
             get => Uniqueness.ToString() + ":" + Ticks.ToString();
         }
+        [JsonIgnore]
+        [YamlIgnore]
         public (UInt64 part1, UInt64 part2, Int32 ticks) Session //pseudo-random-identifier (might not be needed)
         {
             get
@@ -64,6 +68,8 @@
         }
         public UInt16[]?Fields { get; set; }
 
+        [JsonIgnore]
+        [YamlIgnore]
         public QStatement Statement { get; private set; }
 
         public string HistoryPath { get; private set; } // not used yet
