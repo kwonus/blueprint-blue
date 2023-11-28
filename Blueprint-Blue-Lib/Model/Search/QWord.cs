@@ -10,6 +10,7 @@ namespace Blueprint.Blue
 
     public class QWord : QFeature, IFeature
     {
+        override public string Type { get => QFeature.GetTypeName(this); }
         public UInt16[] WordKeys { get; set; }
         public HashSet<string> Phonetics { get; private set; }
 

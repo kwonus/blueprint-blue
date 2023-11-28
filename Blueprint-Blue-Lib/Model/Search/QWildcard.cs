@@ -10,6 +10,7 @@ namespace Blueprint.Blue
 
     public class QWildcard : QFeature, IFeature
     {
+        override public string Type { get => QFeature.GetTypeName(this); }
         public UInt16[] WordKeys { get; set; }
 
         public QWildcard(QFind search, string text, Parsed parse, bool negate) : base(search, text, parse, negate)

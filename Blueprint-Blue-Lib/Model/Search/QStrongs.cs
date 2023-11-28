@@ -6,6 +6,7 @@
     using XBlueprintBlue;
     public class QStrongs : QFeature, IFeature
     {
+        override public string Type { get => QFeature.GetTypeName(this); }
         public (UInt16 number, char lang) Strongs { get; set; }
 
         public QStrongs(QFind search, string text, Parsed parse, bool negate) : base(search, text, parse, negate)

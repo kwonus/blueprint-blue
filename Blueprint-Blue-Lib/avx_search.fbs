@@ -23,15 +23,15 @@ table XFind (fs_serializer) {
     found:     [ XFound ];
 }
 
-table XFound (fs_serializer) {
+table XFound (fs_serializer) { // a hit corresponds to specified span xor verse
     start:       uint32 = 0; // required (zero is not a valid start coordinate)
     until:       uint32 = 0; // required (must be >= start)
     matches:   [ XMatch ]  (required);
 }
 
 table XMatch (fs_serializer) {
-    fragment:    string    (required);
-    feature:     string    (required);
+    fragment:    string    (required); // search-specification of fragment
+    feature:     string    (required); // matched-feature(s)
     coordinates:  uint32 = 0; // required; match represents coordinates of matching feature: BB_CC_VV_WW (start <= coordinate <= until)
 }
 

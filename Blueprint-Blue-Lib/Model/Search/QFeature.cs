@@ -10,12 +10,14 @@ namespace Blueprint.Blue
 
     public interface IFeature
     {
+        string Type { get; }
         string Text { get; }
         bool Negate { get; }
     }
 
     public abstract class QFeature : IFeature // This is mostly redundant with QSearchFeature. The inheritance aspect of this class needs to be preserved 
     {
+        abstract public string Type { get; }
         public string Text { get; private set; }
         public bool Negate { get; private set; }
         [JsonIgnore]
@@ -24,6 +26,12 @@ namespace Blueprint.Blue
         [JsonIgnore]
         [YamlIgnore]
         public QFind Search { get; private set; }
+        protected static string GetTypeName(object obj)
+        {
+            string name = obj.GetType().Name; // Always "Q*"
+
+            return (name.Length >= 2 && name[0] == 'Q') ? name.Substring(1) : name;
+        }
         protected QFeature(QFind context, string text, Parsed parse, bool negate)
         {
             this.Text = text.Trim();

@@ -10,6 +10,7 @@ namespace Blueprint.Blue
 
     public class QPartOfSpeech : QFeature, IFeature
     {
+        override public string Type { get => QFeature.GetTypeName(this); }
         public UInt16 PnPos12 { get; private set; }
         public UInt32 Pos32   { get; private set; }
 
@@ -101,7 +102,7 @@ namespace Blueprint.Blue
                         {
                             this.Pos32 = AVText.FiveBitEncoding.EncodePOS(pos);
                         }
-                        else if (child.rule == "pos32")
+                        else if (child.rule == "pos32") // do we really want to support numeric representation of nupos strings?
                         {
                             this.Pos32 = UInt32.Parse(pos);
                         }
