@@ -1,13 +1,9 @@
-﻿using PhonemeEmbeddings;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using XBlueprintBlue;
-
-namespace BlueprintBlue.FuzzyLex
+﻿namespace BlueprintBlue.FuzzyLex
 {
+    using PhonemeEmbeddings;
+    using System;
+    using System.Collections.Generic;
+
     public interface ILexicalComparitor
     {
         UInt16 wkey { get; }

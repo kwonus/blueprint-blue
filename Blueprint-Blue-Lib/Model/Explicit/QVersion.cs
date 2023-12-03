@@ -1,7 +1,6 @@
 namespace Blueprint.Blue
 {
     using Pinshot.PEG;
-    using XBlueprintBlue;
 
     public class QVersion : QExplicitCommand, ICommand
     {
@@ -18,11 +17,6 @@ namespace Blueprint.Blue
                     break;
                 }
             }
-        }
-        public override void AddArgs(XCommand command)
-        {
-            if (this.Verbose)
-                command.Arguments.Add("-verbose");
         }
     }
 }

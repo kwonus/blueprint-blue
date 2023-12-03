@@ -6,7 +6,6 @@ namespace Blueprint.Blue
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;
-    using XBlueprintBlue;
 
     public class QPartOfSpeech : QFeature, IFeature
     {
@@ -121,24 +120,6 @@ namespace Blueprint.Blue
             {
                 search.Context.AddError("Unable to determine part-ofospeech from: \"" + text + "\"");
             }
-        }
-        public override XFeature AsMessage()
-        {
-            XCompare compare;
-            if (this.Pos32 != 0)
-            {
-                var pos = new XPOS32() { Pos = this.Pos32 };
-                compare = new XCompare(pos);
-            }
-            else
-            {
-                var pos = new XPOS16() { Pnpos = this.PnPos12 };
-                compare = new XCompare(pos);
-            }
-            var feature = new XFeature { Feature = this.Text, Negate = this.Negate, Rule = "decoration", Match = compare };
-
-            return feature;
-            
         }
     }
 }

@@ -3,7 +3,6 @@ namespace Blueprint.Blue
     using Pinshot.PEG;
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
-    using XBlueprintBlue;
     using YamlDotNet.Serialization;
 
     public class QFragment
@@ -34,16 +33,6 @@ namespace Blueprint.Blue
         public List<string> AsYaml()
         {
             return ICommand.YamlSerializer(this);
-        }
-        public XFragment AsMessage()
-        {
-            var fragment = new XFragment { Fragment = this.Text, Require = new List<XOption>() };
-
-            foreach (var feature in this.MatchAll)
-            {
-                fragment.Require.Add(feature.AsMessage());
-            }
-            return fragment;
         }
     }
 }

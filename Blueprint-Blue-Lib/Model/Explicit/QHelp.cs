@@ -2,7 +2,6 @@ namespace Blueprint.Blue
 {
     using Pinshot.PEG;
     using System;
-    using XBlueprintBlue;
 
     public class QHelp : QExplicitCommand, ICommand
     {
@@ -20,11 +19,6 @@ namespace Blueprint.Blue
                 this.Topic = "";
                 this.Document = "";
             }
-        }
-        public override void AddArgs(XCommand command)
-        {
-            command.Arguments.Add(this.Topic);
-            command.Arguments.Add(this.Document);
         }
     }
 }

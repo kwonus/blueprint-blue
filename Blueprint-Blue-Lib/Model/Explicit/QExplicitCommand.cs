@@ -1,8 +1,6 @@
-using Pinshot.PEG;
 namespace Blueprint.Blue
 {
-    using System;
-    using XBlueprintBlue;
+    using Pinshot.PEG;
 
     public abstract class QExplicitCommand : QCommand, ICommand
     {
@@ -15,37 +13,6 @@ namespace Blueprint.Blue
         {
             ;
         }
-        public XBlueprint AsSingletonCommand()
-        {
-            var reply = new XReply();
-            var command = new XCommand() { Command = this.Text, Verb = this.Verb, Reply = reply };
-            this.AddArgs(command);
-            var request = this.Context.Statement.IsValid && (this.Context.Statement.Errors.Count == 0)
-            ? new XBlueprint()
-            {
-                Command = this.Text,
-                Settings = this.Context.AsMessage(),
-                Singleton = command,
-                Status = XStatusEnum.OKAY,
-                Help = "https://to-be-defined-later.html"
-            }
-            : new XBlueprint()
-            {
-                Command = this.Text,
-                Settings = this.Context.AsMessage(),
-                Singleton = command,
-                Status = XStatusEnum.ERROR,
-                Errors = this.Context.Statement.Errors.Count > 0 ? this.Context.Statement.Errors : new() { "Unexpected error" },
-                Help = "https://to-be-defined-later.html"
-            };
-            if (this.Context.Statement.Warnings.Count > 0)
-            {
-                request.Warnings = this.Context.Statement.Warnings;
-            }
-            return request;
-        }
-        public abstract void AddArgs(XCommand command);
-
         public static QExplicitCommand? Create(QContext env, Parsed item)
         {
             if (item.rule.Equals("statement", StringComparison.InvariantCultureIgnoreCase))

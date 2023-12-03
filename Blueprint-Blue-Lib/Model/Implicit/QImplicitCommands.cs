@@ -1,6 +1,5 @@
 ﻿namespace Blueprint.Blue
 {
-    using XBlueprintBlue;
     using Pinshot.PEG;
     using System.Text;
     using System.Collections.Generic;
@@ -253,51 +252,6 @@
                 diagnostics.AddError("A command induced an unexpected error");
             }
             return valid ? commandSet : null;
-        }
-        public XBlueprint AsSearchRequest()
-        {
-            var request = this.Context.Statement.IsValid && (this.Context.Statement.Errors.Count == 0)
-            ? new XBlueprint()
-            {
-                Command = this.ExpandedText,
-                Settings = this.Context.AsMessage(),
-                Search = new List<XSearch>(),
-                Status = XStatusEnum.OKAY,
-                Help = "https://to-be-defined-later.html"
-            }
-            : new XBlueprint()
-            {
-                Command = this.ExpandedText,
-                Settings = this.Context.AsMessage(),
-                Search = new List<XSearch>(),
-                Status = XStatusEnum.ERROR,
-                Errors = this.Context.Statement.Errors.Count > 0 ? this.Context.Statement.Errors : new() { "Unknown error" },
-                Help = "https://to-be-defined-later.html"
-            };
-            if (this.Context.Statement.Warnings.Count > 0)
-            {
-                request.Warnings = this.Context.Statement.Warnings;
-            }
-
-            if (this.Context.Statement.IsValid)
-            {
-                if (this.Filters.Any())
-                {
-                    request.Scope = new List<XScope>();
-                    foreach (var detail in this.Filters)
-                    {
-                        request.Scope.Add(detail.AsMessage());
-                    }
-                }
-                if (this.Searches.Any())
-                {
-                    foreach (var detail in this.Searches)
-                    {
-                        request.Search.Add(detail.AsMessage());
-                    }
-                }
-            }
-            return request;
         }
     }
 }

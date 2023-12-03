@@ -1,6 +1,5 @@
 ﻿namespace Blueprint.Blue
 {
-    using XBlueprintBlue;
     using BlueprintBlue;
     using System.Linq;
     using System;
@@ -21,6 +20,7 @@
         {
             return ICommand.YamlSerializer(this);
         }
+        /*
         public XSettings AsMessage()
         {
             var xdomain = this.LocalSettings.Lexicon.Value == QLexicalDomain.QLexiconVal.BOTH ? XLexEnum.BOTH : this.LocalSettings.Lexicon.Value == QLexicalDomain.QLexiconVal.AV ? XLexEnum.AV : XLexEnum.AVX;
@@ -37,7 +37,7 @@
             }
             return new XSettings() { Similarity = this.LocalSettings.Similarity.ToString(), Span = this.LocalSettings.Span.Value, Format = xformat, Lexicon = xdomain, Display = xdisplay };
         }
-
+        */
         public string SessionAsString //pseudo-random-identifier (might not be needed)
         {
             get => Uniqueness.ToString() + ":" + Ticks.ToString();

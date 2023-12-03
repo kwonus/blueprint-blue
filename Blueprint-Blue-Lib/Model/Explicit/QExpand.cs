@@ -1,8 +1,7 @@
-using Pinshot.PEG;
-using XBlueprintBlue;
-
 namespace Blueprint.Blue
 {
+    using Pinshot.PEG;
+
     public class QExpand : QExplicitCommand, ICommand
     {
         public string Label { get; set; }
@@ -14,11 +13,6 @@ namespace Blueprint.Blue
                 return;
             }
             this.Label = args != null && args.Length == 1 ? args[0].text : string.Empty;
-        }
-        public override void AddArgs(XCommand command)
-        {
-            if (command != null && command.Arguments != null)
-                command.Arguments.Add(this.Label);
         }
     }
 }

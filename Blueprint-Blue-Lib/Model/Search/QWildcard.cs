@@ -5,8 +5,6 @@ namespace Blueprint.Blue
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
-    using XBlueprintBlue;
 
     public class QWildcard : QFeature, IFeature
     {
@@ -76,19 +74,6 @@ namespace Blueprint.Blue
                 search.Context.AddWarning("A wildcard was supplied, but there was no * found in the text");
                 this.WordKeys = new UInt16[0];
             }
-        }
-        public override XFeature AsMessage()
-        {
-            var lexes = new List<XLex>();
-            foreach (var key in this.WordKeys)
-            {
-                lexes.Add(new XLex() { Key = key, Phonetics = [] });
-            }
-            var word = new XWord() { Lex = lexes };
-            var compare = new XCompare(word);
-            var feature = new XFeature { Feature = this.Text, Negate = false, Rule = "wildcard", Match = compare };
-
-            return feature;
         }
     }
 }

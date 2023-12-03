@@ -1,8 +1,7 @@
-using Pinshot.PEG;
-using XBlueprintBlue;
-
 namespace Blueprint.Blue
 {
+    using Pinshot.PEG;
+
     public class QAbsorb : QExplicitCommand, ICommand
     {
         public string Label   { get; set; } // macro
@@ -39,11 +38,6 @@ namespace Blueprint.Blue
                 this.Command = 0;
                 this.Label = this.Generic;
             }
-        }
-        public override void AddArgs(XCommand command)
-        {
-            if (command != null && command.Arguments != null)
-                command.Arguments.Add(this.Generic);
         }
     }
 }

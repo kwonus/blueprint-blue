@@ -3,8 +3,6 @@ namespace Blueprint.Blue
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;
-    using System.Text.Json;
-    using XBlueprintBlue;
     using static AVXLib.Framework.Numerics;
 
     public class QFind : QImplicitCommand, ICommand
@@ -76,16 +74,6 @@ namespace Blueprint.Blue
         override public List<string> AsYaml()
         {
             return ICommand.YamlSerializer(this);
-        }
-        public XSearch AsMessage()
-        {
-            var search = new XSearch { Expression = this.Text, Quoted = this.IsQuoted, Fragments = new List<XFragment>() };
-
-            foreach (var fragment in this.Fragments)
-            {
-                search.Fragments.Add(fragment.AsMessage());
-            }
-            return search;
         }
     }
 }

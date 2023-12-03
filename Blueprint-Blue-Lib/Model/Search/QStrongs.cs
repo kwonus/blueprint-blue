@@ -2,8 +2,7 @@
 {
     using Pinshot.PEG;
     using System;
-    using System.Collections.Generic;
-    using XBlueprintBlue;
+
     public class QStrongs : QFeature, IFeature
     {
         override public string Type { get => QFeature.GetTypeName(this); }
@@ -34,14 +33,6 @@
                 }
             }
             this.Strongs = (0, 'X');
-        }
-        public override XFeature AsMessage()
-        {
-            var strongs = new XStrongs() { Lang = this.Strongs.lang == 'G' ? XLangEnum.G : this.Strongs.lang == 'H' ? XLangEnum.H : XLangEnum.H, Number = this.Strongs.number };
-            var compare = new XCompare(strongs);
-            var feature = new XFeature { Feature = this.Text, Negate = false, Rule = "lemmata", Match = compare };
-
-            return feature;
         }
     }
 }

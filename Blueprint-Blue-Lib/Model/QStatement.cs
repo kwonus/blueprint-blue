@@ -1,14 +1,10 @@
 namespace Blueprint.Blue
 {
     using BlueprintBlue;
-    using FlatSharp;
     using Pinshot.Blue;
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;
-    using System.Text.Json.Serialization;
-    using XBlueprintBlue;
-    using YamlDotNet.Serialization;
 
     public class QStatement
     {
@@ -39,40 +35,6 @@ namespace Blueprint.Blue
             this.GlobalSettings = new QSettings(@"C:\Users\Me\AVX\Quelle\settings.quelle");
             this.LocalSettings = new QSettings(this.GlobalSettings);
             this.Context = new QContext(this);  // notional placeholder for now (base this on actual username/home
-        }
-        [JsonIgnore]
-        [YamlIgnore]
-        public XBlueprint Blueprint
-        {
-            get
-            {
-                if (this.IsValid)
-                {
-                    if (this.Singleton != null)
-                        return this.Singleton.AsSingletonCommand();
-                    if (this.Commands != null)
-                        return this.Commands.AsSearchRequest();
-                }
-                return new XBlueprint()
-                {
-                    Command = this.Text,
-                    Settings = this.Context.AsMessage(),
-                    Errors = this.Context.Statement.Errors.Count > 0 ? this.Context.Statement.Errors : new() { "Unexpected error or ill-defined request" },
-                    Status = XStatusEnum.ERROR,
-                    Help = "to be defined later"
-                };
-            }
-        }
-        public static byte[] Serialize(XBlueprint xblueprint)
-        {
-            if (xblueprint != null)
-            {
-                int maxBytesNeeded = XBlueprint.Serializer.GetMaxSize(xblueprint);
-                byte[] bytes = new byte[maxBytesNeeded];
-                int bytesWritten = XBlueprint.Serializer.Write(bytes, xblueprint);
-                return bytes;
-            }
-            return new byte[0];
         }
 
         public void AddError(string message)

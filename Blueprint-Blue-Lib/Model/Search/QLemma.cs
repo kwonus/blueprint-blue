@@ -1,7 +1,6 @@
 namespace Blueprint.Blue
 {
     using Pinshot.PEG;
-    using XBlueprintBlue;
     using System.Text;
     using System;
     using System.Collections.Generic;
@@ -84,35 +83,6 @@ namespace Blueprint.Blue
                     return;  // If it is OOV, we can infer that this is a lemma
                 }
             }
-        }
-
-        public override XFeature AsMessage()
-        {
-            var lexes = new List<XLex>();
-            foreach (var key in this.Lemmata)
-            {
-                var text = ObjectTable.AVXObjects.lexicon.GetLexNormalized(key);
-                if (string.IsNullOrEmpty(text))
-                {
-                    var oov = ObjectTable.AVXObjects.oov.GetEntry(key);
-                    if (oov.valid)
-                        text = oov.oov.text.ToString();
-                }
-                if (this.Phonetics.Count > 0)
-                {
-                    lexes.Add(new XLex() { Key = key, Phonetics = this.Phonetics.ToList() });
-                }
-                else
-                {
-                    lexes.Add(new XLex() { Key = key, Phonetics = [] });
-                }
-            }
-            var lemma = new XLemma() { Lemmata = lexes };
-
-            var compare = new XCompare(lemma);
-            var feature = new XFeature { Feature = this.Text, Negate = false, Rule = "lemmata", Match = compare };
-
-            return feature;
         }
     }
 }

@@ -2,7 +2,6 @@
 {
     using Pinshot.PEG;
     using System;
-    using XBlueprintBlue;
 
     public class QInit : QExplicitCommand, ICommand
     {
@@ -18,11 +17,6 @@
             {
                 this.Arguments[i] = args[i].text.Trim().ToLower();
             }
-        }
-        public override void AddArgs(XCommand command)
-        {
-            foreach (var arg in this.Arguments)
-                command.Arguments.Add(arg);
         }
     }
 }

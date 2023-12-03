@@ -8,21 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="avx_search_generated.h" />
-    <None Remove="blueprint_blue_generated.h" />
-  </ItemGroup>
-	
-  <ItemGroup>
-	  <FlatSharpSchema Include="blueprint_blue.fbs" />
-	  <FlatSharpSchema Include="avx_search.fbs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="FlatSharp.Compiler" Version="7.3.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="FlatSharp.Runtime" Version="7.3.0" />
     <PackageReference Include="YamlDotNet" Version="13.7.1" />
   </ItemGroup>
 

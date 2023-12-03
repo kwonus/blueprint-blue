@@ -2,10 +2,7 @@ namespace Blueprint.Blue
 {
     using Pinshot.PEG;
     using System;
-    using System.Collections.Generic;
-    using System.Runtime.CompilerServices;
     using System.Text.Json.Serialization;
-    using XBlueprintBlue;
     using YamlDotNet.Serialization;
 
     public interface IFeature
@@ -88,7 +85,5 @@ namespace Blueprint.Blue
             }
             return null;
         }
-
-        public abstract XFeature AsMessage();
     }
 }

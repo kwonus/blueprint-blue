@@ -5,8 +5,6 @@ namespace Blueprint.Blue
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;
-    using System.Text;
-    using XBlueprintBlue;
 
     public class QWord : QFeature, IFeature
     {
@@ -49,26 +47,6 @@ namespace Blueprint.Blue
             {
                 this.Search.Context.AddWarning("'" + text + "' is not in the lexicon (only sounds-alike searching can be used to match this token).");
             }
-        }
-        public override XFeature AsMessage()
-        {
-            var lexes = new List<XLex>();
-            foreach (var key in this.WordKeys)
-            {
-                if (this.Phonetics.Count > 0)
-                {
-                    lexes.Add(new XLex() { Key = key, Phonetics = this.Phonetics.ToList() });
-                }
-                else
-                {
-                    lexes.Add(new XLex() { Key = key, Phonetics = [] });
-                }
-            }
-            var word = new XWord() { Lex = lexes };
-            var compare = new XCompare(word);
-            var feature = new XFeature { Feature = this.Text, Negate = false, Rule = "word", Match = compare };
-
-            return feature;
         }
     }
 }

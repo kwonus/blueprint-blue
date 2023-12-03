@@ -5,8 +5,9 @@ namespace Blueprint.Blue
     using Pinshot.PEG;
     using System;
     using System.Runtime.CompilerServices;
-    using XBlueprintBlue;
     using static global::Blueprint.Blue.QLexicalDomain;
+
+    internal enum SIMILARITY { NONE = 0, FUZZY_MIN = 33, FUZZY_MAX = 99, EXACT = 100 }
 
     public class QSpan
     {
@@ -60,7 +61,7 @@ namespace Blueprint.Blue
         {
             get
             {
-                return (byte) XThreshold.NONE;
+                return (byte)SIMILARITY.NONE;
             }
         }
         public byte Value { get; private set; }
@@ -72,7 +73,7 @@ namespace Blueprint.Blue
         }
         public QSimilarity(byte val)
         {
-            this.Value = val >= (byte) XThreshold.FUZZY_MIN && val <= (byte) XThreshold.EXACT ? val : (byte) 0;
+            this.Value = val >= (byte)SIMILARITY.FUZZY_MIN && val <= (byte)SIMILARITY.EXACT ? val : (byte) 0;
             this.AutomaticLemmaMatching = (val >= 33);
         }
         public QSimilarity(string val)
@@ -106,7 +107,7 @@ namespace Blueprint.Blue
         }
         public override string ToString()
         {
-            if (this.Value < (byte) XThreshold.FUZZY_MIN || this.Value > (byte)XThreshold.EXACT)
+            if (this.Value < (byte)SIMILARITY.FUZZY_MIN || this.Value > (byte)SIMILARITY.EXACT)
                 return "none";
 
             string result = this.Value.ToString();

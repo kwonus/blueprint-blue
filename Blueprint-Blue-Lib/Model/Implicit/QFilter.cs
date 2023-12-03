@@ -2,7 +2,7 @@ namespace Blueprint.Blue
 {
     using Pinshot.PEG;
     using System.Collections.Generic;
-    using XBlueprintBlue;
+
     public class QFilter : QImplicitCommand, ICommand
     {
         public string Rule { get; private set; }
@@ -25,10 +25,6 @@ namespace Blueprint.Blue
         public override List<string> AsYaml()
         {
             return ICommand.YamlSerializer(this);
-        }
-        public XScope AsMessage()
-        {
-            return new XScope() { Book = 1, Chapter = 1 };
         }
     }
 }
