@@ -123,7 +123,7 @@ namespace Blueprint.Blue
     {
         public enum QLexiconVal
         {
-            UNDEFINED,
+            UNDEFINED = 0,
             AV = 1,
             AVX = 2,
             BOTH = 3

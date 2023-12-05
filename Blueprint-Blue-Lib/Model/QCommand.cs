@@ -4,6 +4,7 @@ namespace Blueprint.Blue
     using System.IO;
     using System.Text;
     using System.Text.Json;
+    using YamlDotNet.Serialization;
 
     public interface ICommand
     {
@@ -67,6 +68,35 @@ namespace Blueprint.Blue
             try
             {
                 YamlDotNet.Serialization.Serializer serializer = new();
+
+                using (var stream = new MemoryStream())
+                {
+                    // StreamWriter object that writes UTF-8 encoded text to the MemoryStream.
+                    using (var writer = new StreamWriter(stream, Encoding.UTF8, leaveOpen: true))
+                    {
+                        serializer.Serialize(writer, obj);
+                        writer.Flush(); // Make sure all data is written to the MemoryStream.
+                    }
+                    stream.Position = 0;
+
+                    // StreamReader object that reads UTF-8 encoded text from the MemoryStream.
+                    using (var reader = new StreamReader(stream, Encoding.UTF8))
+                    {
+                        return reader.ReadToEnd();
+                    }
+                }
+            }
+            catch
+            {
+                ;
+            }
+            return string.Empty;
+        }
+        static string JsonSerializerRaw(object obj)
+        {
+            try
+            {
+                var serializer = new SerializerBuilder().JsonCompatible().Build();
 
                 using (var stream = new MemoryStream())
                 {
