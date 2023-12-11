@@ -65,29 +65,29 @@ namespace Blueprint.Blue
             }
         }
         public byte Value { get; private set; }
-        public bool AutomaticLemmaMatching { get; private set; }
+        public bool EnableLemmaMatching { get; private set; }
         public QSimilarity()
         {
             this.Value = QSimilarity.DEFAULT;
-            this.AutomaticLemmaMatching = false;
+            this.EnableLemmaMatching = false;
         }
         public QSimilarity(byte val)
         {
             this.Value = val >= (byte)SIMILARITY.FUZZY_MIN && val <= (byte)SIMILARITY.EXACT ? val : (byte) 0;
-            this.AutomaticLemmaMatching = (val >= 33);
+            this.EnableLemmaMatching = (val >= 33);
         }
         public QSimilarity(string val)
         {
             var result = QSimilarity.FromString(val);
-            this.AutomaticLemmaMatching = result.automaticLemmaMatching;
+            this.EnableLemmaMatching = result.automaticLemmaMatching;
             this.Value = result.threshold;
         }
         public static (bool automaticLemmaMatching, byte threshold) FromString(string val)
         {
-            (bool automaticLemmaMatching, byte threshold) result;
+            (bool enableLemmaMatching, byte threshold) result;
 
-            result.automaticLemmaMatching = val.EndsWith('!');
-            string value = !result.automaticLemmaMatching ? val : val.Substring(0, val.Length - 1).Trim();
+            result.enableLemmaMatching = !val.EndsWith('!');
+            string value = !result.enableLemmaMatching ? val : val.Substring(0, val.Length - 1).Trim();
 
             if (value.Equals("none", StringComparison.InvariantCultureIgnoreCase))
                 return (false, 0);
@@ -112,7 +112,7 @@ namespace Blueprint.Blue
 
             string result = this.Value.ToString();
 
-            return !this.AutomaticLemmaMatching ? result : result + '!';
+            return !this.EnableLemmaMatching ? result : result + '!';
         }
         public string AsYaml()
         {
