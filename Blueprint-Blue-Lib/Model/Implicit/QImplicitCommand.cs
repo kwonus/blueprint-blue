@@ -1,10 +1,14 @@
 using Pinshot.PEG;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
+using YamlDotNet.Serialization;
 
 namespace Blueprint.Blue
 {
     public abstract class QImplicitCommand : QCommand, ICommand
     {
+        [JsonIgnore]
+        [YamlIgnore]
         public bool IsExplicit { get => false; }
         public abstract string Expand();
 

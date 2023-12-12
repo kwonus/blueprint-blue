@@ -4,13 +4,18 @@ namespace Blueprint.Blue
     using System.IO;
     using System.Text;
     using System.Text.Json;
+    using System.Text.Json.Serialization;
     using YamlDotNet.Serialization;
 
     public interface ICommand
     {
         string Text { get; }
         string Verb { get; }
+        [JsonIgnore]
+        [YamlIgnore]
         QContext Context { get; }
+        [JsonIgnore]
+        [YamlIgnore]
         bool IsExplicit { get; }
 
         string Expand();
@@ -127,7 +132,11 @@ namespace Blueprint.Blue
     {
         public string Text { get; set; }
         public string Verb { get; set; }
+        [JsonIgnore]
+        [YamlIgnore]
         public QContext Context { get; set; }
+        [JsonIgnore]
+        [YamlIgnore]
         public QHelpDoc HelpDoc { get => QHelpDoc.GetDocument(this.Verb); }
 
         protected QCommand(QContext context, string text, string verb)

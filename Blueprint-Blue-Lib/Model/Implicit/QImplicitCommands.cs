@@ -10,6 +10,8 @@
 
     public class QImplicitCommands
     {
+        [JsonIgnore]
+        [YamlIgnore]
         public QContext Context { get; set; }
         public string ExpandedText { get; set; }
         public List<QImplicitCommand> Parts { get; internal set; }
