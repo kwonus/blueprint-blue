@@ -12,7 +12,7 @@ namespace Pinshot.Blue
     public static class Pinshot_RustFFI
     {
         [DllImport("pinshot_blue.dll", EntryPoint = "assert_grammar_revision")]
-        internal static extern UInt32 assert_grammar_revision(UInt32 revision);
+        internal static extern UInt16 assert_grammar_revision(UInt16 revision);
         [DllImport("pinshot_blue.dll", EntryPoint = "create_quelle_parse_raw")]
         internal static extern ParsedStatementHandle pinshot_blue_raw_parse(string stmt);
         [DllImport("pinshot_blue.dll", EntryPoint = "create_quelle_parse")]
@@ -24,8 +24,8 @@ namespace Pinshot.Blue
         {
             get
             {
-                UInt32 expected = 2_0_3_1202; // "2.0.3.C02" == 2_0_3_1202
-                UInt32 version = assert_grammar_revision(expected);
+                UInt16 expected = 0x4101; // "2.0.4.101" major/minor (2.0) are inferred
+                UInt16 version = assert_grammar_revision(expected);
 
                 return (expected, (version != 0));
             }
@@ -71,7 +71,7 @@ namespace Pinshot.Blue
             using (ParsedStatementHandle handle = Pinshot_RustFFI.pinshot_blue_parse(stmt))
             {
                 var result = handle.AsString();
-                using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(result)))
+                using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(result)))
                 {
                     // Deserialization from JSON
                     DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(RootParse));
