@@ -13,6 +13,8 @@ namespace Pinshot.Blue
     {
         [DllImport("pinshot_blue.dll", EntryPoint = "assert_grammar_revision")]
         internal static extern UInt16 assert_grammar_revision(UInt16 revision);
+        [DllImport("pinshot_blue.dll", EntryPoint = "get_library_revision")]
+        internal static extern UInt16 get_library_revision();
         [DllImport("pinshot_blue.dll", EntryPoint = "create_quelle_parse_raw")]
         internal static extern ParsedStatementHandle pinshot_blue_raw_parse(string stmt);
         [DllImport("pinshot_blue.dll", EntryPoint = "create_quelle_parse")]
@@ -25,9 +27,11 @@ namespace Pinshot.Blue
             get
             {
                 UInt16 expected = 0x4101; // "2.0.4.101" major/minor (2.0) are inferred
+
+                UInt16 actual = get_library_revision();
                 UInt16 version = assert_grammar_revision(expected);
 
-                return (expected, (version != 0));
+                return (actual, (version != 0) && (actual == expected));
             }
         }
     }
