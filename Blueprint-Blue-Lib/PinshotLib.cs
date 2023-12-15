@@ -31,6 +31,8 @@ namespace Pinshot.Blue
                 UInt16 actual = get_library_revision();
                 UInt16 version = assert_grammar_revision(expected);
 
+                Console.WriteLine("Using Quelle Grammar version: 2.0." + ((actual & 0xF000) >> 12).ToString() + "." + (actual & 0x0FFF).ToString("X3"));
+
                 return (actual, (version != 0) && (actual == expected));
             }
         }
