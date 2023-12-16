@@ -12,10 +12,14 @@
 
     public class QImplicitCommands
     {
+        public QSettings LocalSettings { get; internal set; }
+
         [JsonIgnore]
         [YamlIgnore]
         public QContext Context { get; set; }
         public string ExpandedText { get; set; }
+        public List<QAssign> Assignments { get; internal set; }
+
         public List<QImplicitCommand> Parts { get; internal set; }
         public List<QImplicitCommand> ExpandedParts { get; internal set; }
 
@@ -113,19 +117,6 @@
                         yield return (QFilter)candidate;
             }
         }
-        [JsonIgnore]
-        [YamlIgnore]
-        public IEnumerable<QVariable> Assignments
-        {
-            get
-            {
-                foreach (var candidate in this.ExpandedParts)
-                    if (candidate.GetType() == typeof(QSet))
-                        yield return (QVariable)candidate;
-                    else if (candidate.GetType() == typeof(QClear))
-                        yield return (QVariable)candidate;
-            }
-        }
         public QApply? Macro
         {
             get
@@ -174,6 +165,8 @@
         private QImplicitCommands(QContext env, string stmtText)
         {
             this.Context = env;
+            this.LocalSettings = new QSettings(env.GlobalSettings);     // local settings start out as a clone of global settings; assignments can override
+
             this.ExpandedText = stmtText;
             this.Parts = new List<QImplicitCommand>();
 
@@ -208,11 +201,17 @@
                     {
                         foreach (Parsed clause in command.children)
                         {
-                            var segments = QImplicitCommand.Create(context, clause);
+                            var segments = QImplicitCommand.CreateSegments(context, clause);
+                            var assignments = QImplicitCommand.CreateVariables(context, clause);
 
                             foreach (var segment in segments)
                             {
                                 commandSet.Parts.Add(segment);
+                                valid = true;
+                            }
+                            foreach (var assignment in assignments)
+                            {
+                                commandSet.Assignments.Add(assignment);
                                 valid = true;
                             }
                             if (!valid)

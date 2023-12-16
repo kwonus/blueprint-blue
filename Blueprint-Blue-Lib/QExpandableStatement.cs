@@ -30,12 +30,6 @@
                 {
                     this.Expansion = statement.Commands.ExpandedText;
                     int i = 0;
-                    foreach (var clause in statement.Commands.Assignments)
-                    {
-                        if (++i > 1)
-                            expandable.Append(' ');
-                        expandable.Append(clause.Expand());
-                    }
                     foreach (var clause in statement.Commands.Searches)
                     {
                         var expansion = clause.Expand();

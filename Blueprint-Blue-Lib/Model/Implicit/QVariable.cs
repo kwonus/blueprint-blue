@@ -284,22 +284,22 @@ namespace BlueprintBlue.Model.Implicit
             return "format: " + ToString();
         }
     }
-    public abstract class QVariable : QImplicitCommand
+    public abstract class QVariable
     {
         public string Key { get; protected set; }
         public string Value { get; protected set; }
 
-        protected QVariable(QContext env, string text, string verb, string key, string value = "") : base(env, text, verb)
+        protected QVariable(QContext env, string text, string verb, string key, string value = "")
         {
-            Key = key;
+            this.Key = key;
 
             if (string.IsNullOrWhiteSpace(value))
             {
-                Value = GetDefault(Key);
+                this.Value = GetDefault(Key);
             }
             else
             {
-                Value = value;
+                this.Value = value;
             }
         }
         private static string GetDefault(string setting)
@@ -327,7 +327,7 @@ namespace BlueprintBlue.Model.Implicit
             }
             return null;
         }
-        public override List<string> AsYaml()
+        public List<string> AsYaml()
         {
             return ICommand.YamlSerializer(this);
         }

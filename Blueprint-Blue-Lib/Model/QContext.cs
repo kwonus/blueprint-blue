@@ -13,58 +13,11 @@
     public class QContext
     {
         public QSettings GlobalSettings { get; internal set; }
-        public QSettings LocalSettings  { get; internal set; }
         public uint InvocationCount     { get; internal set; }
 
         public List<string> AsYaml()
         {
             return ICommand.YamlSerializer(this);
-        }
-        /*
-        public XSettings AsMessage()
-        {
-            var xdomain = this.LocalSettings.Lexicon.Value == QLexicalDomain.QLexiconVal.BOTH ? XLexEnum.BOTH : this.LocalSettings.Lexicon.Value == QLexicalDomain.QLexiconVal.AV ? XLexEnum.AV : XLexEnum.AVX;
-            var xdisplay = this.LocalSettings.Display.Value == QLexicalDisplay.QDisplayVal.AV ? XOutEnum.AV : XOutEnum.AVX;
-            var xformat = XFmtEnum.JSON;
-            if (this.LocalSettings.Format.Value != QFormat.QFormatVal.JSON)
-            {
-                if (this.LocalSettings.Format.Value != QFormat.QFormatVal.TEXT)
-                    xformat = XFmtEnum.TEXT;
-                else if (this.LocalSettings.Format.Value != QFormat.QFormatVal.HTML)
-                    xformat = XFmtEnum.HTML;
-                else if (this.LocalSettings.Format.Value != QFormat.QFormatVal.MD)
-                    xformat = XFmtEnum.MD;
-            }
-            return new XSettings() { Similarity = this.LocalSettings.Similarity.ToString(), Span = this.LocalSettings.Span.Value, Format = xformat, Lexicon = xdomain, Display = xdisplay };
-        }
-        */
-        public string SessionAsString //pseudo-random-identifier (might not be needed)
-        {
-            get => Uniqueness.ToString() + ":" + Ticks.ToString();
-        }
-        [JsonIgnore]
-        [YamlIgnore]
-        public (UInt64 part1, UInt64 part2, Int32 ticks) Session //pseudo-random-identifier (might not be needed)
-        {
-            get
-            {
-                (UInt64 part1, UInt64 part2, Int32 ticks) result = (0, 0, this.Ticks);
-                var bytes = this.Uniqueness.ToByteArray();
-                for (int i = 0; i < bytes.Length; i++)
-                {
-                    if (i < 32)
-                    {
-                        result.part1 <<= 8;
-                        result.part1 |= bytes[i];
-                    }
-                    else
-                    {
-                        result.part2 <<= 8;
-                        result.part2 |= bytes[i];
-                    }
-                }
-                return result;
-            }
         }
         public UInt16[]?Fields { get; set; }
 
@@ -75,9 +28,6 @@
         public string HistoryPath { get; private set; } // not used yet
         public string MacroPath { get; private set; }   // not used yet
 
-        private Guid Uniqueness;
-        private Int32 Ticks;
-
         static QContext()
         {
             BlueprintLex.Initialize(ObjectTable.AVXObjects);
@@ -86,14 +36,10 @@
 
         public QContext(QStatement statement)
         {
-            this.Uniqueness = Guid.NewGuid();
-            this.Ticks = Environment.TickCount;
-
             BlueprintBlue.FuzzyLex.BlueprintLex.Initialize(ObjectTable.AVXObjects);
             this.Statement = statement;
             this.InvocationCount = 0; // This can be updated when Create() is called on Implicit clauses
             this.GlobalSettings = statement.GlobalSettings;
-            this.LocalSettings  = new QSettings(this.GlobalSettings);
 
             this.Fields  = null;    // Null means that no fields were provided; In Quelle, this is different than an empty array of fields
             this.HistoryPath = string.Empty;

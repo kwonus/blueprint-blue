@@ -2,6 +2,8 @@ namespace Blueprint.Blue
 {
     using Pinshot.PEG;
     using System;
+    using YamlDotNet.Serialization;
+
     public enum FileCreateMode
     {
         CreateNew = 0,

@@ -39,7 +39,7 @@ namespace Blueprint.Blue
                     ending = normalized.Substring(star + 1);
                 }
 
-                if (this.Search.Context.LocalSettings.Lexicon.Value != QLexicalDomain.QLexiconVal.AVX)
+                if (search.Settings.Lexicon.Value != QLexicalDomain.QLexiconVal.AVX)
                 {
                     UInt16 key = 0;
                     foreach (var lex in lexicon)
@@ -52,7 +52,7 @@ namespace Blueprint.Blue
                             words.Add(key);
                     }
                 }
-                if (this.Search.Context.LocalSettings.Lexicon.Value != QLexicalDomain.QLexiconVal.AV)
+                if (search.Settings.Lexicon.Value != QLexicalDomain.QLexiconVal.AV)
                 {
                     UInt16 key = 0;
                     foreach (var lex in lexicon)

@@ -3,6 +3,7 @@ namespace Blueprint.Blue
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;
+    using YamlDotNet.Serialization;
     using static AVXLib.Framework.Numerics;
 
     public class QFind : QImplicitCommand, ICommand

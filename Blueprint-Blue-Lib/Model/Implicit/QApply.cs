@@ -1,4 +1,5 @@
 using Pinshot.PEG;
+using YamlDotNet.Serialization;
 
 namespace Blueprint.Blue
 {

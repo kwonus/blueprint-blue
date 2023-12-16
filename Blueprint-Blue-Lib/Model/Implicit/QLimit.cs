@@ -5,6 +5,7 @@ namespace Blueprint.Blue
     using System.Linq;
     using System;
     using System.Text;
+    using YamlDotNet.Serialization;
 
     public class QLimit : QImplicitCommand, ICommand
     {

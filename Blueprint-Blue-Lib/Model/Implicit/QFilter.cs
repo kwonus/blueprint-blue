@@ -2,6 +2,7 @@ namespace Blueprint.Blue
 {
     using Pinshot.PEG;
     using System.Collections.Generic;
+    using YamlDotNet.Serialization;
 
     public class QFilter : QImplicitCommand, ICommand
     {
