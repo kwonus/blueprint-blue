@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.IO;
+    using BlueprintBlue.Model.Implicit;
 
     public class QSettings
     {

@@ -88,13 +88,13 @@ namespace Blueprint_Blue_Test
                 Assert.IsTrue(parts.Count == 3);
                 var part = parts[0];
                 Assert.IsTrue(part.Verb == "set");
-                var setter = (QSet)part;
+                var setter = (QAssign)part;
                 Assert.IsTrue(setter.Key == "similarity");
                 Assert.IsTrue(setter.Value == "75!");
 
                 part = parts[1];
                 Assert.IsTrue(part.Verb == "set");
-                setter = (QSet)part;
+                setter = (QAssign)part;
                 Assert.IsTrue(setter.Key == "lexicon");
                 Assert.IsTrue(setter.Value == "dual");
             }

@@ -1,3 +1,4 @@
+using BlueprintBlue.Model.Implicit;
 using Pinshot.PEG;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
@@ -24,12 +25,12 @@ namespace Blueprint.Blue
 
             switch (command)
             {
-                case "clear":       result = QVariable.Create(env, clause.text, clause.children);   break;
-                case "invocation":  result = QInvoke.Create(env, clause.text, clause.children);     break; // invoke history/command or label/macro
-                case "filter":      result = QFilter.Create(env, clause.text, clause.children);     break;
-                case "search":      result = QFind.Create(env, clause.text, clause.children);       break;
-                case "apply":       result = QApply.Create(env, clause.text, clause.children);      break; // apply macro
-                case "setting":     result = QVariable.Create(env, clause.text, clause.children);   break;
+//              case "clear":       result = QVariable.Create(env, clause.text, clause.children);             break; // eliminated in revision #3C15; @clear is now an explicit command only
+                case "invocation":  result = QInvoke.Create(env, clause.text, clause.children);               break; // invoke history/command or label/macro
+                case "filter":      result = QFilter.Create(env, clause.text, clause.children);               break;
+                case "search":      result = QFind.Create(env, clause.text, clause.children);                 break;
+                case "apply":       result = QApply.Create(env, clause.text, clause.children);                break; // apply macro
+                case "opt":         result = QVariable.CreateAssignment(env, clause.text, clause.children);   break; // As of revision #C315, all settings (assignments) are non-persistent
 
                 case "implicit_singletons":
                 {

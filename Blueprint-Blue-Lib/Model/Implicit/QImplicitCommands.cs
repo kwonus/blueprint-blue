@@ -7,6 +7,8 @@
     using System;
     using YamlDotNet.Serialization;
     using System.Text.Json.Serialization;
+    using BlueprintBlue.Model;
+    using BlueprintBlue.Model.Implicit;
 
     public class QImplicitCommands
     {

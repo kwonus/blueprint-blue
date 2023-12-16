@@ -34,9 +34,9 @@ namespace Blueprint.Blue
                             case "absorb":     return new QAbsorb(env,  command.text, command.children);
                             case "get":        return new QGet(env,     command.text, command.children);
                             case "review":     return new QReview(env,  command.text, command.children);
-                            case "version":    return new QVersion(env, command.text, command.children);
+                            case "set":        return new QSet(env,     command.text, command.children); // changed for revision #3C15 (was version)
                             case "initialize": return new QInit(env,    command.text, command.children);
-                            case "reset":      return new QReset(env,   command.text, command.children);
+                            case "clear":      return new QClear(env,   command.text, command.children); // changed for revision #3C15 (was reset)
                         }
                     }
                 }

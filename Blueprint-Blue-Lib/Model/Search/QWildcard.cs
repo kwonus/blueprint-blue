@@ -1,6 +1,7 @@
 namespace Blueprint.Blue
 {
     using AVXLib;
+    using BlueprintBlue.Model.Implicit;
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;

@@ -1,58 +1,62 @@
 ﻿// AVX-Quelle specification: 2.0.3.701
 //
-namespace Blueprint.Blue
+namespace BlueprintBlue.Model.Implicit
 {
+    using Blueprint.Blue;
     using Pinshot.PEG;
     using System;
     using System.Runtime.CompilerServices;
-    using static global::Blueprint.Blue.QLexicalDomain;
+    using System.Text.Json.Serialization;
+    using YamlDotNet.Core.Tokens;
+    using YamlDotNet.Serialization;
+    using static global::BlueprintBlue.Model.Implicit.QLexicalDomain;
 
     internal enum SIMILARITY { NONE = 0, FUZZY_MIN = 33, FUZZY_MAX = 99, EXACT = 100 }
 
     public class QSpan
     {
-        public const UInt16 VERSE = 0;    // zero means verse-scope
-        public const UInt16 DEFAULT = QSpan.VERSE;
-        public UInt16 Value { get; set; }
+        public const ushort VERSE = 0;    // zero means verse-scope
+        public const ushort DEFAULT = VERSE;
+        public ushort Value { get; set; }
         public QSpan()
         {
-            this.Value = QSpan.VERSE;
+            Value = VERSE;
         }
-        public QSpan(UInt16 val)
+        public QSpan(ushort val)
         {
-            this.Value = val;
+            Value = val;
         }
         public QSpan(string val)
         {
-            this.Value = QSpan.FromString(val);
+            Value = FromString(val);
         }
-        public static UInt16 FromString(string val)
+        public static ushort FromString(string val)
         {
             string test = val.Trim();
             if (test.Equals("verse", StringComparison.InvariantCultureIgnoreCase))
             {
-                return QSpan.VERSE;
+                return VERSE;
             }
             else
             {
                 try
                 {
-                    return UInt16.Parse(val);
+                    return ushort.Parse(val);
                 }
                 catch
                 {
                     ;
                 }
             }
-            return QSpan.VERSE;
+            return VERSE;
         }
         public override string ToString()
         {
-            return this.Value.ToString();
+            return Value.ToString();
         }
         public string AsYaml()
         {
-            return "span: " + this.ToString();
+            return "span: " + ToString();
         }
     }
     public class QSimilarity
@@ -68,19 +72,19 @@ namespace Blueprint.Blue
         public bool EnableLemmaMatching { get; private set; }
         public QSimilarity()
         {
-            this.Value = QSimilarity.DEFAULT;
-            this.EnableLemmaMatching = false;
+            Value = DEFAULT;
+            EnableLemmaMatching = false;
         }
         public QSimilarity(byte val)
         {
-            this.Value = val >= (byte)SIMILARITY.FUZZY_MIN && val <= (byte)SIMILARITY.EXACT ? val : (byte) 0;
-            this.EnableLemmaMatching = (val >= 33);
+            Value = val >= (byte)SIMILARITY.FUZZY_MIN && val <= (byte)SIMILARITY.EXACT ? val : (byte)0;
+            EnableLemmaMatching = val >= 33;
         }
         public QSimilarity(string val)
         {
-            var result = QSimilarity.FromString(val);
-            this.EnableLemmaMatching = result.automaticLemmaMatching;
-            this.Value = result.threshold;
+            var result = FromString(val);
+            EnableLemmaMatching = result.automaticLemmaMatching;
+            Value = result.threshold;
         }
         public static (bool automaticLemmaMatching, byte threshold) FromString(string val)
         {
@@ -94,29 +98,29 @@ namespace Blueprint.Blue
             if (value.Equals("exact", StringComparison.InvariantCultureIgnoreCase))
                 return (false, 100);
             if (value.Length != 2)
-                return (false, QSimilarity.DEFAULT);
+                return (false, DEFAULT);
             try
             {
-                result.threshold = (byte)UInt16.Parse(value);
+                result.threshold = (byte)ushort.Parse(value);
                 return result;
             }
             catch
             {
-                return (false, QSimilarity.DEFAULT);
+                return (false, DEFAULT);
             }
         }
         public override string ToString()
         {
-            if (this.Value < (byte)SIMILARITY.FUZZY_MIN || this.Value > (byte)SIMILARITY.EXACT)
+            if (Value < (byte)SIMILARITY.FUZZY_MIN || Value > (byte)SIMILARITY.EXACT)
                 return "none";
 
-            string result = this.Value.ToString();
+            string result = Value.ToString();
 
-            return !this.EnableLemmaMatching ? result : result + '!';
+            return !EnableLemmaMatching ? result : result + '!';
         }
         public string AsYaml()
         {
-            return "similarity: " + this.ToString();
+            return "similarity: " + ToString();
         }
     }
     public class QLexicalDomain
@@ -132,46 +136,46 @@ namespace Blueprint.Blue
         public QLexiconVal Value { get; set; }
         public QLexicalDomain()
         {
-            this.Value = QLexicalDomain.DEFAULT;
+            Value = DEFAULT;
         }
         public QLexicalDomain(QLexiconVal val)
         {
-            this.Value = val;
+            Value = val;
         }
         public QLexicalDomain(string val)
         {
-            this.Value = QLexicalDomain.FromString(val);
+            Value = FromString(val);
         }
         public static QLexiconVal FromString(string val)
         {
             switch (val.Trim().ToUpper())
             {
                 case "KJV":
-                case "AV":   return QLexiconVal.AV;
+                case "AV": return QLexiconVal.AV;
                 case "MODERN":
                 case "MOD":
-                case "AVX":  return QLexiconVal.AVX;
+                case "AVX": return QLexiconVal.AVX;
                 case "BOTH":
                 case "DUAL": return QLexiconVal.BOTH;
-                default:     return QLexicalDomain.DEFAULT;
+                default: return DEFAULT;
             }
         }
         public static string ToString(QLexiconVal val)
         {
             switch (val)
             {
-                case QLexiconVal.AV:  return "av";
+                case QLexiconVal.AV: return "av";
                 case QLexiconVal.AVX: return "avx";
-                default:             return QLexicalDomain.DEFAULT.ToString();
+                default: return DEFAULT.ToString();
             }
         }
         public override string ToString()
         {
-            return QLexicalDomain.ToString(this.Value);
+            return ToString(Value);
         }
         public string AsYaml()
         {
-            return "lexicon: " + this.ToString();
+            return "lexicon: " + ToString();
         }
     }
     public class QLexicalDisplay
@@ -186,26 +190,26 @@ namespace Blueprint.Blue
         public QDisplayVal Value { get; set; }
         public QLexicalDisplay()
         {
-            this.Value = QLexicalDisplay.DEFAULT;
+            Value = DEFAULT;
         }
         public QLexicalDisplay(QDisplayVal val)
         {
-            this.Value = val;
+            Value = val;
         }
         public QLexicalDisplay(string val)
         {
-            this.Value = QLexicalDisplay.FromString(val);
+            Value = FromString(val);
         }
         public static QDisplayVal FromString(string val)
         {
             switch (val.Trim().ToUpper())
             {
                 case "KJV":
-                case "AV":  return QDisplayVal.AV;
+                case "AV": return QDisplayVal.AV;
                 case "MODERN":
                 case "MOD":
                 case "AVX": return QDisplayVal.AVX;
-                default:    return QLexicalDisplay.DEFAULT;
+                default: return DEFAULT;
             }
         }
         public static string ToString(QDisplayVal val)
@@ -214,16 +218,16 @@ namespace Blueprint.Blue
             {
                 case QDisplayVal.AV: return "av";
                 case QDisplayVal.AVX: return "avx";
-                default: return QLexicalDisplay.DEFAULT.ToString();
+                default: return DEFAULT.ToString();
             }
         }
         public override string ToString()
         {
-            return QLexicalDisplay.ToString(this.Value);
+            return ToString(Value);
         }
         public string AsYaml()
         {
-            return "display: " + this.ToString();
+            return "display: " + ToString();
         }
     }
     public class QFormat
@@ -239,15 +243,15 @@ namespace Blueprint.Blue
         public QFormatVal Value { get; set; }
         public QFormat()
         {
-            this.Value = QFormat.DEFAULT;
+            Value = DEFAULT;
         }
         public QFormat(QFormatVal val)
         {
-            this.Value = val;
+            Value = val;
         }
         public QFormat(string val)
         {
-            this.Value = QFormat.FromString(val);
+            Value = FromString(val);
         }
         public static QFormatVal FromString(string val)
         {
@@ -256,8 +260,8 @@ namespace Blueprint.Blue
                 case "JSON": return QFormatVal.JSON;
                 case "TEXT": return QFormatVal.TEXT;
                 case "HTML": return QFormatVal.HTML;
-                case "MD":   return QFormatVal.MD;
-                default:     return QFormat.DEFAULT;
+                case "MD": return QFormatVal.MD;
+                default: return DEFAULT;
             }
         }
         public static string ToString(QFormatVal val)
@@ -267,75 +271,58 @@ namespace Blueprint.Blue
                 case QFormatVal.JSON: return "json";
                 case QFormatVal.TEXT: return "text";
                 case QFormatVal.HTML: return "html";
-                case QFormatVal.MD:   return "md";
-                default:              return QFormat.DEFAULT.ToString();
+                case QFormatVal.MD: return "md";
+                default: return DEFAULT.ToString();
             }
         }
         public override string ToString()
         {
-            return QFormat.ToString(this.Value);
+            return ToString(Value);
         }
         public string AsYaml()
         {
-            return "format: " + this.ToString();
+            return "format: " + ToString();
         }
     }
-    public abstract class QVariable : QImplicitCommand, ICommand
+    public abstract class QVariable : QImplicitCommand
     {
         public string Key { get; protected set; }
         public string Value { get; protected set; }
-        public bool Persistent { get; protected set; }
 
-        protected QVariable(QContext env, string text, string verb, string key, bool persistent, string value = "") : base(env, text, verb)
+        protected QVariable(QContext env, string text, string verb, string key, string value = "") : base(env, text, verb)
         {
-            this.Key = key;
-            this.Persistent = persistent;
+            Key = key;
 
             if (string.IsNullOrWhiteSpace(value))
             {
-                this.Value = QVariable.GetDefault(this.Key);
+                Value = GetDefault(Key);
             }
             else
             {
-                this.Value = value;
+                Value = value;
             }
         }
         private static string GetDefault(string setting)
         {
             switch (setting.Trim().ToLower())
             {
-                case "span":    return QSpan.DEFAULT.ToString();
+                case "span": return QSpan.DEFAULT.ToString();
                 case "lexicon": return QLexicalDomain.DEFAULT.ToString();
                 case "display": return QLexicalDomain.DEFAULT.ToString();
-                case "format":  return QFormat.DEFAULT.ToString();
+                case "format": return QFormat.DEFAULT.ToString();
                 case "similarity": return QSimilarity.DEFAULT.ToString();
             }
             return string.Empty;
         }
-        public static QVariable? Create(QContext env, string text, Parsed[] args)
+        public static QAssign? CreateAssignment(QContext env, string text, Parsed[] args)
         {
             if (args.Length == 1)
-            { 
-                if((args[0].children.Length == 2)
-                &&  args[0].children[0].rule.EndsWith("_key", StringComparison.InvariantCultureIgnoreCase)
-                &&  args[0].children[1].rule.EndsWith("_option", StringComparison.InvariantCultureIgnoreCase))
+            {
+                if (args[0].children.Length == 2
+                && args[0].children[0].rule.EndsWith("_key", StringComparison.InvariantCultureIgnoreCase)
+                && args[0].children[1].rule.EndsWith("_option", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    switch (args[0].children[1].text.ToLower())
-                    {
-                        case "default":
-                            if (args[0].rule.EndsWith("_set"))
-                                return new QClear(env, text, args[0].children[0].text, true);
-                            else if (args[0].rule.EndsWith("_var"))
-                                return new QClear(env, text, args[0].children[0].text, true);
-                            break;
-
-                        default:
-                            if (args[0].rule.EndsWith("_set"))
-                                return new QSet(env, text, args[0].children[0].text, args[0].children[1].text, true);
-                            else if (args[0].rule.EndsWith("_var"))
-                                return new QSet(env, text, args[0].children[0].text, args[0].children[1].text, false);
-                            break;
-                    }
+                    return new QAssign(env, text, args[0].children[0].text, args[0].children[1].text);
                 }
             }
             return null;
