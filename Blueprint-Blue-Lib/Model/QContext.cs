@@ -13,6 +13,7 @@
     public class QContext
     {
         public QSettings GlobalSettings { get; internal set; }
+        public string Home { get; internal set; }
         public uint InvocationCount     { get; internal set; }
 
         public List<string> AsYaml()
@@ -39,26 +40,27 @@
             BlueprintBlue.FuzzyLex.BlueprintLex.Initialize(ObjectTable.AVXObjects);
             this.Statement = statement;
             this.InvocationCount = 0; // This can be updated when Create() is called on Implicit clauses
-            this.GlobalSettings = statement.GlobalSettings;
 
             this.Fields  = null;    // Null means that no fields were provided; In Quelle, this is different than an empty array of fields
             this.HistoryPath = string.Empty;
             this.MacroPath = string.Empty;
 
-            string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AV-Bible");
+            this.Home = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AV-Bible");
 
-            if (!string.IsNullOrEmpty(folder))
+            if (!string.IsNullOrEmpty(this.Home))
             {
-                if (!Directory.Exists(folder))
-                    Directory.CreateDirectory(folder);
+                if (!Directory.Exists(this.Home))
+                    Directory.CreateDirectory(this.Home);
 
-                this.HistoryPath = Path.Combine(folder, "History.Quelle").Replace("\\", "/");
-                this.MacroPath = Path.Combine(folder, "Labels").Replace("\\", "/");
+                this.HistoryPath = Path.Combine(this.Home, "history.yaml").Replace("\\", "/");
+                this.MacroPath = Path.Combine(this.Home, "Labels").Replace("\\", "/");
             }
             else
             {
                 this.AddWarning("A session context cannot be established");
             }
+            this.GlobalSettings = new QSettings(Path.Combine(this.Home, "settings.yaml"));
+
             if (!ObjectTable.AVXObjects.Mem.valid)
             {
                 this.AddError("Unable to load AVX Data. Without this library, other things will break");
@@ -160,7 +162,7 @@
             }
             catch
             {
-                this.AddError("Unable to read History.quelle");
+                this.AddError("Unable to read History.yaml file");
             }
             if (!restored)
             {
@@ -211,7 +213,7 @@
                 if (!(string.IsNullOrWhiteSpace(stmt.Statement) || string.IsNullOrWhiteSpace(stmt.Expansion)))
                 {
 
-                    var macro = Path.Combine(this.MacroPath, label + ".quelle");
+                    var macro = Path.Combine(this.MacroPath, label + ".yaml");
 
                     try
                     {
@@ -239,7 +241,7 @@
         }
         public QExpandableStatement GetMacro(string label)
         {
-            var macro = Path.Combine(this.MacroPath, label + ".quelle");
+            var macro = Path.Combine(this.MacroPath, label + ".yaml");
 
             var lines = File.ReadLines(this.HistoryPath);
 

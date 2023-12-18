@@ -7,12 +7,8 @@ namespace Blueprint.Blue
     using System.Text;
     using YamlDotNet.Serialization;
 
-    public class QLimit : QImplicitCommand, ICommand
+    public class QLimit : QCommand
     {
-        public override string Expand()
-        {
-            return this.Text;
-        }
         public List<uint> Fields { get; private set; }
 
         private QLimit(QContext env, string text, IEnumerable<uint> fields) : base(env, text, "limit")

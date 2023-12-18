@@ -284,12 +284,12 @@ namespace BlueprintBlue.Model.Implicit
             return "format: " + ToString();
         }
     }
-    public abstract class QVariable
+    public abstract class QVariable : QCommand
     {
         public string Key { get; protected set; }
         public string Value { get; protected set; }
 
-        protected QVariable(QContext env, string text, string verb, string key, string value = "")
+        protected QVariable(QContext env, string text, string verb, string key, string value = "") : base (env, key + "=" + value, "assign")
         {
             this.Key = key;
 

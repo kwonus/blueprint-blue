@@ -14,11 +14,7 @@ namespace Blueprint.Blue
         [JsonIgnore]
         [YamlIgnore]
         QContext Context { get; }
-        [JsonIgnore]
-        [YamlIgnore]
-        bool IsExplicit { get; }
 
-        string Expand();
         List<string> AsYaml();
 
         static List<string> JsonSerializer(object obj)
@@ -134,7 +130,7 @@ namespace Blueprint.Blue
         public string Verb { get; set; }
         [JsonIgnore]
         [YamlIgnore]
-        public QContext Context { get; set; }
+        public QContext Context { get; protected set; }
         [JsonIgnore]
         [YamlIgnore]
         public QHelpDoc HelpDoc { get => QHelpDoc.GetDocument(this.Verb); }

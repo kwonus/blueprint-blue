@@ -19,10 +19,7 @@ namespace Blueprint.Blue
         public QImplicitCommands? Commands { get; set; }
         public QContext Context { get; private set; }
 
-        public QSettings GlobalSettings { get; set; }
-        public QSettings LocalSettings { get; set; }
-
-        public QStatement()
+        private QStatement()
         {
             this.Text = string.Empty;
             this.IsValid= false;
@@ -31,10 +28,61 @@ namespace Blueprint.Blue
             this.Warnings = new();
             this.Disposition = new();
             this.Singleton = null;
-            this.Commands= null;
-            this.GlobalSettings = new QSettings(@"C:\Users\Me\AVX\Quelle\settings.quelle");
-            this.LocalSettings = new QSettings(this.GlobalSettings);
-            this.Context = new QContext(this);  // notional placeholder for now (base this on actual username/home
+            this.Commands = null;
+            this.Context = new QContext(this);
+        }
+
+        public static QStatement Create(RootParse? root)
+        {
+            if (root != null)
+            {
+                QStatement stmt = new QStatement();
+                stmt.IsValid = false;
+
+                if (!string.IsNullOrEmpty(stmt.ParseDiagnostic))
+                {
+                    stmt.Errors.Add("See parse diagnostic for syntax errors.");
+                    stmt.IsValid = false;
+                }
+                else if (root.result.Length == 1) // all parses in Quelle should result in a single statement
+                {
+                    var statement = root.result[0];
+                    if (statement.rule.Equals("statement", StringComparison.InvariantCultureIgnoreCase) && (statement.children.Length == 1))
+                    {
+                        var command = statement.children[0];
+
+                        if (command.rule.Equals("explicit", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            stmt.Singleton = QExplicitCommand.Create(stmt.Context, command);
+                            stmt.IsValid = stmt.Singleton != null;
+                            if (!stmt.IsValid)
+                                stmt.Errors.Add("Unable to extract explicit command.");
+                        }
+                        else if (command.rule.Equals("implicits", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            stmt.Commands = QImplicitCommands.Create(stmt.Context, command, stmt);
+                            stmt.IsValid = stmt.Commands != null;
+                            if ((stmt.Errors.Count == 0) && !stmt.IsValid)
+                            {
+                                stmt.Errors.Add("Unable to extract implicit commands.");
+                            }
+                        }
+                        else
+                        {
+                            stmt.IsValid = false;
+                            stmt.Errors.Add("Unknown command type was encountered by parser.");
+                        }
+                    }
+                }
+                else
+                {
+                    stmt.IsValid = false;
+                    if (!stmt.IsValid)
+                        stmt.Errors.Add("Unable to identify a statement.");
+                }
+                return stmt;
+            }
+            return new QStatement() { Commands = null, Singleton = null, ParseDiagnostic = "", Errors = new() { "Unknown error: unable to perform statement parsing" }, Warnings = new(), IsValid = false, Text = "" };
         }
 
         public void AddError(string message)
@@ -50,17 +98,11 @@ namespace Blueprint.Blue
         {
             this.Disposition[type.ToLower()] = message;
         }
-        public QExpandableStatement? MaintainState()
-        {
-            return new QExpandableStatement(this);
-        }
         private static PinshotLib PinshotDLL = new PinshotLib();
 
         public static (RootParse? pinshot, QStatement? blueprint, string fatal) Parse(string stmt, bool opaque = false, string? url = null)   // when url is unspecified, utilize pinvoke of pin-shot-avx.dll
         {
             (RootParse? pinshot, QStatement? blueprint, string fatal) root = (null, null, string.Empty);
-
-            var blueprint = new Blueprint("");
 
             if ((url != null) && url.ToLower().StartsWith("http", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -78,11 +120,9 @@ namespace Blueprint.Blue
             }
             if (root.pinshot != null)
             {
-                var blue = blueprint.Create(root.pinshot);
+                QStatement blue = QStatement.Create(root.pinshot);
                 if (blue.IsValid)
                 {
-                    if ((blue.Commands != null) && !opaque) // We never expand singletons; and only expand implicit commands when opaque is false
-                        blue.MaintainState();  // includes side-effects for: AddHistory() & AddMacro()
                     root.blueprint = blue;
                 }
                 var error = root.pinshot.error;

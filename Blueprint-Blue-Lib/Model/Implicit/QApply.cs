@@ -3,23 +3,25 @@ using YamlDotNet.Serialization;
 
 namespace Blueprint.Blue
 {
-    public class QApply : QImplicitCommand, ICommand
+    public class QApply : QCommand
     {
-        public string Label { get; set; }
+        public string Label { get; internal set; }
+        public bool Full    {  get; internal set; }
 
-        public override string Expand()
-        {
-            return this.Text;
-        }
-        private QApply(QContext env, string text, string label) : base(env, text, "apply")
+        private QApply(QContext env, string text, string label, bool full) : base(env, text, "apply")
         {
             this.Label = label;
+            this.Full = full;
         }
         public static QApply? Create(QContext env, string text, Parsed[] args)
         {
-            if (args.Length == 1 && args[0].rule == "label")
+            if (args.Length == 2 && args[1].rule == "apply_macro_full" && args[1].children.Length == 1 && args[1].children[0].rule == "label_full")
             { 
-                return new QApply(env, text, args[0].text);
+                return new QApply(env, text, args[1].children[0].text, true);
+            }
+            else if (args.Length == 2 && args[1].rule == "apply_macro_part" && args[1].children.Length == 1 && args[1].children[0].rule == "label_part")
+            {
+                return new QApply(env, text, args[1].children[0].text, false);
             }
             return null;
         }

@@ -9,252 +9,163 @@
     using System.Text.Json.Serialization;
     using BlueprintBlue.Model;
     using BlueprintBlue.Model.Implicit;
+    using System.Runtime.CompilerServices;
+    using static AVXLib.Framework.Numerics;
+    using System.Linq.Expressions;
 
     public class QImplicitCommands
     {
-        public QSettings LocalSettings { get; internal set; }
-
         [JsonIgnore]
         [YamlIgnore]
         public QContext Context { get; set; }
-        public string ExpandedText { get; set; }
-        public List<QAssign> Assignments { get; internal set; }
 
-        public List<QImplicitCommand> Parts { get; internal set; }
-        public List<QImplicitCommand> ExpandedParts { get; internal set; }
+        public QExport? ExportDirective { get; internal set; }
+        public QLimit?  LimitDirective  { get; internal set; }
+        public QApply?  MacroDefinition { get; internal set; }
 
-        internal (int count, string stmt) Expand()    // count >= 0 means success and count of macros that were processed // -1 means there was an error
-        {
-            int hcount = 0;
-            int mcount = 0;
-            StringBuilder stmt = new();
+        public List<QCommandSegment> Segments { get; internal set; }
 
-            // for precedence to work in accordance with spec, expand macros and invocations first:
-            //
-            foreach (var part in this.Parts)
-            {
-                if (part == null)
-                {
-                    this.Context.AddWarning("Excountered an unexpected null value during statement expansion");
-                    continue;
-                }
-                if (part.GetType() == typeof(QInvoke))
-                {
-                    hcount++;
-                    var invoke = (QInvoke)part;
-                    var expand = this.Context.Expand(invoke.Command);
-                    if (expand != null)
-                        stmt.Append(expand.Expansion);
-                    else
-                        this.Context.AddError("Unable to expand history item: $" + invoke.Command.ToString());
-                }
-                else if (part.GetType() == typeof(QInvoke))
-                {
-                    mcount++;
-                    var utilize = (QInvoke)part;
-                    var expand = this.Context.Expand(utilize.Label);
-                    if (!string.IsNullOrEmpty(expand.Expansion))
-                        stmt.Append(expand.Expansion);
-                    else
-                        this.Context.AddError("Unable to expand macro label: $" + utilize.Label);
-                }
-            }
-            foreach (var part in this.Parts)
-            {
-                if (part == null)
-                {
-                    continue;
-                }
-                if (part.GetType() == typeof(QInvoke))
-                {
-                    ;
-                }
-                else
-                {
-                    stmt.Append(part.Text);
-                }
-            }
-            return (hcount + mcount, stmt.ToString());
-        }
-        // TODO:
-        public (int count, List<QImplicitCommand> result, string error) Compile()    // count >= 0 means success and count of macros that were processed // -1 means there was an error
-        {
-            (int count, List<QImplicitCommand> stmt, string error) result = (0, new(), "");
+        public List<QFilter> Filters { get; internal set; }
 
-            foreach (var part in this.Parts)
-            {
-                if (part == null) continue;
-                if (part.GetType() == typeof(QInvoke))
-                {
-                    ;
-                }
-                else
-                {
-                    ;
-                }
-            }
-            return result;
-        }
-        [JsonIgnore]
-        [YamlIgnore]
-        public IEnumerable<QFind> Searches
-        {
-            get
-            {
-                foreach (var candidate in this.ExpandedParts)
-                    if (candidate.GetType() == typeof(QFind))
-                        yield return (QFind)candidate;
-            }
-        }
-        [JsonIgnore]
-        [YamlIgnore]
-        public IEnumerable<QFilter> Filters
-        {
-            get
-            {
-                foreach (var candidate in this.ExpandedParts)
-                    if (candidate.GetType() == typeof(QFilter))
-                        yield return (QFilter)candidate;
-            }
-        }
-        public QApply? Macro
-        {
-            get
-            {
-                int cnt = 0;
-                foreach (var candidate in this.ExpandedParts)
-                    if (candidate.GetType() == typeof(QApply))
-                        cnt++;
-                if (cnt == 1)
-                    foreach (var candidate in this.ExpandedParts)
-                        if (candidate.GetType() == typeof(QApply))
-                            return (QApply)candidate;
-                return null;
-            }
-        }
-        public QExport? Export
-        {
-            get
-            {
-                int cnt = 0;
-                foreach (var candidate in this.ExpandedParts)
-                    if (candidate.GetType() == typeof(QExport))
-                        cnt++;
-                if (cnt >= 1) // TO DO: this should be == 1, but a bug is adding it twice
-                    foreach (var candidate in this.ExpandedParts)
-                        if (candidate.GetType() == typeof(QExport))
-                            return (QExport)candidate;
-                return null;
-            }
-        }
-        public QLimit? Display
-        {
-            get
-            {
-                int cnt = 0;
-                foreach (var candidate in this.ExpandedParts)
-                    if (candidate.GetType() == typeof(QLimit))
-                        cnt++;
-                if (cnt == 1)
-                    foreach (var candidate in this.ExpandedParts)
-                        if (candidate.GetType() == typeof(QLimit))
-                            return (QLimit)candidate;
-                return null;
-            }
-        }
         private QImplicitCommands(QContext env, string stmtText)
         {
             this.Context = env;
-            this.LocalSettings = new QSettings(env.GlobalSettings);     // local settings start out as a clone of global settings; assignments can override
+            this.ExportDirective = null;
+            this.LimitDirective  = null;
+            this.MacroDefinition = null;
 
-            this.ExpandedText = stmtText;
-            this.Parts = new List<QImplicitCommand>();
-
-            this.ExpandedParts = new List<QImplicitCommand>();
+            this.Segments = new();
         }
 
         public static QImplicitCommands? Create(QContext context, Parsed stmt, QStatement diagnostics)
         {
             bool valid = false;
-            var commandSet = new QImplicitCommands(context, stmt.text);
+            var implicits = new QImplicitCommands(context, stmt.text);
 
-            if (stmt.rule.Equals("statement", StringComparison.InvariantCultureIgnoreCase) && (stmt.children.Length == 1))
+            if (stmt.rule.Equals("implicits", StringComparison.InvariantCultureIgnoreCase) && (stmt.children.Length >= 1))
             {
-                uint macro_cnt = 0;
-                foreach (var command in stmt.children)
-                {
-                    if (command.rule.Equals("vector", StringComparison.InvariantCultureIgnoreCase)
-                    || command.rule.Equals("macro_vector", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        foreach (Parsed clause in command.children)
-                        {
-                            if (clause.rule.Equals("invocation"))
-                                macro_cnt++;
-                        }
-                    }
-                }
-                context.InvocationCount = macro_cnt;
-                foreach (var command in stmt.children)
-                {
-                    if (command.rule.Equals("vector", StringComparison.InvariantCultureIgnoreCase)
-                    ||  command.rule.Equals("macro_vector", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        foreach (Parsed clause in command.children)
-                        {
-                            var segments = QImplicitCommand.CreateSegments(context, clause);
-                            var assignments = QImplicitCommand.CreateVariables(context, clause);
+                QApply? macroLabel = null;
+                uint invocation_cnt = 0;
 
-                            foreach (var segment in segments)
-                            {
-                                commandSet.Parts.Add(segment);
-                                valid = true;
-                            }
-                            foreach (var assignment in assignments)
-                            {
-                                commandSet.Assignments.Add(assignment);
-                                valid = true;
-                            }
-                            if (!valid)
-                                //    break;
-                                Console.WriteLine("Error clause; continuing for debugging purposes only!!!");
-                        }
+                bool another = false;
+                Parsed child = stmt.children[0];
+                int cnt = stmt.children.Length;
+                int idx = 1;
+                Parsed segment = child;
+                do
+                { 
+                    if (segment.rule.Equals("macro_segment", StringComparison.InvariantCultureIgnoreCase) && (stmt.children.Length == 1))
+                    {
+                        segment = child.children[0];
+                        macroLabel = QApply.Create(context, segment.text, child.children);
+                        cnt = 0;
                     }
-                }
-            }
-            if (valid)
-            {
-                var expanded = commandSet.Expand();
-                switch (expanded.count)
-                {
-                    case  0:    commandSet.ExpandedParts = commandSet.Parts;
-                                commandSet.ExpandedText = stmt.text;
-                                if (commandSet.Macro != null)
-                                    commandSet.ExpandedText = commandSet.ExpandedText.Replace(commandSet.Macro.Text, "").Trim();
-                                break;
-                    case -1:
-                                commandSet.ExpandedParts = commandSet.Parts;
-                                commandSet.ExpandedText = stmt.text;
-                                valid = false;
-                                break;
-                    default:    {   commandSet.ExpandedText = expanded.stmt;
-                                    var expando = QStatement.Parse(expanded.stmt, opaque:true);
-                                    if ((expando.blueprint != null) && expando.blueprint.IsValid && (expando.blueprint.Commands != null))
+                    else if (segment.rule.Equals("additional_segment", StringComparison.InvariantCultureIgnoreCase) && (segment.children.Length == 1))
+                    {
+                        segment = segment.children[0];
+                    }
+
+                    if (segment.rule.Equals("segment", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        QCommandSegment seg = QCommandSegment.CreateSegment(context, segment, macroLabel);
+                        macroLabel = null;
+                        implicits.Segments.Add(seg);
+                        foreach (Parsed clause in segment.children)
+                        {
+                            if (clause.rule.Equals("expression"))
+                            {
+                                if (clause.children.Length == 1)
+                                {
+                                    var expression = clause.children[0];
+
+                                    if (expression.rule.Equals("search", StringComparison.InvariantCultureIgnoreCase))
                                     {
-                                        commandSet.ExpandedParts = expando.blueprint.Commands.Parts;
+                                        seg.SearchExpression = QFind.Create(context, expression.text, clause.children);
                                     }
-                                    else
+                                    else if (expression.rule.Equals("invoke_full", StringComparison.InvariantCultureIgnoreCase))
                                     {
-                                        context.AddError("Unable to expand statement");
+                                        var invocation = QInvoke.Create(context, clause.text, clause.children, partial:false);
+                                        if (invocation != null)
+                                        {
+                                            seg.SearchExpression = invocation.SearchExpression;
+                                            foreach (var assignment in invocation.Assignments)
+                                            {
+                                                seg.Assignments.Add(assignment);
+                                            }
+                                            foreach (var filter in invocation.Filters)
+                                            {
+                                                seg.Filters.Add(filter);
+                                            }
+                                            seg.Invocations.Add(invocation);
+                                            invocation_cnt++;
+                                        }
                                     }
                                 }
-                                break;
+                            }
+                            else if (clause.rule.Equals("variable"))
+                            {
+                                if (clause.children.Length == 1)
+                                {
+                                    var variable = clause.children[0];
+
+                                    if (variable.rule.Equals("opt", StringComparison.InvariantCultureIgnoreCase))
+                                    {
+                                        seg.SearchExpression = QFind.Create(context, variable.text, clause.children);
+                                    }
+                                    else if (variable.rule.Equals("opt", StringComparison.InvariantCultureIgnoreCase))
+                                    {
+                                        var filter = QFilter.Create(context, variable.text, clause.children);
+                                        if (filter != null)
+                                        {
+                                            seg.Filters.Add(filter);
+                                        }
+                                    }
+                                    else if (variable.rule.Equals("invoke_partial", StringComparison.InvariantCultureIgnoreCase))
+                                    {
+                                        var invocation = QInvoke.Create(context, clause.text, clause.children);
+                                        if (invocation != null)
+                                        {
+                                            foreach (var assignment in invocation.Assignments)
+                                            {
+                                                seg.Assignments.Add(assignment);
+                                            }
+                                            foreach (var filter in invocation.Filters)
+                                            {
+                                                seg.Filters.Add(filter);
+                                            }
+                                            seg.Invocations.Add(invocation);
+                                            invocation_cnt++;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if (idx < cnt)
+                        {
+                            segment = stmt.children[idx++];
+                            another = (segment.rule.Equals("additional_segment", StringComparison.InvariantCultureIgnoreCase));
+                        }
+                    }
+                }   while (another);
+
+                context.InvocationCount += invocation_cnt;
+
+                for (/**/; idx < cnt; idx++)
+                {
+                    var singleton = child.children[idx];
+
+                    if (segment.rule.Equals("print", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        ;
+                    }
+                    else if (segment.rule.Equals("export", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        ;
+                    }
                 }
             }
-            else
-            {
-                diagnostics.AddError("A command induced an unexpected error");
-            }
-            return valid ? commandSet : null;
+            return valid ? implicits : null;
         }
     }
 }

@@ -6,6 +6,19 @@
 
     public class QSettings
     {
+        public bool Assign(QAssign assignment)
+        {
+            switch (assignment.Key)
+            {
+                case "span":       this.Span = new QSpan(assignment.Value);              break;
+                case "lexicon":    this.Lexicon = new QLexicalDomain(assignment.Value);  break;
+                case "display":    this.Display = new QLexicalDisplay(assignment.Value); break;
+                case "format":     this.Format = new QFormat(assignment.Value);          break;
+                case "similarity": this.Similarity = new QSimilarity(assignment.Value);  break;
+                default:           return false;
+            }
+            return Update();
+        }
         public bool Update()
         {
             if (this.BackingStore != null)
@@ -49,12 +62,11 @@
 
                         switch (parts[0])
                         {
-                            case "span":    this.Span = new QSpan(trimmed); break;
-                            case "lexicon": this.Lexicon = new QLexicalDomain(trimmed); break;
-                            case "display": this.Display = new QLexicalDisplay(trimmed); break;
-                            case "format":  this.Format = new QFormat(kv[1]); break;
-                            case "similarity":
-                                            this.Similarity = new QSimilarity(trimmed); break;
+                            case "span":       this.Span = new QSpan(trimmed);              break;
+                            case "lexicon":    this.Lexicon = new QLexicalDomain(trimmed);  break;
+                            case "display":    this.Display = new QLexicalDisplay(trimmed); break;
+                            case "format":     this.Format = new QFormat(kv[1]);            break;
+                            case "similarity": this.Similarity = new QSimilarity(trimmed);  break;
                         }
                     }
                 }

@@ -16,41 +16,42 @@
             this.Expansion = string.Empty;
         }
 
-        public QExpandableStatement(QStatement statement)
+        public QExpandableStatement(QCommandSegment statement)
         {
             this.Time = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            this.Statement = statement.IsValid ? statement.Text : string.Empty;
+            this.Statement = statement.Text;
             this.Expansion = string.Empty;
 
-            if (statement.IsValid)
+            bool isMacroDef = (statement.Invocations.Count > 0);
+            var expandable = new StringBuilder();
+            /*
+            if (statement.Commands != null)
             {
-                bool isMacroDef = (statement.Commands != null) && (statement.Commands.Macro != null);
-                var expandable = new StringBuilder();
-                if (statement.Commands != null)
+                this.Expansion = statement.Commands.ExpandedText;
+                int i = 0;
+                foreach (var clause in statement.Commands.Searches)
                 {
-                    this.Expansion = statement.Commands.ExpandedText;
-                    int i = 0;
-                    foreach (var clause in statement.Commands.Searches)
+                    var expansion = clause.Expand();
+                    if (++i > 1)
                     {
-                        var expansion = clause.Expand();
-                        if (++i > 1)
-                        {
-                            if (expansion.StartsWith("--"))
-                                expandable.Append(" + ");
-                            else
-                                expandable.Append(' ');
-                        }
-                        expandable.Append(expansion);
-                    }
-                    foreach (var clause in statement.Commands.Filters)
-                    {
-                        if (++i > 1)
+                        if (expansion.StartsWith("--"))
+                            expandable.Append(" + ");
+                        else
                             expandable.Append(' ');
-                        expandable.Append(clause.Expand());
                     }
+                    expandable.Append(expansion);
                 }
+                foreach (var clause in statement.Commands.Filters)
+                {
+                    if (++i > 1)
+                        expandable.Append(' ');
+                    expandable.Append(clause.Expand());
+                }
+                */
+
                 this.Expansion = expandable.ToString();
 
+            /*
                 if (statement.Commands != null)
                 {
                     if (statement.Commands.Macro != null)
@@ -60,7 +61,9 @@
                 {
                     statement.Context.AddError("This method should not be called with an invalid statement");
                 }
+
             }
+            */
         }
 
         public DateTime GetDateTime()

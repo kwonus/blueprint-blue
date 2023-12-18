@@ -10,13 +10,8 @@ namespace Blueprint.Blue
         Overwrite = 1,
         Append = 2
     }
-    public class QExport : QImplicitCommand, ICommand
+    public class QExport : QCommand
     {
-        public override string Expand()
-        {
-            return this.Text;
-        }
-
         public string FileSpec { get; private set; }
         public FileCreateMode CreationMode  { get; private set; }
 

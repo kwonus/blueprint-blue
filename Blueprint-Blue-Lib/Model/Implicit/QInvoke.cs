@@ -3,7 +3,7 @@ using YamlDotNet.Serialization;
 
 namespace Blueprint.Blue
 {
-    public class QInvoke : QImplicitCommand, ICommand
+    public class QInvoke : QCommandSegment, ICommand
     {
         public string Generic { get; set; }
         public string Label { get; set; } // macro
@@ -15,10 +15,6 @@ namespace Blueprint.Blue
             this.Deterministic = false;
         }
 
-        public override string Expand()
-        {
-            return this.Text;
-        }
         private QInvoke(QContext env, string text, string label, bool useCurrentEnv) : base(env, text, "invoke")
         {
             this.Deterministic = !useCurrentEnv;
@@ -34,7 +30,7 @@ namespace Blueprint.Blue
             this.Generic = command.ToString();
         }
 
-        public static QInvoke? Create(QContext env, string text, Parsed[] args)
+        public static QInvoke? Create(QContext env, string text, Parsed[] args, bool partial = true)
         {
             if (string.IsNullOrWhiteSpace(text))
                 return null;

@@ -6,19 +6,11 @@ namespace Blueprint.Blue
     using YamlDotNet.Serialization;
     using static AVXLib.Framework.Numerics;
 
-    public class QFind : QImplicitCommand, ICommand
+    public class QFind : QCommandSegment, ICommand
     {
         public bool IsQuoted { get; set; }
         private bool Valid;
         public List<QFragment> Fragments { get; private set; }
- 
-        public override string Expand()
-        {
-            if (!this.Valid)
-                return string.Empty;
-
-            return this.Text;
-        }
 
         private QFind(QContext env, string text, Parsed[] args) : base(env, text, "find")
         {

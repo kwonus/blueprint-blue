@@ -26,7 +26,7 @@ namespace Pinshot.Blue
         {
             get
             {
-                UInt16 expected = 0x3C15; // "2.0.3.C15" major/minor (2.0) are inferred
+                UInt16 expected = 0x3C17; // "2.0.3.C17" major/minor (2.0) are inferred
 
                 UInt16 actual = get_library_revision();
                 UInt16 version = assert_grammar_revision(expected);
