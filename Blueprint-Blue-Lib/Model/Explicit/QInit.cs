@@ -18,5 +18,9 @@
                 this.Arguments[i] = args[i].text.Trim().ToLower();
             }
         }
+        public override (bool ok, string message) Execute()
+        {
+            return (false, "Operation has not been implemented yet.");
+        }
     }
 }

@@ -13,5 +13,9 @@ namespace Blueprint.Blue
             for (int i = 0; i < args.Length; i++)
                 this.Arguments[i] = args[i].text;
         }
+        public override (bool ok, string message) Execute()
+        {
+            return (false, "Operation has not been implemented yet.");
+        }
     }
 }

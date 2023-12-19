@@ -8,5 +8,9 @@ namespace Blueprint.Blue
         {
             ;
         }
+        public override (bool ok, string message) Execute()
+        {
+            return (false, "Operation has not been implemented yet.");
+        }
     }
 }

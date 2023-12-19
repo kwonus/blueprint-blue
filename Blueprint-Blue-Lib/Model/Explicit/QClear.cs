@@ -31,6 +31,10 @@
             this.IsValid = false;
             this.Key = string.Empty;
         }
-
+        public override (bool ok, string message) Execute()
+        {
+            bool ok = this.Context.GlobalSettings.Clear(this);
+            return (ok, ok ? string.Empty : "Could not clear setting.");
+        }
     }
 }

@@ -14,5 +14,9 @@ namespace Blueprint.Blue
             }
             this.Label = args != null && args.Length == 1 ? args[0].text : string.Empty;
         }
+        public override (bool ok, string message) Execute()
+        {
+            return (false, "Operation has not been implemented yet.");
+        }
     }
 }

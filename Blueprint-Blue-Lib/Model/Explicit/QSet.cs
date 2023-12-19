@@ -75,5 +75,10 @@ namespace Blueprint.Blue
             this.Key = string.Empty;
             this.Value = string.Empty;
         }
+        public override (bool ok, string message) Execute()
+        {
+            bool ok = this.Context.GlobalSettings.Set(this);
+            return (ok, ok ? string.Empty : "Could not save setting.");
+        }
     }
 }

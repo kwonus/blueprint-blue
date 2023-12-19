@@ -20,15 +20,15 @@ namespace BlueprintBlue.Model.Implicit
         public ushort Value { get; set; }
         public QSpan()
         {
-            Value = VERSE;
+            this.Value = VERSE;
         }
         public QSpan(ushort val)
         {
-            Value = val;
+            this.Value = val;
         }
         public QSpan(string val)
         {
-            Value = FromString(val);
+            this.Value = FromString(val);
         }
         public static ushort FromString(string val)
         {
@@ -52,7 +52,7 @@ namespace BlueprintBlue.Model.Implicit
         }
         public override string ToString()
         {
-            return Value.ToString();
+            return this.Value == 0 ? "verse" : this.Value.ToString();
         }
         public string AsYaml()
         {
@@ -111,12 +111,12 @@ namespace BlueprintBlue.Model.Implicit
         }
         public override string ToString()
         {
+            string result = this.Value == 0 ? "exact" : this.Value.ToString();
+
             if (Value < (byte)SIMILARITY.FUZZY_MIN || Value > (byte)SIMILARITY.EXACT)
-                return "none";
+                result = "exact";
 
-            string result = Value.ToString();
-
-            return !EnableLemmaMatching ? result : result + '!';
+            return this.EnableLemmaMatching && result != "exact" ? result + '!' : result;
         }
         public string AsYaml()
         {
@@ -164,14 +164,15 @@ namespace BlueprintBlue.Model.Implicit
         {
             switch (val)
             {
-                case QLexiconVal.AV: return "av";
-                case QLexiconVal.AVX: return "avx";
-                default: return DEFAULT.ToString();
+                case QLexiconVal.AV:   return "av";
+                case QLexiconVal.AVX:  return "avx";
+                case QLexiconVal.BOTH: return "both";
+                default:               return ToString(QLexicalDomain.DEFAULT);
             }
         }
         public override string ToString()
         {
-            return ToString(Value);
+            return ToString(this.Value);
         }
         public string AsYaml()
         {
@@ -216,14 +217,14 @@ namespace BlueprintBlue.Model.Implicit
         {
             switch (val)
             {
-                case QDisplayVal.AV: return "av";
+                case QDisplayVal.AV:  return "av";
                 case QDisplayVal.AVX: return "avx";
-                default: return DEFAULT.ToString();
+                default: return ToString(QLexicalDisplay.DEFAULT);
             }
         }
         public override string ToString()
         {
-            return ToString(Value);
+            return ToString(this.Value);
         }
         public string AsYaml()
         {
@@ -271,13 +272,13 @@ namespace BlueprintBlue.Model.Implicit
                 case QFormatVal.JSON: return "json";
                 case QFormatVal.TEXT: return "text";
                 case QFormatVal.HTML: return "html";
-                case QFormatVal.MD: return "md";
+                case QFormatVal.MD:   return "md";
                 default: return DEFAULT.ToString();
             }
         }
         public override string ToString()
         {
-            return ToString(Value);
+            return ToString(this.Value);
         }
         public string AsYaml()
         {

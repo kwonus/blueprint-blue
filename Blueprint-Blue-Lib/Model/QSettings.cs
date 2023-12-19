@@ -2,19 +2,85 @@
 {
     using System.Collections.Generic;
     using System.IO;
+    using System.Text;
     using BlueprintBlue.Model.Implicit;
+    using Pinshot.Blue;
 
     public class QSettings
     {
+        public string GetAll()
+        {
+            StringBuilder builder = new StringBuilder();
+
+            builder.Append("span:       "); builder.AppendLine(this.Span.ToString());
+            builder.Append("lexicon:    "); builder.AppendLine(this.Lexicon.ToString());
+            builder.Append("display:    "); builder.AppendLine(this.Display.ToString());
+            builder.Append("format:     "); builder.AppendLine(this.Format.ToString());
+            builder.Append("similarity: "); builder.AppendLine(this.Similarity.ToString());
+            builder.Append("version:    "); builder.Append(Pinshot_RustFFI.VERSION);
+
+            return builder.ToString();
+        }
+        public string Get(QGet setting)
+        {
+            string key = (setting.Key.Length >= 1 && setting.Key[0] == '%') ? setting.Key.Substring(1) : setting.Key;
+            switch (key)
+            {
+                case "span":       return this.Span.ToString();
+                case "lexicon":    return this.Lexicon.ToString();
+                case "display":    return this.Display.ToString();
+                case "format":     return this.Format.ToString();
+                case "similarity": return this.Similarity.ToString();
+                case "version":    return Pinshot_RustFFI.VERSION;
+                case "all":        return this.GetAll();          
+            }
+
+            return this.GetAll();
+        }
         public bool Assign(QAssign assignment)
         {
-            switch (assignment.Key)
+            string key = (assignment.Key.Length >= 1 && assignment.Key[0] == '%') ? assignment.Key.Substring(1) : assignment.Key;
+            switch (key)
             {
-                case "span":       this.Span = new QSpan(assignment.Value);              break;
-                case "lexicon":    this.Lexicon = new QLexicalDomain(assignment.Value);  break;
-                case "display":    this.Display = new QLexicalDisplay(assignment.Value); break;
-                case "format":     this.Format = new QFormat(assignment.Value);          break;
-                case "similarity": this.Similarity = new QSimilarity(assignment.Value);  break;
+                case "span":       this.Span = new QSpan(assignment.Value);              return true;
+                case "lexicon":    this.Lexicon = new QLexicalDomain(assignment.Value);  return true;
+                case "display":    this.Display = new QLexicalDisplay(assignment.Value); return true;
+                case "format":     this.Format = new QFormat(assignment.Value);          return true;
+                case "similarity": this.Similarity = new QSimilarity(assignment.Value);  return true;
+            }
+            return false;
+        }
+        public bool Set(QSet setting)
+        {
+            string key = (setting.Key.Length >= 1 && setting.Key[0] == '%') ? setting.Key.Substring(1) : setting.Key;
+            switch (key)
+            {
+                case "span":       this.Span = new QSpan(setting.Value);              break;
+                case "lexicon":    this.Lexicon = new QLexicalDomain(setting.Value);  break;
+                case "display":    this.Display = new QLexicalDisplay(setting.Value); break;
+                case "format":     this.Format = new QFormat(setting.Value);          break;
+                case "similarity": this.Similarity = new QSimilarity(setting.Value);  break;
+                default:           return false;
+            }
+            return Update();
+        }
+        public bool Clear(QClear clear)
+        {
+            string key = (clear.Key.Length >= 1 && clear.Key[0] == '%') ? clear.Key.Substring(1) : clear.Key;
+            switch (key)
+            {
+                case "span":       this.Span = new QSpan(QSpan.DEFAULT);                        break;
+                case "lexicon":    this.Lexicon = new QLexicalDomain(QLexicalDomain.DEFAULT);   break;
+                case "display":    this.Display = new QLexicalDisplay(QLexicalDisplay.DEFAULT); break;
+                case "format":     this.Format = new QFormat(QFormat.DEFAULT);                  break;
+                case "similarity": this.Similarity = new QSimilarity(QSimilarity.DEFAULT);      break;
+
+                case "all":        this.Span = new QSpan(QSpan.DEFAULT);
+                                    this.Lexicon = new QLexicalDomain(QLexicalDomain.DEFAULT);
+                                    this.Display = new QLexicalDisplay(QLexicalDisplay.DEFAULT);
+                                    this.Format = new QFormat(QFormat.DEFAULT);
+                                    this.Similarity = new QSimilarity(QSimilarity.DEFAULT);      break;
+
                 default:           return false;
             }
             return Update();

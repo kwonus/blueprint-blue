@@ -51,7 +51,7 @@ namespace Blueprint.Blue
                     {
                         var command = statement.children[0];
 
-                        if (command.rule.Equals("explicit", StringComparison.InvariantCultureIgnoreCase))
+                        if (command.rule.Equals("singleton", StringComparison.InvariantCultureIgnoreCase))
                         {
                             stmt.Singleton = QExplicitCommand.Create(stmt.Context, command);
                             stmt.IsValid = stmt.Singleton != null;
