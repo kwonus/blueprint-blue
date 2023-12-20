@@ -1,4 +1,5 @@
 using Pinshot.PEG;
+using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 
 namespace Blueprint.Blue
@@ -13,15 +14,18 @@ namespace Blueprint.Blue
             this.Label = label;
             this.Full = full;
         }
-        public static QApply? Create(QContext env, string text, Parsed[] args)
+        public static QApply? Create(QContext env, string text, Parsed arg)
         {
-            if (args.Length == 2 && args[1].rule == "apply_macro_full" && args[1].children.Length == 1 && args[1].children[0].rule == "label_full")
-            { 
-                return new QApply(env, text, args[1].children[0].text, true);
-            }
-            else if (args.Length == 2 && args[1].rule == "apply_macro_part" && args[1].children.Length == 1 && args[1].children[0].rule == "label_part")
+            if (arg.children.Length == 1 && arg.children[0].children.Length == 1 && arg.children[0].children[0].rule == "label")
             {
-                return new QApply(env, text, args[1].children[0].text, false);
+                bool part = arg.rule.Equals("apply_macro_part", StringComparison.InvariantCultureIgnoreCase);
+                bool full = arg.rule.Equals("apply_macro_full", StringComparison.InvariantCultureIgnoreCase);
+
+                if (part || full)
+                {
+                    var label = arg.children[0].children[0];
+                    return new QApply(env, text, label.text, full);
+                }
             }
             return null;
         }

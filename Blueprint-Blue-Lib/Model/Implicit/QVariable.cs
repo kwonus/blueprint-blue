@@ -90,8 +90,8 @@ namespace BlueprintBlue.Model.Implicit
         {
             (bool enableLemmaMatching, byte threshold) result;
 
-            result.enableLemmaMatching = !val.EndsWith('!');
-            string value = !result.enableLemmaMatching ? val : val.Substring(0, val.Length - 1).Trim();
+            result.enableLemmaMatching = val.EndsWith('!');
+            string value = result.enableLemmaMatching ? val.Substring(0, val.Length - 1).Trim() : val;
 
             if (value.Equals("none", StringComparison.InvariantCultureIgnoreCase))
                 return (false, 0);

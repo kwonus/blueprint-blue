@@ -44,7 +44,7 @@ namespace Blueprint.Blue
                     stmt.Errors.Add("See parse diagnostic for syntax errors.");
                     stmt.IsValid = false;
                 }
-                else if (root.result.Length == 1) // all parses in Quelle should result in a single statement
+                else if (root.result.Length == 1 && root.result[0] != null) // all parses in Quelle should result in a single statement
                 {
                     var statement = root.result[0];
                     if (statement.rule.Equals("statement", StringComparison.InvariantCultureIgnoreCase) && (statement.children.Length == 1))

@@ -12,6 +12,7 @@
     using System.Runtime.CompilerServices;
     using static AVXLib.Framework.Numerics;
     using System.Linq.Expressions;
+    using static System.Net.Mime.MediaTypeNames;
 
     public class QImplicitCommands
     {
@@ -44,31 +45,22 @@
 
             if (stmt.rule.Equals("implicits", StringComparison.InvariantCultureIgnoreCase) && (stmt.children.Length >= 1))
             {
-                QApply? macroLabel = null;
-                uint invocation_cnt = 0;
+                Parsed segments = stmt.children[0];
 
-                bool another = false;
-                Parsed child = stmt.children[0];
-                int cnt = stmt.children.Length;
-                int idx = 1;
-                Parsed segment = child;
-                do
-                { 
-                    if (segment.rule.Equals("macro_segment", StringComparison.InvariantCultureIgnoreCase) && (stmt.children.Length == 1))
+                if (segments.rule.Equals("segments", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    for (int s = 0; s < segments.children.Length; s++)
                     {
-                        segment = child.children[0];
-                        macroLabel = QApply.Create(context, segment.text, child.children);
-                        cnt = 0;
-                    }
-                    else if (segment.rule.Equals("additional_segment", StringComparison.InvariantCultureIgnoreCase) && (segment.children.Length == 1))
-                    {
-                        segment = segment.children[0];
-                    }
+                        Parsed segment = segments.children[s];
 
-                    if (segment.rule.Equals("segment", StringComparison.InvariantCultureIgnoreCase))
-                    {
+                        QApply? macroLabel = null;
+                        if ((segment.children.Length == 2) && segment.children[1].rule.StartsWith("apply_macro_", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            var macro = segment.children[1];
+                            macroLabel = QApply.Create(context, segment.text, macro);
+                        }
                         QCommandSegment seg = QCommandSegment.CreateSegment(context, segment, macroLabel);
-                        macroLabel = null;
+
                         implicits.Segments.Add(seg);
                         foreach (Parsed clause in segment.children)
                         {
@@ -97,12 +89,11 @@
                                                 seg.Filters.Add(filter);
                                             }
                                             seg.Invocations.Add(invocation);
-                                            invocation_cnt++;
                                         }
                                     }
                                 }
                             }
-                            else if (clause.rule.Equals("variable"))
+                            else if (clause.rule.Equals("element"))
                             {
                                 if (clause.children.Length == 1)
                                 {
@@ -134,34 +125,26 @@
                                                 seg.Filters.Add(filter);
                                             }
                                             seg.Invocations.Add(invocation);
-                                            invocation_cnt++;
                                         }
                                     }
                                 }
                             }
                         }
 
-                        if (idx < cnt)
-                        {
-                            segment = stmt.children[idx++];
-                            another = (segment.rule.Equals("additional_segment", StringComparison.InvariantCultureIgnoreCase));
-                        }
                     }
-                }   while (another);
-
-                context.InvocationCount += invocation_cnt;
-
-                for (/**/; idx < cnt; idx++)
+                }
+                for (int additional = 1; additional < stmt.children.Length; additional++)
                 {
-                    var singleton = child.children[idx];
-
-                    if (segment.rule.Equals("print", StringComparison.InvariantCultureIgnoreCase))
+                    var clause = stmt.children[additional];
+                    if (clause.rule.Equals("export", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        ;
+                        if (implicits.ExportDirective == null) // these are implicit singletons; grammar should enforce this, but enforce it here too
+                            implicits.ExportDirective = QExport.Create(context, clause.text, clause.children);
                     }
-                    else if (segment.rule.Equals("export", StringComparison.InvariantCultureIgnoreCase))
+                    else if (clause.rule.Equals("print", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        ;
+                        if (implicits.LimitDirective == null) // these are implicit singletons; grammar should enforce this, but enforce it here too
+                            implicits.LimitDirective = QLimit.Create(context, clause.text, clause.children);
                     }
                 }
             }

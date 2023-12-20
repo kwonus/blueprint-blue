@@ -123,16 +123,16 @@
 
                     if (kv.Length == 2)
                     {
-                        var trimmed = kv[0].Trim();
-                        var parts = trimmed.Split('.');
+                        var key = kv[0].Trim();
+                        var val = kv[1].Trim();
 
-                        switch (parts[0])
+                        switch (key)
                         {
-                            case "span":       this.Span = new QSpan(trimmed);              break;
-                            case "lexicon":    this.Lexicon = new QLexicalDomain(trimmed);  break;
-                            case "display":    this.Display = new QLexicalDisplay(trimmed); break;
-                            case "format":     this.Format = new QFormat(kv[1]);            break;
-                            case "similarity": this.Similarity = new QSimilarity(trimmed);  break;
+                            case "span":       this.Span = new QSpan(val);              break;
+                            case "lexicon":    this.Lexicon = new QLexicalDomain(val);  break;
+                            case "display":    this.Display = new QLexicalDisplay(val); break;
+                            case "format":     this.Format = new QFormat(val);          break;
+                            case "similarity": this.Similarity = new QSimilarity(val);  break;
                         }
                     }
                 }
