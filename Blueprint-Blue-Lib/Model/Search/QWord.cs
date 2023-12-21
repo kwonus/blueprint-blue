@@ -45,7 +45,7 @@ namespace Blueprint.Blue
 
             if (this.WordKeys.Length == 0)
             {
-                this.Search.Context.AddWarning("'" + text + "' is not in the lexicon (only sounds-alike searching can be used to match this token).");
+                this.Search.AddWarning("'" + text + "' is not in the lexicon (only sounds-alike searching can be used to match this token).");
             }
         }
     }

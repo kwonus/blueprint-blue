@@ -3,31 +3,34 @@ using YamlDotNet.Serialization;
 
 namespace Blueprint.Blue
 {
-    public class QInvoke : QCommandSegment, ICommand
+    public class QInvoke : QCommand, ICommand
     {
-        public string Generic { get; set; }
-        public string Label { get; set; } // macro
-        public uint Command { get; set; } // history
-        public bool Deterministic { get; set; }
+        public string Generic { get; private set; } // either
+        public string? Label { get; private set; } // macro
+        public UInt64? Id { get; private set; } // history
+        public List<QFilter> Filters { get; private set; }
+        public QSettings Settings { get; private set; }
+        public QFind? Expression { get; private set; }
 
-        public void MakeNonDeterministic()
+        private QInvoke(QContext env, string text, string invocation) : base(env, text, "invoke")
         {
-            this.Deterministic = false;
-        }
+            this.Id = null;
+            this.Label = null;
+            this.Generic = invocation.Trim();
 
-        private QInvoke(QContext env, string text, string label, bool useCurrentEnv) : base(env, text, "invoke")
-        {
-            this.Deterministic = !useCurrentEnv;
-            this.Command = 0;
-            this.Label = label;
-            this.Generic = label;
+            if (!string.IsNullOrEmpty(this.Generic))
+            {
+                if (this.Generic[0] >= '0' && this.Generic[0] <= '9')
+                    this.Id = UInt64.Parse(this.Generic);
+                else
+                    this.Label = this.Generic;
+            }
         }
-        private QInvoke(QContext env, string text, uint command, bool useCurrentEnv) : base(env, text, "invoke")
+        private QInvoke(QContext env, string text, uint id) : base(env, text, "invoke")
         {
-            this.Deterministic = !useCurrentEnv;
-            this.Command = command;
-            this.Label = string.Empty;
-            this.Generic = command.ToString();
+            this.Id = id;
+            this.Label = null;
+            this.Generic = id.ToString();
         }
 
         public static QInvoke? Create(QContext env, string text, Parsed[] args, bool partial = true)
@@ -42,29 +45,15 @@ namespace Blueprint.Blue
                 bool numerics = args.Length >= 1 && args[0].children.Length == 1 && args[0].children[0].rule.ToLower() == "historic";
                 bool labelled = args.Length >= 1 && args[0].children.Length == 1 && args[0].children[0].rule.ToLower() == "label";
 
-                // The current setting overrides macro-determinism.
-                // However, macro-determinism only qpplies when a single invocation is present in the clause
-                // non-determinism simply means that the current environment/context is referenced (and macro settigs are entirely ignored)
-                // (This spec eliminates ambiguity of behavior when settings are difference between two macro/historic commands)
-                bool current = (numerics || labelled) && (args.Length == 2) && (args[1].rule == "control_suffix");
-                if (current == false)
-                    current = (env.InvocationCount > 1); // always use current env when more than a single command exists in the clause
-                if (numerics)
+                if (numerics || labelled)
                 {
-                    uint accumulator = 0;
-                    for (int i = 0; i < generic.Length; i++)
-                    {
-                        numerics = char.IsDigit(generic[i]);
-                        if (!numerics)
-                            return null;
-                        accumulator *= 10;
-                        accumulator += (uint)(generic[i] - '0');
-                    }
-                    return accumulator > 0 ? new QInvoke(env, text, accumulator, current) : null;
-                }
-                else if (labelled)
-                {
-                    return new QInvoke(env, text, generic, current);
+                    var invocation = new QInvoke(env, text, generic);
+
+                    // TO DO:
+                    // load settings from context
+                    // load expression from context
+
+                    return invocation;
                 }
             }
             return null;

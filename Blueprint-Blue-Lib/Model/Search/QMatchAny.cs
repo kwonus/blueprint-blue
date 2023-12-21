@@ -25,7 +25,7 @@
                 if (feature != null)
                     this.AnyFeature.Add(feature);
                 else
-                    this.Search.Context.AddError("A feature was identified that could not be parsed: " + text);
+                    this.Search.AddError("A feature was identified that could not be parsed: " + text);
             }
         }
         public List<string> AsYaml()

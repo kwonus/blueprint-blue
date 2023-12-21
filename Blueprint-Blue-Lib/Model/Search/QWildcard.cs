@@ -72,7 +72,7 @@ namespace Blueprint.Blue
             }
             else
             {
-                search.Context.AddWarning("A wildcard was supplied, but there was no * found in the text");
+                search.AddWarning("A wildcard was supplied, but there was no * found in the text");
                 this.WordKeys = new UInt16[0];
             }
         }

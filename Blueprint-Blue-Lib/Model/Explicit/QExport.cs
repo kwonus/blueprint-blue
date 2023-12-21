@@ -1,5 +1,6 @@
 namespace Blueprint.Blue
 {
+    using Blueprint.Blue;
     using Pinshot.PEG;
     using System;
     using YamlDotNet.Serialization;
@@ -13,16 +14,16 @@ namespace Blueprint.Blue
     public class QExport : QCommand
     {
         public string FileSpec { get; private set; }
-        public FileCreateMode CreationMode  { get; private set; }
+        public FileCreateMode CreationMode { get; private set; }
 
         private QExport(QContext env, string text, string spec, FileCreateMode mode) : base(env, text, "export")
         {
-            this.FileSpec = spec;
-            this.CreationMode = mode;
+            FileSpec = spec;
+            CreationMode = mode;
         }
         public static QExport? Create(QContext env, string text, Parsed[] args)
         {
-            if ((args.Length == 1) && (args[0].children.Length == 1) && args[0].children[0].rule.Equals("filename", StringComparison.InvariantCultureIgnoreCase))
+            if (args.Length == 1 && args[0].children.Length == 1 && args[0].children[0].rule.Equals("filename", StringComparison.InvariantCultureIgnoreCase))
             {
                 var mode = FileCreateMode.CreateNew;
 

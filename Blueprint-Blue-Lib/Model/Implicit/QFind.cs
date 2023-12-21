@@ -6,14 +6,23 @@ namespace Blueprint.Blue
     using YamlDotNet.Serialization;
     using static AVXLib.Framework.Numerics;
 
-    public class QFind : QCommandSegment, ICommand
+    public class QFind: IDiagnostic
     {
+        private IDiagnostic Diagnostics;
+        public QSettings Settings { get; private set; }
+        public List<QFilter> Filters { get; private set; }
+        public string Expression { get; private set; }
         public bool IsQuoted { get; set; }
         private bool Valid;
         public List<QFragment> Fragments { get; private set; }
 
-        private QFind(QContext env, string text, Parsed[] args) : base(env, text, "find")
+        private QFind(IDiagnostic diagnostics, QSettings settings, string text, Parsed[] args)
         {
+            this.Diagnostics = diagnostics;
+            this.Settings = settings;
+            this.Filters = new();
+            this.Expression = text;
+
             this.Fragments = new();
             this.Valid = (args.Length > 0 && args[0].children.Length > 0);
             if (this.Valid)
@@ -58,15 +67,23 @@ namespace Blueprint.Blue
             }
 
         }
-        public static QFind? Create(QContext env, string text, Parsed[] args)
+        public static QFind? Create(IDiagnostic diagnostics, QSettings settings, string text, Parsed[] args)
         {
-            QFind? search = new QFind(env, text, args);
+            QFind? search = new QFind(diagnostics, settings, text, args);
 
             return search.Valid ? search : null;
         }
-        override public List<string> AsYaml()
+        public List<string> AsYaml()
         {
             return ICommand.YamlSerializer(this);
+        }
+        public void AddError(string message)
+        {
+            this.Diagnostics.AddError(message);
+        }
+        public void AddWarning(string message)
+        {
+            this.Diagnostics.AddWarning(message);
         }
     }
 }

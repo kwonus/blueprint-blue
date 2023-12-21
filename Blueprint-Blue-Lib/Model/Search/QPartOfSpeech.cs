@@ -118,7 +118,7 @@ namespace Blueprint.Blue
             }
             if (this.Pos32 == 0 && this.PnPos12 == 0)
             {
-                search.Context.AddError("Unable to determine part-ofospeech from: \"" + text + "\"");
+                search.AddError("Unable to determine part-ofospeech from: \"" + text + "\"");
             }
         }
     }

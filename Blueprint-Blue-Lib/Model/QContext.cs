@@ -10,7 +10,13 @@
     using System.Text.Json.Serialization;
     using YamlDotNet.Serialization;
 
-    public class QContext
+    public interface IDiagnostic
+    {
+        void AddError(string message);
+        void AddWarning(string message);
+    }
+
+    public class QContext: IDiagnostic
     {
         public QSettings GlobalSettings { get; internal set; }
         public string Home { get; internal set; }

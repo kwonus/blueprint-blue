@@ -21,7 +21,7 @@
         public QContext Context { get; set; }
 
         public QExport? ExportDirective { get; internal set; }
-        public QLimit?  LimitDirective  { get; internal set; }
+        public QPrint?  LimitDirective  { get; internal set; }
         public QApply?  MacroDefinition { get; internal set; }
 
         public List<QCommandSegment> Segments { get; internal set; }
@@ -45,106 +45,24 @@
 
             if (stmt.rule.Equals("implicits", StringComparison.InvariantCultureIgnoreCase) && (stmt.children.Length >= 1))
             {
-                Parsed segments = stmt.children[0];
+                Parsed[] segments = stmt.children;
 
-                if (segments.rule.Equals("segments", StringComparison.InvariantCultureIgnoreCase))
+                for (int s = 0; s < segments.Length; s++)
                 {
-                    for (int s = 0; s < segments.children.Length; s++)
-                    {
-                        Parsed segment = segments.children[s];
+                    Parsed segment = segments[s];
 
-                        QApply? macroLabel = null;
+                    QApply? macroLabel = null;
+                    if ((segment.children.Length >= 1) && segment.children[0].rule.StartsWith("elements", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        var elements = segment.children[0];
                         if ((segment.children.Length == 2) && segment.children[1].rule.StartsWith("apply_macro_", StringComparison.InvariantCultureIgnoreCase))
                         {
                             var macro = segment.children[1];
                             macroLabel = QApply.Create(context, segment.text, macro);
                         }
-                        QCommandSegment seg = QCommandSegment.CreateSegment(context, segment, macroLabel);
-
-                        implicits.Segments.Add(seg);
-                        foreach (Parsed clause in segment.children)
-                        {
-                            if (clause.rule.Equals("expression"))
-                            {
-                                if (clause.children.Length == 1)
-                                {
-                                    var expression = clause.children[0];
-
-                                    if (expression.rule.Equals("search", StringComparison.InvariantCultureIgnoreCase))
-                                    {
-                                        seg.SearchExpression = QFind.Create(context, expression.text, clause.children);
-                                    }
-                                    else if (expression.rule.Equals("invoke_full", StringComparison.InvariantCultureIgnoreCase))
-                                    {
-                                        var invocation = QInvoke.Create(context, clause.text, clause.children, partial:false);
-                                        if (invocation != null)
-                                        {
-                                            seg.SearchExpression = invocation.SearchExpression;
-                                            foreach (var assignment in invocation.Assignments)
-                                            {
-                                                seg.Assignments.Add(assignment);
-                                            }
-                                            foreach (var filter in invocation.Filters)
-                                            {
-                                                seg.Filters.Add(filter);
-                                            }
-                                            seg.Invocations.Add(invocation);
-                                        }
-                                    }
-                                }
-                            }
-                            else if (clause.rule.Equals("element"))
-                            {
-                                if (clause.children.Length == 1)
-                                {
-                                    var variable = clause.children[0];
-
-                                    if (variable.rule.Equals("opt", StringComparison.InvariantCultureIgnoreCase))
-                                    {
-                                        seg.SearchExpression = QFind.Create(context, variable.text, clause.children);
-                                    }
-                                    else if (variable.rule.Equals("opt", StringComparison.InvariantCultureIgnoreCase))
-                                    {
-                                        var filter = QFilter.Create(context, variable.text, clause.children);
-                                        if (filter != null)
-                                        {
-                                            seg.Filters.Add(filter);
-                                        }
-                                    }
-                                    else if (variable.rule.Equals("invoke_partial", StringComparison.InvariantCultureIgnoreCase))
-                                    {
-                                        var invocation = QInvoke.Create(context, clause.text, clause.children);
-                                        if (invocation != null)
-                                        {
-                                            foreach (var assignment in invocation.Assignments)
-                                            {
-                                                seg.Assignments.Add(assignment);
-                                            }
-                                            foreach (var filter in invocation.Filters)
-                                            {
-                                                seg.Filters.Add(filter);
-                                            }
-                                            seg.Invocations.Add(invocation);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                    }
-                }
-                for (int additional = 1; additional < stmt.children.Length; additional++)
-                {
-                    var clause = stmt.children[additional];
-                    if (clause.rule.Equals("export", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        if (implicits.ExportDirective == null) // these are implicit singletons; grammar should enforce this, but enforce it here too
-                            implicits.ExportDirective = QExport.Create(context, clause.text, clause.children);
-                    }
-                    else if (clause.rule.Equals("print", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        if (implicits.LimitDirective == null) // these are implicit singletons; grammar should enforce this, but enforce it here too
-                            implicits.LimitDirective = QLimit.Create(context, clause.text, clause.children);
+                        QCommandSegment seg = QCommandSegment.CreateSegment(context, elements, macroLabel);
+                        if (seg != null)
+                            implicits.Segments.Add(seg);
                     }
                 }
             }

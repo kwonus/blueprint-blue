@@ -1,17 +1,22 @@
 namespace Blueprint.Blue
 {
     using Pinshot.PEG;
+
     public class QReview : QExplicitCommand, ICommand
     {
-        uint? MaxCount { get; set; }
-        DateTime? Since { get; set; }
-        DateTime? Until { get; set; }
-        string[] Arguments { get; set; }
+        public string Label { get; private set; }
+        public DateTime? Since { get; private set; }
+        public DateTime? Until { get; private set; }
+        public string[] Arguments { get; private set; }
+
         public QReview(QContext env, string text, Parsed[] args) : base(env, text, "review")
         {
-            this.Arguments = new string[args.Length];
-            for (int i = 0; i < args.Length; i++)
-                this.Arguments[i] = args[i].text;
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                this.Label = string.Empty;
+                return;
+            }
+            this.Label = args != null && args.Length == 1 ? args[0].text : string.Empty;
         }
         public override (bool ok, string message) Execute()
         {

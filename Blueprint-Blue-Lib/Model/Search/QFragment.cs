@@ -27,7 +27,7 @@ namespace Blueprint.Blue
                 if (option != null)
                     this.MatchAll.Add(option);
                 else
-                    this.Search.Context.AddError("A feature was identified that could not be parsed: " + text);
+                    this.Search.AddError("A feature was identified that could not be parsed: " + text);
             }
         }
         public List<string> AsYaml()
