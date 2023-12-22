@@ -4,10 +4,6 @@ namespace Blueprint.Blue
 
     public abstract class QExplicitCommand : QCommand, ICommand
     {
-        public string Expand()
-        {
-            return this.Text;
-        }
         protected QExplicitCommand(QContext env, string text, string verb) : base(env, text, verb)
         {
             ;

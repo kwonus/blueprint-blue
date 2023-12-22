@@ -328,9 +328,5 @@ namespace BlueprintBlue.Model.Implicit
             }
             return null;
         }
-        public List<string> AsYaml()
-        {
-            return ICommand.YamlSerializer(this);
-        }
     }
 }
