@@ -58,9 +58,7 @@ namespace Blueprint.Blue
                 {
                     switch (parse.children[idx].children[0].rule.ToLower())
                     {
-                        case "text": return new QWord(search, text, parse, !positive);
-
-                        case "wildcard": return new QWildcard(search, text, parse, !positive);
+                        case "text": return new QLexeme(search, text, parse, !positive);
 
                         case "lemma": return new QLemma(search, text, parse, !positive);
 

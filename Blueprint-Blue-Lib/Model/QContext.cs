@@ -100,8 +100,8 @@
         }
         public IEnumerable<ExpandableHistory> GetHistory(UInt32 idAfter = 0, UInt32 idBefore = UInt32.MaxValue, DateTime? dateAfter = null, DateTime? dateBefore = null)
         {
-            var dateAfterOffset = dateAfter != null ? new DateTimeOffset(dateAfter.Value) : DateTimeOffset.MinValue;
-            var dateBeforeOffset  = dateBefore  != null ? new DateTimeOffset(dateBefore.Value)  : DateTimeOffset.MaxValue;
+            var dateAfterOffset  = dateAfter  != null ? new DateTimeOffset(dateAfter.Value)  : DateTimeOffset.MinValue;
+            var dateBeforeOffset = dateBefore != null ? new DateTimeOffset(dateBefore.Value) : DateTimeOffset.MaxValue;
 
             long dateBeforeLong = dateAfterOffset.ToUnixTimeMilliseconds();
             long dateAfterLong  = dateBeforeOffset.ToUnixTimeMilliseconds();
@@ -189,17 +189,19 @@
             {
                 if (entry.Value.Time >= notBeforeLong && entry.Value.Time <= notAfterLong)
                 {
-                    if (spec == null)
+                    if (string.IsNullOrWhiteSpace(spec))
                     {
                         yield return entry.Value;
                     }
-                    else if (equals)
+                    else if (!spec.Contains('*'))
                     {
                         if (entry.Value.Label.Equals(spec, StringComparison.InvariantCultureIgnoreCase))
                             yield return entry.Value;
                     }
                     else
                     {
+                        // TO DO: use QWildcard and do match tests
+                        /*
                         bool matches = true;
 
                         for (int i = 0; i < pieces.Length; i++)
@@ -215,6 +217,7 @@
                         }
                         if (matches)
                             yield return entry.Value;
+                        */
                     }
                 }
             }
