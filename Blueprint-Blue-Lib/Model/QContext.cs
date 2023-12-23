@@ -98,18 +98,18 @@
                 this.History = ExpandableHistory.YamlDeserializer(this.HistoryPath);
             }
         }
-        public IEnumerable<ExpandableHistory> GetHistory(UInt32 minSeq = 0, UInt32 maxSeq = UInt32.MaxValue, DateTime? notBefore = null, DateTime? notAfter = null)
+        public IEnumerable<ExpandableHistory> GetHistory(UInt32 idAfter = 0, UInt32 idBefore = UInt32.MaxValue, DateTime? dateAfter = null, DateTime? dateBefore = null)
         {
-            var notBeforeOffset = notBefore != null ? new DateTimeOffset(notBefore.Value) : DateTimeOffset.MinValue;
-            var notAfterOffset  = notAfter  != null ? new DateTimeOffset(notAfter.Value)  : DateTimeOffset.MaxValue;
+            var dateAfterOffset = dateAfter != null ? new DateTimeOffset(dateAfter.Value) : DateTimeOffset.MinValue;
+            var dateBeforeOffset  = dateBefore  != null ? new DateTimeOffset(dateBefore.Value)  : DateTimeOffset.MaxValue;
 
-            var notBeforeLong = notBeforeOffset.ToUnixTimeMilliseconds();
-            var notAfterLong  = notAfterOffset.ToUnixTimeMilliseconds();
+            long dateBeforeLong = dateAfterOffset.ToUnixTimeMilliseconds();
+            long dateAfterLong  = dateBeforeOffset.ToUnixTimeMilliseconds();
 
             foreach (var entry in this.History)
             { 
-                if((entry.Value.Id >= minSeq && entry.Value.Id <= maxSeq)
-                && (entry.Value.Time >= notBeforeLong && entry.Value.Time <= notAfterLong))
+                if((entry.Value.Id >= idAfter && entry.Value.Id <= idBefore)
+                && (entry.Value.Time >= dateBeforeLong && entry.Value.Time <= dateAfterLong))
                 {
                     yield return entry.Value;
                 }
@@ -119,7 +119,7 @@
         {
             if (sequence > 0 && sequence < UInt32.MaxValue)
             {
-                var history = this.GetHistory(minSeq: sequence, maxSeq: sequence);
+                var history = this.GetHistory(idAfter: sequence, idBefore: sequence);
 
                 ExpandableInvocation? found = null;
                 int cnt = 0;
@@ -177,7 +177,7 @@
 
             return estmt;
         }
-        public IEnumerable<ExpandableMacro> GetMacros(string? wildcard, DateTime? notBefore = null, DateTime? notAfter = null)
+        public IEnumerable<ExpandableMacro> GetMacros(string? spec, DateTime? notBefore = null, DateTime? notAfter = null)
         {
             var notBeforeOffset = notBefore != null ? new DateTimeOffset(notBefore.Value) : DateTimeOffset.MinValue;
             var notAfterOffset = notAfter != null ? new DateTimeOffset(notAfter.Value) : DateTimeOffset.MaxValue;
@@ -185,62 +185,17 @@
             var notBeforeLong = notBeforeOffset.ToUnixTimeMilliseconds();
             var notAfterLong = notAfterOffset.ToUnixTimeMilliseconds();
 
-            bool equals = (!string.IsNullOrEmpty(wildcard)) && (wildcard.IndexOf('*') < 0);
-            string[] pieces = equals ? [wildcard] : wildcard != null ? wildcard.Split('*', StringSplitOptions.RemoveEmptyEntries) : new string[0];
-            bool[] contains   = new bool[pieces.Length];
-            bool[] beginswith = new bool[pieces.Length];
-            bool[] endswith   = new bool[pieces.Length];
-            if ((pieces.Length > 0) && !equals)
-            {
-                for (int i = 0; i < pieces.Length; i++)
-                {
-                    contains[i] = false;
-                    beginswith[i] = false;
-                    endswith[i] = false;
-                }
-                for (int i = 0; i < pieces.Length; i++)
-                {
-                    if (i == 0)
-                    {
-                        if (pieces.Length == 1)
-                        {
-                            if (wildcard.StartsWith('*'))
-                            {
-                                if (wildcard.EndsWith('*'))
-                                    contains[i] = true;
-                                else
-                                    beginswith[i] = true;
-                            }
-                            else if (wildcard.EndsWith('*'))
-                            {
-                                endswith[i] = true;
-                            }
-                        }
-                    }
-                    else if (i == pieces.Length - 1)
-                    {
-                        if (wildcard.EndsWith('*'))
-                            contains[i] = true;
-                        else
-                            endswith[i] = true;
-                    }
-                    else
-                    {
-                        contains[i] = true;
-                    }
-                }
-            }
             foreach (var entry in this.Macros)
             {
                 if (entry.Value.Time >= notBeforeLong && entry.Value.Time <= notAfterLong)
                 {
-                    if (wildcard == null)
+                    if (spec == null)
                     {
                         yield return entry.Value;
                     }
                     else if (equals)
                     {
-                        if (entry.Value.Label.Equals(wildcard, StringComparison.InvariantCultureIgnoreCase))
+                        if (entry.Value.Label.Equals(spec, StringComparison.InvariantCultureIgnoreCase))
                             yield return entry.Value;
                     }
                     else
@@ -250,11 +205,11 @@
                         for (int i = 0; i < pieces.Length; i++)
                         {
                             if (contains[i])
-                                matches = entry.Value.Label.Contains(wildcard, StringComparison.InvariantCultureIgnoreCase);
+                                matches = entry.Value.Label.Contains(spec, StringComparison.InvariantCultureIgnoreCase);
                             else if (beginswith[i])
-                                matches = entry.Value.Label.StartsWith(wildcard, StringComparison.InvariantCultureIgnoreCase);
+                                matches = entry.Value.Label.StartsWith(spec, StringComparison.InvariantCultureIgnoreCase);
                             else if (endswith[i])
-                                matches = entry.Value.Label.EndsWith(wildcard, StringComparison.InvariantCultureIgnoreCase);
+                                matches = entry.Value.Label.EndsWith(spec, StringComparison.InvariantCultureIgnoreCase);
                             if (!matches)
                                 break;
                         }

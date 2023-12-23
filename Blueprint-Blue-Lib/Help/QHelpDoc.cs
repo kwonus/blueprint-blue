@@ -18,17 +18,16 @@
             { "help",       new(topic: "@help",       doc: "System"   ) },
             { "exit",       new(topic: "@exit",       doc: "System"   ) },
             { "delete",     new(topic: "@delete",     doc: "Macro"    ) },
-            { "expand",     new(topic: "@expand",     doc: "Macro"    ) },
-            { "review",     new(topic: "@review",     doc: "History"  ) },
-            { "initialize", new(topic: "@initialize", doc: "History"  ) },
+            { "review",     new(topic: "@review",     doc: "Macro"    ) },
+            { "history",    new(topic: "@history",    doc: "History"  ) },
             { "get",        new(topic: "@get",        doc: "Control"  ) },
             { "set",        new(topic: "@set",        doc: "Control"  ) },
             { "clear",      new(topic: "@clear",      doc: "Control"  ) },
             { "absorb",     new(topic: "@absorb",     doc: "Control"  ) },
-             
+            { "print",      new(topic: "@print",      doc: "Output"   ) },
+            { "export",     new(topic: "@print",      doc: "Output"   ) },       
+            
             // Implicit Commands:
-            { "export",     new(topic: "export",      doc: "Output"   ) },
-            { "limit",      new(topic: "limit",       doc: "Output"   ) },
             { "invoke",     new(topic: "invoke",      doc: "History"  ) },
             { "filter",     new(topic: "filter",      doc: "Search"   ) },
             { "find",       new(topic: "find",        doc: "Search"   ) },
@@ -44,7 +43,6 @@
             { "label",      new(topic: "#label",      doc: "Macro"    ) }, // label is an alias for macro
             { "output",     new(topic: "#output",     doc: "Output"   ) },
             { "system",     new(topic: "#system",     doc: "System"   ) }
-
         };
 
         public static QHelpDoc GetDocument(string verb)
