@@ -25,8 +25,7 @@ namespace Blueprint.Blue
         public QFind Search { get; private set; }
         protected static string GetTypeName(object obj)
         {
-            string name = obj.GetType().Name; // Always "Q*"
-
+            string  name = obj.GetType().Name; // Always "Q*"
             return (name.Length >= 2 && name[0] == 'Q') ? name.Substring(1) : name;
         }
         protected QFeature(QFind context, string text, Parsed parse, bool negate)
