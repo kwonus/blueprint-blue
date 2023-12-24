@@ -21,42 +21,47 @@ namespace Blueprint.Blue
 
         private void AddParts(Parsed parse)
         {
+            if ((parse.children == null) || (parse.children.Length != 1) || !parse.children[0].rule.Equals("text", StringComparison.InvariantCultureIgnoreCase))
+                return;
+
+            var text = parse.children[0].text;
+
             if (parse.rule.Equals("term_begin", StringComparison.InvariantCultureIgnoreCase))
             {
                 if (parse.text.Contains('-'))
                 {
-                    this.BeginningHyphenated = this.Text;
+                    this.BeginningHyphenated = text;
                     this.Beginning = this.Text.Replace("-", "");
                 }
                 else
                 {
-                    this.Beginning = this.Text;
+                    this.Beginning = text;
                 }
             }
             else if (parse.rule.Equals("term_end", StringComparison.InvariantCultureIgnoreCase))
             {
                 if (parse.text.Contains('-'))
                 {
-                    this.EndingHyphenated = this.Text;
-                    this.Ending = this.Text.Replace("-", "");
+                    this.EndingHyphenated = text;
+                    this.Ending = text.Replace("-", "");
                 }
                 else
                 {
-                    this.Ending = this.Text;
+                    this.Ending = text;
                 }
             }
             else if (parse.rule.Equals("term_contains", StringComparison.InvariantCultureIgnoreCase))
             {
                 if (parse.text.Contains('-'))
                 {
-                    var normalized = this.Text.Replace("-", "");
+                    var normalized = text.Replace("-", "");
 
                     this.Contains.Add(normalized);
-                    this.ContainsHyphenated.Add(this.Text);
+                    this.ContainsHyphenated.Add(text);
                 }
                 else
                 {
-                    this.Contains.Add(this.Text);
+                    this.Contains.Add(text);
                 }
             }
         }
@@ -77,17 +82,7 @@ namespace Blueprint.Blue
             {
                 foreach (var child in parse.children)
                 {
-                    if (child.rule.Equals("term_begin_and_end", StringComparison.InvariantCultureIgnoreCase) && (child.children != null))
-                    {
-                        foreach (var grandchild in child.children)
-                        {
-                            this.AddParts(grandchild);
-                        }
-                    }
-                    else
-                    {
-                        this.AddParts(child);
-                    }
+                    this.AddParts(child);
                 }
             }
         }

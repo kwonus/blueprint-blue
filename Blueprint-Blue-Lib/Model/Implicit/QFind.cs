@@ -39,25 +39,27 @@ namespace Blueprint.Blue
             if (this.Valid)
             {
                 string rule = this.IsQuoted ? "ordered" : "unordered";
-                this.Valid = (args.Length == 1) && args[0].rule.Equals(rule, StringComparison.InvariantCultureIgnoreCase) && (args[0].children.Length > 0);
+                this.Valid = (args.Length == 1) && (args[0].children.Length == 1) && args[0].children[0].rule.Equals(rule, StringComparison.InvariantCultureIgnoreCase) && (args[0].children[0].children.Length > 0);
             }
             if (this.Valid)
             {
-                foreach (var arg in args[0].children)
+                var child = args[0].children[0];
+
+                foreach (var gchild in child.children)
                 {
                     QFragment frag;
 
-                    this.Valid = arg.rule.Equals("fragment") && (arg.children.Length > 0);
+                    this.Valid = gchild.rule.Equals("fragment") && (gchild.children.Length > 0);
                     if (this.Valid)
                     {
-                        frag = new QFragment(this, arg.text, arg.children, anchored: this.IsQuoted);
+                        frag = new QFragment(this, gchild.text, gchild.children, anchored: this.IsQuoted);
                     }
                     else
                     {
-                        this.Valid = arg.rule.Equals("unanchored") && (arg.children.Length > 0);
+                        this.Valid = gchild.rule.Equals("unanchored") && (gchild.children.Length > 0);
                         if (!this.Valid)
                             break;
-                        frag = new QFragment(this, arg.children[0].text, arg.children[0].children, anchored: false);
+                        frag = new QFragment(this, gchild.children[0].text, gchild.children[0].children, anchored: false);
                     }
                     if (this.Valid)
                         this.Fragments.Add(frag);

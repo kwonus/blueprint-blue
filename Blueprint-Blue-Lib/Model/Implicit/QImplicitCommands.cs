@@ -61,7 +61,8 @@
                             macroLabel = QApply.Create(context, segment.text, macro);
                         }
                         QCommandSegment seg = QCommandSegment.CreateSegment(context, elements, macroLabel);
-                        if (seg != null)
+                        valid = (seg != null);
+                        if (valid)
                             implicits.Segments.Add(seg);
                     }
                 }
