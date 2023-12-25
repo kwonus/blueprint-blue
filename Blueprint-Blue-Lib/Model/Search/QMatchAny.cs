@@ -1,5 +1,6 @@
 ﻿namespace Blueprint.Blue
 {
+    using AVSearch.Model.Expressions;
     using AVSearch.Model.Features;
     using AVSearch.Model.Types;
     using Pinshot.PEG;
@@ -7,7 +8,7 @@
     using System.Text.Json.Serialization;
     using YamlDotNet.Serialization;
 
-    public class QMatchAny: TypeOptions
+    public class QMatchAny: SearchMatchAny
     {
         private string Text;
         public List<FeatureGeneric> AnyFeature { get; private set; }

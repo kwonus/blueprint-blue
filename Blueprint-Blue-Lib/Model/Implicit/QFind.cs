@@ -1,12 +1,13 @@
 namespace Blueprint.Blue
 {
+    using AVSearch.Model.Expressions;
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;
     using YamlDotNet.Serialization;
     using static AVXLib.Framework.Numerics;
 
-    public class QFind: IDiagnostic
+    public class QFind: SearchExpression, IDiagnostic
     {
         private IDiagnostic Diagnostics;
         public QSettings Settings { get; private set; }
