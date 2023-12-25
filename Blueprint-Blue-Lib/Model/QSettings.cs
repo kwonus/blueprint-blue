@@ -3,10 +3,12 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Text;
-    using BlueprintBlue.Model.Implicit;
+    using Blueprint.Model.Implicit;
+    using AVSearch.Interfaces;
     using Pinshot.Blue;
+    using YamlDotNet.Serialization;
 
-    public class QSettings
+    public class QSettings: ISettings
     {
         public string GetAll()
         {
@@ -144,6 +146,18 @@
         public QLexicalDisplay Display    { get; set; }
         public QSpan           Span       { get; set; }
         public QSimilarity     Similarity { get; set; }
+
+        // Implement ISettings
+        [YamlIgnore]
+        public bool EnableFuzzyLemmata    { get => this.Similarity.EnableLemmaMatching; }
+        [YamlIgnore]
+        public bool UseLexiconAV          { get => this.Lexicon.Value == QLexicalDomain.QLexiconVal.AV  || this.Lexicon.Value == QLexicalDomain.QLexiconVal.BOTH; }
+        [YamlIgnore]
+        public bool UseLexiconAVX         { get => this.Lexicon.Value == QLexicalDomain.QLexiconVal.AVX || this.Lexicon.Value == QLexicalDomain.QLexiconVal.BOTH; }
+        [YamlIgnore]
+        public byte SearchSimilarity      { get => this.Similarity.Value; }
+        [YamlIgnore]
+        public UInt16 SearchSpan          { get => this.Span.Value; }
 
         private string? BackingStore;
 #pragma warning disable CS8618

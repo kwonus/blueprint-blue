@@ -4,7 +4,7 @@
 //
 // See: http://morphadorner.northwestern.edu/morphadorner/documentation/nupos/
 //
-namespace AVText
+namespace Blueprint.Blue
 {
     using System;
     using System.Text;

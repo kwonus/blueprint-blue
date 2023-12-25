@@ -1,13 +1,10 @@
 ﻿namespace Blueprint.Blue
 {
-    using BlueprintBlue;
-    using System.Linq;
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using BlueprintBlue.FuzzyLex;
+    using Blueprint.FuzzyLex;
     using AVXLib;
-    using System.Text.Json.Serialization;
     
     public interface IDiagnostic
     {
@@ -37,7 +34,7 @@
 
         public QContext(QStatement statement)
         {
-            BlueprintBlue.FuzzyLex.BlueprintLex.Initialize(ObjectTable.AVXObjects);
+            Blueprint.FuzzyLex.BlueprintLex.Initialize(ObjectTable.AVXObjects);
             this.Statement = statement;
             this.InvocationCount = 0; // This can be updated when Create() is called on Implicit clauses
 

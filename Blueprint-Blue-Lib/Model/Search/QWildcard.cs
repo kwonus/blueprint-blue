@@ -1,13 +1,10 @@
 namespace Blueprint.Blue
 {
     using AVXLib;
-    using BlueprintBlue.Model.Implicit;
+    using Blueprint.Model.Implicit;
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection.Metadata.Ecma335;
-    using System.Text;
 
     public class QWildcard
     {

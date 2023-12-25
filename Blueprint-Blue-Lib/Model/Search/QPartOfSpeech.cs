@@ -1,15 +1,13 @@
-using AVXLib.Framework;
-
 namespace Blueprint.Blue
 {
+    using AVSearch.Model.Features;
     using AVXLib.Framework;
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;
 
-    public class QPartOfSpeech : QFeature, IFeature
+    public class QPartOfSpeech : FeaturePartOfSpeech
     {
-        override public string Type { get => QFeature.GetTypeName(this); }
         public UInt16 PnPos12 { get; private set; }
         public UInt32 Pos32   { get; private set; }
 
@@ -76,7 +74,7 @@ namespace Blueprint.Blue
             return entry;
         }
 
-        public QPartOfSpeech(QFind search, string text, Parsed parse, bool negate) : base(search, text, parse, negate)
+        public QPartOfSpeech(QFind search, string text, Parsed parse, bool negate) : base(text, negate)
         {
             var pnpos = this.Text.ToLower().Replace(" ", "");
 
@@ -99,7 +97,7 @@ namespace Blueprint.Blue
                     {
                         if (child.rule == "nupos")
                         {
-                            this.Pos32 = AVText.FiveBitEncoding.EncodePOS(pos);
+                            this.Pos32 = Blueprint.Blue.FiveBitEncoding.EncodePOS(pos);
                         }
                         else if (child.rule == "pos32") // do we really want to support numeric representation of nupos strings?
                         {

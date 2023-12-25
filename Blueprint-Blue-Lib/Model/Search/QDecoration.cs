@@ -1,14 +1,13 @@
 namespace Blueprint.Blue
 {
+    using AVSearch.Model.Features;
     using Pinshot.PEG;
-    using System.Collections.Generic;
 
-    public class QDecoration : QFeature, IFeature
+    public class QDecoration : FeatureDecoration
     {
-        override public string Type { get => QFeature.GetTypeName(this); }
-        public byte Decoration { get; set; }
+        public byte Decoration { get; private set; }
 
-        public QDecoration(QFind search, string text, Parsed parse, bool negate) : base(search, text, parse, negate)
+        public QDecoration(QFind search, string text, Parsed parse, bool negate) : base(text, negate)
         {
             this.Decoration = 0;
         }

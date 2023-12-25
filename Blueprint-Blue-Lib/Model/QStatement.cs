@@ -1,6 +1,5 @@
 namespace Blueprint.Blue
 {
-    using BlueprintBlue;
     using Pinshot.Blue;
     using Pinshot.PEG;
     using System;

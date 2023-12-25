@@ -1,4 +1,4 @@
-using BlueprintBlue.Model.Implicit;
+using Blueprint.Model.Implicit;
 using Pinshot.PEG;
 using YamlDotNet.Core.Tokens;
 

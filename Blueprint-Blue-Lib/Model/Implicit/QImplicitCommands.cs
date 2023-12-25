@@ -1,18 +1,11 @@
 ﻿namespace Blueprint.Blue
 {
     using Pinshot.PEG;
-    using System.Text;
     using System.Collections.Generic;
-    using System.Linq;
     using System;
     using YamlDotNet.Serialization;
     using System.Text.Json.Serialization;
-    using BlueprintBlue.Model;
-    using BlueprintBlue.Model.Implicit;
-    using System.Runtime.CompilerServices;
-    using static AVXLib.Framework.Numerics;
-    using System.Linq.Expressions;
-    using static System.Net.Mime.MediaTypeNames;
+    using Blueprint.Model.Implicit;
 
     public class QImplicitCommands
     {
@@ -20,20 +13,23 @@
         [YamlIgnore]
         public QContext Context { get; set; }
 
+        public AVSearch.Model.Results.QueryResult Results { get; set; }
+
         public QExport? ExportDirective { get; internal set; }
         public QPrint?  LimitDirective  { get; internal set; }
-        public QApply?  MacroDefinition { get; internal set; }
 
         public List<QCommandSegment> Segments { get; internal set; }
 
-        public List<QFilter> Filters { get; internal set; }
+        public bool Execute()
+        {
+            return false;
+        }
 
         private QImplicitCommands(QContext env, string stmtText)
         {
             this.Context = env;
             this.ExportDirective = null;
             this.LimitDirective  = null;
-            this.MacroDefinition = null;
 
             this.Segments = new();
         }

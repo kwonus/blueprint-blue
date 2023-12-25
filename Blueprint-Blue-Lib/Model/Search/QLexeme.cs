@@ -1,16 +1,15 @@
 namespace Blueprint.Blue
 {
+    using AVSearch.Model.Features;
     using AVXLib;
-    using BlueprintBlue.Model.Implicit;
+    using Blueprint.Model.Implicit;
     using PhonemeEmbeddings;
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;
-    using YamlDotNet.Serialization;
 
-    public class QLexeme : QFeature, IFeature
+    public class QLexeme : FeatureLexeme
     {
-        override public string Type { get => QFeature.GetTypeName(this); }
         public UInt16[] WordKeys { get; private set; }
         public HashSet<string> Phonetics { get; private set; }
 
@@ -41,7 +40,7 @@ namespace Blueprint.Blue
             }
         }
 
-        public QLexeme(QFind search, string text, Parsed parse, bool negate) : base(search, text, parse, negate)
+        public QLexeme(QFind search, string text, Parsed parse, bool negate) : base(text, negate)
         {
             this.Phonetics = new();
 
@@ -61,7 +60,7 @@ namespace Blueprint.Blue
 
                 if (this.WordKeys.Length == 0)
                 {
-                    this.Search.AddWarning("'" + text + "' is not in the lexicon (only sounds-alike searching can be used to match this token).");
+                    search.AddWarning("'" + text + "' is not in the lexicon (only sounds-alike searching can be used to match this token).");
                 }
 
                 if (search.Settings.Similarity.Value != (byte)SIMILARITY.NONE)

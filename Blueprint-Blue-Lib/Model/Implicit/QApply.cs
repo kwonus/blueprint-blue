@@ -1,9 +1,8 @@
-using Pinshot.PEG;
-using YamlDotNet.Core;
-using YamlDotNet.Serialization;
-
-namespace Blueprint.Blue
+namespace Blueprint.Model.Implicit
 {
+    using Blueprint.Blue;
+    using Pinshot.PEG;
+
     public class QApply : QCommand
     {
         public string Label { get; internal set; }

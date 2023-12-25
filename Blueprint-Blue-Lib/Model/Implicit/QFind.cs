@@ -61,6 +61,16 @@ namespace Blueprint.Blue
                             break;
                         frag = new QFragment(this, gchild.children[0].text, gchild.children[0].children, anchored: false);
                     }
+                    /*
+                        else if (variable.rule.Equals("filter", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            var filter = QFilter.Create(env, variable.text, clause.children);
+                            if (filter != null)
+                            {
+                                segment.Filters.Add(filter);
+                            }
+                        }
+                     */
                     if (this.Valid)
                         this.Fragments.Add(frag);
                     else

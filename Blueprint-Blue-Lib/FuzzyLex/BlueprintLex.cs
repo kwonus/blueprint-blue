@@ -1,4 +1,4 @@
-﻿namespace BlueprintBlue.FuzzyLex
+﻿namespace Blueprint.FuzzyLex
 {
     using PhonemeEmbeddings;
     using System;

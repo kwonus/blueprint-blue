@@ -1,13 +1,13 @@
 ﻿namespace Blueprint.Blue
 {
+    using AVSearch.Model.Features;
     using Pinshot.PEG;
 
-    public class QTransition : QFeature, IFeature
+    public class QTransition : FeatureTransition
     {
-        override public string Type { get => QFeature.GetTypeName(this); }
         public byte Transition { get; set; }
 
-        public QTransition(QFind search, string text, Parsed parse, bool negate) : base(search, text, parse, negate)
+        public QTransition(QFind search, string text, Parsed parse, bool negate) : base(text, negate)
         {
             this.Transition = 0;
         }

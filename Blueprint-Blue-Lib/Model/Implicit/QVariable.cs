@@ -1,15 +1,12 @@
 ﻿// AVX-Quelle specification: 2.0.3.701
 //
-namespace BlueprintBlue.Model.Implicit
+namespace Blueprint.Model.Implicit
 {
     using Blueprint.Blue;
     using Pinshot.PEG;
     using System;
-    using System.Runtime.CompilerServices;
-    using System.Text.Json.Serialization;
-    using YamlDotNet.Core.Tokens;
-    using YamlDotNet.Serialization;
-    using static global::BlueprintBlue.Model.Implicit.QLexicalDomain;
+
+    using static global::Blueprint.Model.Implicit.QLexicalDomain;
 
     internal enum SIMILARITY { NONE = 0, FUZZY_MIN = 33, FUZZY_MAX = 99, EXACT = 100 }
 

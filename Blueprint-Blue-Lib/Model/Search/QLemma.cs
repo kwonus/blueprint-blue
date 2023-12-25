@@ -1,18 +1,14 @@
 namespace Blueprint.Blue
 {
     using Pinshot.PEG;
-    using System.Text;
     using System;
     using System.Collections.Generic;
     using PhonemeEmbeddings;
-    using AVXLib.Framework;
     using AVXLib;
-    using AVXLib.Memory;
-    using YamlDotNet.Serialization;
+    using AVSearch.Model.Features;
 
-    public class QLemma : QFeature, IFeature
+    public class QLemma : FeatureLemma
     {
-        override public string Type { get => QFeature.GetTypeName(this); }
         public UInt16[] Lemmata { get; private set; }
         public HashSet<string> Phonetics { get; private set; }
 
@@ -41,7 +37,7 @@ namespace Blueprint.Blue
             if (!this.Phonetics.Contains(phone.Phonetic))
                 this.Phonetics.Add(phone.Phonetic);
         }
-        public QLemma(QFind search, string text, Parsed parse, bool negate) : base(search, text, parse, negate)
+        public QLemma(QFind search, string text, Parsed parse, bool negate) : base(text, negate)
         {
             this.Phonetics = new();
 

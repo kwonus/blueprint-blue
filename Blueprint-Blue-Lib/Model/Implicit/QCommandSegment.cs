@@ -1,6 +1,6 @@
 namespace Blueprint.Blue
 {
-    using BlueprintBlue.Model.Implicit;
+    using Blueprint.Model.Implicit;
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;
@@ -14,7 +14,6 @@ namespace Blueprint.Blue
         public QFind? SearchExpression      { get; internal set; }
         public List<QAssign>  Assignments   { get; internal set; }
         public List<QInvoke>  Invocations   { get; internal set; }
-        public List<QFilter>  Filters       { get; internal set; }
         public QApply?        MacroLabel    { get; internal set; }
         public QSettings      Settings      { get; protected set; }
 
@@ -25,7 +24,6 @@ namespace Blueprint.Blue
             this.SearchExpression = null;
             this.Assignments = new();
             this.Invocations = new();
-            this.Filters = new();
             this.MacroLabel = applyLabel;
         }
         public static QCommandSegment? CreateSegment(QContext env, Parsed elements, QApply? applyLabel = null)
@@ -52,10 +50,6 @@ namespace Blueprint.Blue
                                 segment.SearchExpression = invocation.Expression;
                                 segment.Settings.CopyFrom(invocation.Settings);
 
-                                foreach (var filter in invocation.Filters)
-                                {
-                                    segment.Filters.Add(filter);
-                                }
                                 segment.Invocations.Add(invocation);
                             }
                         }
@@ -71,25 +65,12 @@ namespace Blueprint.Blue
                         {
                             segment.SearchExpression = QFind.Create(env, segment.Settings, variable.text, clause.children);
                         }
-                        else if (variable.rule.Equals("filter", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            var filter = QFilter.Create(env, variable.text, clause.children);
-                            if (filter != null)
-                            {
-                                segment.Filters.Add(filter);
-                            }
-                        }
                         else if (variable.rule.Equals("invoke_partial", StringComparison.InvariantCultureIgnoreCase))
                         {
                             var invocation = QInvoke.Create(env, clause.text, clause.children);
                             if (invocation != null)
                             {
                                 segment.Settings.CopyFrom(invocation.Settings);
-
-                                foreach (var filter in invocation.Filters)
-                                {
-                                    segment.Filters.Add(filter);
-                                }
                                 segment.Invocations.Add(invocation);
                             }
                         }

@@ -1,23 +1,20 @@
 namespace Blueprint.Blue
 {
+    using AVSearch;
+    using AVSearch.Model.Expressions;
     using Pinshot.PEG;
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
     using YamlDotNet.Serialization;
 
-    public class QFragment
+    public class QFragment: SearchFragment
     {
-        private string Text;
-        public List<QMatchAny> MatchAll { get; private set; }
         [JsonIgnore]
         [YamlIgnore]
         public QFind Search { get; private set; }
-        public bool Anchored { get; private set; }
 
         public QFragment(QFind context, string text, Parsed[] args, bool anchored = false)
         {
-            this.Text = text;
-            this.MatchAll = new();
             this.Search = context;
             this.Anchored = anchored;
 
@@ -25,7 +22,7 @@ namespace Blueprint.Blue
             {
                 var option = new QMatchAny(context, arg.text, arg.children);
                 if (option != null)
-                    this.MatchAll.Add(option);
+                    this.AllOf.Add(option);
                 else
                     this.Search.AddError("A feature was identified that could not be parsed: " + text);
             }

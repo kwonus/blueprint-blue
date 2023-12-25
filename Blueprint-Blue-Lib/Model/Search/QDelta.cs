@@ -1,13 +1,13 @@
 ﻿namespace Blueprint.Blue
 {
+    using AVSearch.Model.Features;
     using Pinshot.PEG;
 
-    public class QDelta : QFeature, IFeature
+    public class QDelta : FeatureDelta
     {
-        override public string Type { get => QFeature.GetTypeName(this); }
-        public bool hasDelta { get; set; }
+        public bool hasDelta { get; private set; }
 
-        public QDelta(QFind search, string text, Parsed parse, bool negate) : base(search, text, parse, negate)
+        public QDelta(QFind search, string text, Parsed parse, bool negate) : base(text, negate)
         {
             this.hasDelta = false;
         }

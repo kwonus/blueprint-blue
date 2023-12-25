@@ -1,4 +1,4 @@
-﻿namespace BlueprintBlue
+﻿namespace Blueprint.Blue
 {
     using Blueprint.Blue;
     using System;
@@ -28,10 +28,10 @@
             this.Time = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             this.Expression = statement.SearchExpression != null ? statement.SearchExpression.Expression : null;
             this.Settings = new QSettings(statement.Settings);
-            if (statement.Filters.Count > 0 )
+            if (statement.SearchExpression != null && statement.SearchExpression.Filters.Count > 0 )
             {
                 this.Filters = new();
-                foreach (var filter in statement.Filters )
+                foreach (var filter in statement.SearchExpression.Filters)
                 {
                     this.Filters.Add(filter.Filter);
                 }

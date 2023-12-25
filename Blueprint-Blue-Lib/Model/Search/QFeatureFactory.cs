@@ -1,46 +1,12 @@
 namespace Blueprint.Blue
 {
+    using AVSearch.Model.Features;
     using Pinshot.PEG;
     using System;
-    using System.Text.Json.Serialization;
-    using YamlDotNet.Serialization;
 
-    public interface IFeature
+    public abstract class FeatureFactory // This is mostly redundant with QSearchFeature. The inheritance aspect of this class needs to be preserved 
     {
-        string Type { get; }
-        string Text { get; }
-        bool Negate { get; }
-    }
-
-    public abstract class QFeature : IFeature // This is mostly redundant with QSearchFeature. The inheritance aspect of this class needs to be preserved 
-    {
-        abstract public string Type { get; }
-        public string Text { get; private set; }
-        public bool Negate { get; private set; }
-        [JsonIgnore]
-        [YamlIgnore]
-        public Parsed Parse { get; private set; }
-        [JsonIgnore]
-        [YamlIgnore]
-        public QFind Search { get; private set; }
-        protected static string GetTypeName(object obj)
-        {
-            string  name = obj.GetType().Name; // Always "Q*"
-            return (name.Length >= 2 && name[0] == 'Q') ? name.Substring(1) : name;
-        }
-        protected QFeature(QFind context, string text, Parsed parse, bool negate)
-        {
-            this.Text = text.Trim();
-            this.Parse = parse;
-            this.Search = context;
-            this.Negate = negate;
-
-            if (this.Negate && this.Text.StartsWith('-'))
-            {
-                this.Text = this.Text.Length > 1 ? this.Text.Substring(1) : string.Empty;
-            }
-        }
-        public static QFeature? Create(QFind search, string text, Parsed parse)
+        public static FeatureGeneric? Create(QFind search, string text, Parsed parse)
         {
             if (parse.rule.Equals("feature", StringComparison.InvariantCultureIgnoreCase) && (parse.children.Length >= 1))
             {

@@ -1,14 +1,12 @@
 ﻿namespace Blueprint.Blue
 {
+    using AVSearch.Model.Features;
     using Pinshot.PEG;
     using System;
 
-    public class QStrongs : QFeature, IFeature
+    public class QStrongs : FeatureStrongs
     {
-        override public string Type { get => QFeature.GetTypeName(this); }
-        public (UInt16 number, char lang) Strongs { get; set; }
-
-        public QStrongs(QFind search, string text, Parsed parse, bool negate) : base(search, text, parse, negate)
+        public QStrongs(QFind search, string text, Parsed parse, bool negate) : base(text, negate)
         {
             var parts = text.Split(':');
             if (parts.Length == 2)
