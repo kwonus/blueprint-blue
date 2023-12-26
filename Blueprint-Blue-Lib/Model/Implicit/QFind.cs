@@ -10,18 +10,34 @@ namespace Blueprint.Blue
     public class QFind: SearchExpression, IDiagnostic
     {
         private IDiagnostic Diagnostics;
-        public QSettings Settings { get; private set; }
-        public List<QFilter> Filters { get; private set; }
-        public string Expression { get; private set; }
-        public bool IsQuoted { get; set; }
-        private bool Valid;
-        public List<QFragment> Fragments { get; private set; }
 
-        private QFind(IDiagnostic diagnostics, QSettings settings, string text, Parsed[] args)
+        public void AddFilters(IEnumerable<QFilter> filters)
+        {
+            foreach (var filter in filters)
+            {
+                if (!this.Filters.ContainsKey(filter.Filter))
+                    this.Filters[filter.Filter] = filter;
+            }
+        }
+        public static void AddFilters(Dictionary<string, SearchFilter> baseline, IEnumerable<QFilter> filters)
+        {
+            foreach (var filter in filters)
+            {
+                if (!baseline.ContainsKey(filter.Filter))
+                    baseline[filter.Filter] = filter;
+            }
+        }
+        public static void AddFilter(Dictionary<string, SearchFilter> baseline, QFilter filter)
+        {
+            if (!baseline.ContainsKey(filter.Filter))
+                baseline[filter.Filter] = filter;
+        }
+
+        private QFind(IDiagnostic diagnostics, QSettings settings, Dictionary<string, SearchFilter> filters, string text, Parsed[] args)
         {
             this.Diagnostics = diagnostics;
             this.Settings = settings;
-            this.Filters = new();
+            this.Filters = filters;
             this.Expression = text;
 
             this.Fragments = new();
@@ -32,14 +48,14 @@ namespace Blueprint.Blue
                 var beginQuote = fulltext.StartsWith("\"");
                 var endQuote = fulltext.StartsWith("\"");
 
-                this.IsQuoted = beginQuote && endQuote;
+                this.Quoted = beginQuote && endQuote;
 
-                this.Valid = this.IsQuoted ? true : !fulltext.Contains('"');
+                this.Valid = this.Quoted ? true : !fulltext.Contains('"');
             }
 
             if (this.Valid)
             {
-                string rule = this.IsQuoted ? "ordered" : "unordered";
+                string rule = this.Quoted ? "ordered" : "unordered";
                 this.Valid = (args.Length == 1) && (args[0].children.Length == 1) && args[0].children[0].rule.Equals(rule, StringComparison.InvariantCultureIgnoreCase) && (args[0].children[0].children.Length > 0);
             }
             if (this.Valid)
@@ -53,7 +69,7 @@ namespace Blueprint.Blue
                     this.Valid = gchild.rule.Equals("fragment") && (gchild.children.Length > 0);
                     if (this.Valid)
                     {
-                        frag = new QFragment(this, gchild.text, gchild.children, anchored: this.IsQuoted);
+                        frag = new QFragment(this, gchild.text, gchild.children, anchored: this.Quoted);
                     }
                     else
                     {
@@ -62,16 +78,6 @@ namespace Blueprint.Blue
                             break;
                         frag = new QFragment(this, gchild.children[0].text, gchild.children[0].children, anchored: false);
                     }
-                    /*
-                        else if (variable.rule.Equals("filter", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            var filter = QFilter.Create(env, variable.text, clause.children);
-                            if (filter != null)
-                            {
-                                segment.Filters.Add(filter);
-                            }
-                        }
-                     */
                     if (this.Valid)
                         this.Fragments.Add(frag);
                     else
@@ -80,9 +86,9 @@ namespace Blueprint.Blue
             }
 
         }
-        public static QFind? Create(IDiagnostic diagnostics, QSettings settings, string text, Parsed[] args)
+        public static QFind? Create(IDiagnostic diagnostics, QSettings settings, Dictionary<string, SearchFilter> filters, string text, Parsed[] args)
         {
-            QFind? search = new QFind(diagnostics, settings, text, args);
+            QFind? search = new QFind(diagnostics, settings, filters, text, args);
 
             return search.Valid ? search : null;
         }

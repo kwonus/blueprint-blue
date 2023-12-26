@@ -1,5 +1,6 @@
 namespace Blueprint.Blue
 {
+    using AVSearch.Interfaces;
     using AVXLib;
     using Blueprint.Model.Implicit;
     using Pinshot.PEG;
@@ -83,7 +84,7 @@ namespace Blueprint.Blue
                 }
             }
         }
-        public UInt16[] GetLexemes(QSettings settings)
+        public UInt16[] GetLexemes(ISettings settings)
         {
             var lexicon = ObjectTable.AVXObjects.Mem.Lexicon.Slice(1).ToArray();
             var lexemes = new List<UInt16>();
@@ -105,11 +106,11 @@ namespace Blueprint.Blue
                 string kjvNorm = hyphenated ? lex.Search.ToString() : kjv;
                 string avxNorm = hyphenated ? lex.Search.ToString() : avx;  // transliterated names do not differ between kjv and avx
 
-                kjvMatch.normalized = (settings.Lexicon.Value == QLexicalDomain.QLexiconVal.AV || settings.Lexicon.Value == QLexicalDomain.QLexiconVal.BOTH)
+                kjvMatch.normalized = settings.UseLexiconAV
                     && ((this.Beginning == null) || kjvNorm.StartsWith(this.Beginning, StringComparison.InvariantCultureIgnoreCase))
                     && ((this.Ending    == null) || kjvNorm.EndsWith(  this.Ending,    StringComparison.InvariantCultureIgnoreCase));
 
-                avxMatch.normalized = (settings.Lexicon.Value == QLexicalDomain.QLexiconVal.AVX || settings.Lexicon.Value == QLexicalDomain.QLexiconVal.BOTH)
+                avxMatch.normalized = settings.UseLexiconAVX
                     && ((this.Beginning == null) || avxNorm.StartsWith(this.Beginning, StringComparison.InvariantCultureIgnoreCase))
                     && ((this.Ending    == null) || avxNorm.EndsWith(  this.Ending,    StringComparison.InvariantCultureIgnoreCase));
 
@@ -117,11 +118,11 @@ namespace Blueprint.Blue
 
                 if (hyphenated)
                 {
-                    kjvMatch.hyphenated = (settings.Lexicon.Value == QLexicalDomain.QLexiconVal.AV || settings.Lexicon.Value == QLexicalDomain.QLexiconVal.BOTH)
+                    kjvMatch.hyphenated = settings.UseLexiconAV
                         && ((this.Beginning == null) || kjv.StartsWith(this.Beginning, StringComparison.InvariantCultureIgnoreCase))
                         && ((this.Ending    == null) || kjv.EndsWith(  this.Ending,    StringComparison.InvariantCultureIgnoreCase));
 
-                    avxMatch.hyphenated = (settings.Lexicon.Value == QLexicalDomain.QLexiconVal.AVX || settings.Lexicon.Value == QLexicalDomain.QLexiconVal.BOTH)
+                    avxMatch.hyphenated = settings.UseLexiconAVX
                         && ((this.Beginning == null) || avx.StartsWith(this.Beginning, StringComparison.InvariantCultureIgnoreCase))
                         && ((this.Ending    == null) || avx.EndsWith(  this.Ending,    StringComparison.InvariantCultureIgnoreCase));
 

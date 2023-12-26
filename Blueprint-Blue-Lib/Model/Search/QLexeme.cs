@@ -63,7 +63,7 @@ namespace Blueprint.Blue
                     search.AddWarning("'" + text + "' is not in the lexicon (only sounds-alike searching can be used to match this token).");
                 }
 
-                if (search.Settings.Similarity.Value != (byte)SIMILARITY.NONE)
+                if (search.Settings.SearchSimilarity != (byte)SIMILARITY.NONE)
                 {
                     ; // TO DO: similarity assessment
                 }

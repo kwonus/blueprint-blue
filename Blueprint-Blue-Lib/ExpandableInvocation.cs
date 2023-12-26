@@ -31,9 +31,9 @@
             if (statement.SearchExpression != null && statement.SearchExpression.Filters.Count > 0 )
             {
                 this.Filters = new();
-                foreach (var filter in statement.SearchExpression.Filters)
+                foreach (var filter in statement.SearchExpression.Filters.Values)
                 {
-                    this.Filters.Add(filter.Filter);
+                    this.Filters.Add(((QFilter)filter).Filter);
                 }
             }
         }
