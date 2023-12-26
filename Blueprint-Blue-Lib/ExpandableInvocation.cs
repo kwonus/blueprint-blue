@@ -28,10 +28,10 @@
             this.Time = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             this.Expression = statement.SearchExpression != null ? statement.SearchExpression.Expression : null;
             this.Settings = new QSettings(statement.Settings);
-            if (statement.SearchExpression != null && statement.SearchExpression.Filters.Count > 0 )
+            if (statement.SearchExpression != null && statement.SearchExpression.Scope.Count > 0 )
             {
                 this.Filters = new();
-                foreach (var filter in statement.SearchExpression.Filters.Values)
+                foreach (var filter in statement.SearchExpression.Scope.Values)
                 {
                     this.Filters.Add(((QFilter)filter).Filter);
                 }

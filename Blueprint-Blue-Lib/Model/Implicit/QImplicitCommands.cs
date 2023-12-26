@@ -6,6 +6,7 @@
     using YamlDotNet.Serialization;
     using System.Text.Json.Serialization;
     using Blueprint.Model.Implicit;
+    using static AVXLib.Framework.Numerics;
 
     public class QImplicitCommands
     {
@@ -22,7 +23,49 @@
 
         public bool Execute()
         {
-            return false;
+            this.Results = new();
+
+            bool executed = false;
+            foreach (var segment in this.Segments)
+            {
+                if (segment.SearchExpression != null)
+                {
+                    executed = executed || (segment.SearchExpression.Scope.Count == 0
+                        ? this.Search(segment.SearchExpression)
+                        : this.SearchWithScope(segment.SearchExpression));
+                }
+            }
+            return executed;
+        }
+        private bool Search(QFind search)
+        {
+            bool result = search.Fragments.Count > 0;
+
+            if (result)
+            {
+                for (byte b = 1; b <= 66; b++)
+                {
+                    foreach (var fragment in search.Fragments)
+                    {
+                        //var score = fragment.Compare(this.Results, null);
+                        return false;
+                    }
+                }
+            }
+            return result;
+        }
+        private bool SearchWithScope(QFind search)
+        {
+            bool result = search.Fragments.Count > 0;
+
+            if (result)
+            {
+                foreach (var scope in search.Scope)
+                {
+                    return false;
+                }
+            }
+            return result;
         }
 
         private QImplicitCommands(QContext env, string stmtText)

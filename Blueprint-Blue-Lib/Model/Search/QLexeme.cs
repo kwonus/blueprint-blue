@@ -32,12 +32,9 @@ namespace Blueprint.Blue
         }
         private void AddRawPhonetics(string word)
         {
-            if (this.Wildcard == null)
-            {
-                var phone = new NUPhoneGen(word);
-                if (!this.Phonetics.Contains(phone.Phonetic))
-                    this.Phonetics.Add(phone.Phonetic);
-            }
+            var phone = new NUPhoneGen(word);
+            if (!this.Phonetics.Contains(phone.Phonetic))
+                this.Phonetics.Add(phone.Phonetic);
         }
 
         public QLexeme(QFind search, string text, Parsed parse, bool negate) : base(text, negate)

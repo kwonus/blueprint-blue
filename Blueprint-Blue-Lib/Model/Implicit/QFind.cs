@@ -15,8 +15,8 @@ namespace Blueprint.Blue
         {
             foreach (var filter in filters)
             {
-                if (!this.Filters.ContainsKey(filter.Filter))
-                    this.Filters[filter.Filter] = filter;
+                if (!this.Scope.ContainsKey(filter.Filter))
+                    this.Scope[filter.Filter] = filter;
             }
         }
         public static void AddFilters(Dictionary<string, SearchFilter> baseline, IEnumerable<QFilter> filters)
@@ -37,7 +37,7 @@ namespace Blueprint.Blue
         {
             this.Diagnostics = diagnostics;
             this.Settings = settings;
-            this.Filters = filters;
+            this.Scope = filters;
             this.Expression = text;
 
             this.Fragments = new();
