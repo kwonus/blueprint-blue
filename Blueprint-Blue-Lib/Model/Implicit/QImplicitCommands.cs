@@ -7,6 +7,7 @@
     using System.Text.Json.Serialization;
     using Blueprint.Model.Implicit;
     using static AVXLib.Framework.Numerics;
+    using AVSearch.Model.Results;
 
     public class QImplicitCommands
     {
@@ -37,6 +38,7 @@
             }
             return executed;
         }
+        // TO DO: 3C27
         private bool Search(QFind search)
         {
             bool result = search.Fragments.Count > 0;
@@ -54,6 +56,7 @@
             }
             return result;
         }
+        // TO DO: 3C27
         private bool SearchWithScope(QFind search)
         {
             bool result = search.Fragments.Count > 0;
@@ -85,6 +88,7 @@
             if (stmt.rule.Equals("implicits", StringComparison.InvariantCultureIgnoreCase) && (stmt.children.Length >= 1))
             {
                 Parsed[] segments = stmt.children;
+                var query = new QueryResult();
 
                 for (int s = 0; s < segments.Length; s++)
                 {
@@ -99,7 +103,7 @@
                             var macro = segment.children[1];
                             macroLabel = QApply.Create(context, segment.text, macro);
                         }
-                        QCommandSegment seg = QCommandSegment.CreateSegment(context, elements, macroLabel);
+                        QCommandSegment seg = QCommandSegment.CreateSegment(context, query, elements, macroLabel);
                         valid = (seg != null);
                         if (valid)
                             implicits.Segments.Add(seg);

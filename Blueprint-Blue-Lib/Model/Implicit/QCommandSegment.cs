@@ -1,6 +1,7 @@
 namespace Blueprint.Blue
 {
     using AVSearch.Model.Expressions;
+    using AVSearch.Model.Results;
     using Blueprint.Model.Implicit;
     using Pinshot.PEG;
     using System;
@@ -17,19 +18,20 @@ namespace Blueprint.Blue
         public List<QInvoke>  Invocations   { get; internal set; }
         public QApply?        MacroLabel    { get; internal set; }
         public QSettings      Settings      { get; protected set; }
+        public QueryResult    Results       { get; protected set; }
 
-        private QCommandSegment(QContext env, string text, string verb, QApply? applyLabel = null) : base(env, text, verb)
+        private QCommandSegment(QContext env, QueryResult results, string text, string verb, QApply? applyLabel = null) : base(env, text, verb)
         {
             this.Settings = new QSettings(env.GlobalSettings);
-
+            this.Results = results;
             this.SearchExpression = null;
             this.Assignments = new();
             this.Invocations = new();
             this.MacroLabel = applyLabel;
         }
-        public static QCommandSegment? CreateSegment(QContext env, Parsed elements, QApply? applyLabel = null)
+        public static QCommandSegment? CreateSegment(QContext env, QueryResult results, Parsed elements, QApply? applyLabel = null)
         {
-            var segment = new QCommandSegment(env, elements.text, elements.rule, applyLabel);
+            var segment = new QCommandSegment(env, results, elements.text, elements.rule, applyLabel);
             Dictionary<string, SearchFilter> filters = new();
             foreach (Parsed clause in elements.children)
             {
