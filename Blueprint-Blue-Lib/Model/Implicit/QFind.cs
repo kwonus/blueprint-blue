@@ -33,10 +33,11 @@ namespace Blueprint.Blue
                 baseline[filter.Filter] = filter;
         }
 
-        private QFind(IDiagnostic diagnostics, QSettings settings, Dictionary<string, SearchFilter> filters, string text, Parsed[] args)
+        private QFind(IDiagnostic diagnostics, QCommandSegment segment, Dictionary<string, SearchFilter> filters, string text, Parsed[] args)
         {
             this.Diagnostics = diagnostics;
-            this.Settings = settings;
+            this.Settings = segment.Settings;
+            this.Query = segment.Results;
             this.Scope = filters;
             this.Expression = text;
 
@@ -86,9 +87,9 @@ namespace Blueprint.Blue
             }
 
         }
-        public static QFind? Create(IDiagnostic diagnostics, QSettings settings, Dictionary<string, SearchFilter> filters, string text, Parsed[] args)
+        public static QFind? Create(IDiagnostic diagnostics, QCommandSegment segment, Dictionary<string, SearchFilter> filters, string text, Parsed[] args)
         {
-            QFind? search = new QFind(diagnostics, settings, filters, text, args);
+            QFind? search = new QFind(diagnostics, segment, filters, text, args);
 
             return search.Valid ? search : null;
         }

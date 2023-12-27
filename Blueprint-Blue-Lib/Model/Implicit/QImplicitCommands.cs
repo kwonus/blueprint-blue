@@ -38,34 +38,33 @@
             }
             return executed;
         }
-        // TO DO: 3C27
         private bool Search(QFind search)
         {
             bool result = search.Fragments.Count > 0;
 
             if (result)
             {
-                for (byte b = 1; b <= 66; b++)
+                search.AddScope(0);
+                foreach (var book in search.Books.Values)
                 {
-                    foreach (var fragment in search.Fragments)
-                    {
-                        //var score = fragment.Compare(this.Results, null);
-                        return false;
-                    }
+                    result = result || book.Search(search);
                 }
             }
             return result;
         }
-        // TO DO: 3C27
         private bool SearchWithScope(QFind search)
         {
             bool result = search.Fragments.Count > 0;
 
             if (result)
             {
-                foreach (var scope in search.Scope)
+                foreach (var filter in search.Scope.Values)
                 {
-                    return false;
+                    search.AddScope(filter);
+                }
+                foreach (var book in search.Books.Values)
+                {
+                    result = result || book.Search(search);
                 }
             }
             return result;

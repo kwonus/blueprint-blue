@@ -83,7 +83,7 @@ namespace Blueprint.Blue
 
                         if (expression.rule.Equals("search", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            segment.SearchExpression = QFind.Create(env, segment.Settings, filters, expression.text, clause.children);
+                            segment.SearchExpression = QFind.Create(env, segment, filters, expression.text, clause.children);
                         }
                         else if (expression.rule.Equals("invoke_full", StringComparison.InvariantCultureIgnoreCase))
                         {
