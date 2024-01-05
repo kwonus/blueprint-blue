@@ -47,7 +47,7 @@
                 search.AddScope(0);
                 foreach (var book in search.Books.Values)
                 {
-                    result = result || book.Search(search);
+                    result = book.Search(search) || result;
                 }
             }
             return result;
