@@ -104,7 +104,7 @@
                         }
                         QCommandSegment seg = QCommandSegment.CreateSegment(context, query, elements, macroLabel);
                         valid = (seg != null);
-                        if (valid)
+                        if (seg != null)
                             implicits.Segments.Add(seg);
                     }
                 }

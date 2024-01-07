@@ -13,6 +13,8 @@ namespace Blueprint.Blue
 
         private QInvoke(QContext env, string text, string invocation) : base(env, text, "invoke")
         {
+            this.Filters = new();
+            this.Settings = new QSettings(env.GlobalSettings);
             this.Id = null;
             this.Label = null;
             this.Generic = invocation.Trim();
@@ -27,6 +29,9 @@ namespace Blueprint.Blue
         }
         private QInvoke(QContext env, string text, uint id) : base(env, text, "invoke")
         {
+            this.Filters = new();
+            this.Settings = new QSettings(env.GlobalSettings);
+
             this.Id = id;
             this.Label = null;
             this.Generic = id.ToString();

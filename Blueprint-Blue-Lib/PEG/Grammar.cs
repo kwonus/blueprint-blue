@@ -39,6 +39,13 @@
         public string text { set; get; }
         [DataMember]
         public Parsed[] children { set; get; }
+
+        public Parsed()
+        {
+            this.rule = string.Empty;
+            this.text = string.Empty;
+            this.children = new Parsed[0];
+        }
     }
 
     [DataContract]

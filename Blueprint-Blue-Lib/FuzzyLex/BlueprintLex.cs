@@ -10,11 +10,11 @@
         string Lex { get; }
         string Mod { get; }
 
-        byte[] ELex { get; }
-        byte[] EMod { get; }
+        byte[] ELex { get; }    // E is shorthand for Embeddings
+        byte[] EMod { get; }    // E is shorthand for Embeddings
 
-        string PLex { get; }
-        string PMod { get; }
+        string PLex { get; }    // P is shorthand for Phonetics
+        string PMod { get; }    // P is shorthand for Phonetics
     }
     public class BlueprintLemma : ILexicalComparitor // Blueprint Lemma is always a modern Lemma, unless it is identical to the Lex entry (not sure if the data has those conditions, but it doesn't matter for comparisons, because we don't look at archaic lemmas in our comparison logic)
     {
@@ -26,10 +26,10 @@
         private string PLemma;
         public string Lex { get => this.Lemma; }
         public string Mod { get => this.Lemma; }
-        public byte[] ELex { get => this.ELemma; }
-        public string PLex { get => this.PLemma; }
-        public byte[] EMod { get => this.ELemma; }
-        public string PMod { get => this.PLemma; }
+        public byte[] ELex { get => this.ELemma; }  // E is shorthand for Embeddings
+        public string PLex { get => this.PLemma; }  // P is shorthand for Phonetics
+        public byte[] EMod { get => this.ELemma; }  // E is shorthand for Embeddings
+        public string PMod { get => this.PLemma; }  // P is shorthand for Phonetics
         public static byte MaxLen { get; private set; } = 0;
         public static Dictionary<byte, Dictionary<UInt16, ILexicalComparitor>> LemmaPartition { get; private set; } = new(); // shared between Lex & Mod
         public static Dictionary<UInt16, string> OOVLemma { get; private set; } = new(); // shared between Lex & Mod
@@ -68,6 +68,10 @@
                     if (!BlueprintLemma.LemmaPartition.ContainsKey(blen))
                         BlueprintLemma.LemmaPartition[blen] = new();
                     BlueprintLemma.LemmaPartition[blen][this.wkey] = this;
+                }
+                else
+                {
+                    this.ELemma = new byte[0];
                 }
             }
             else

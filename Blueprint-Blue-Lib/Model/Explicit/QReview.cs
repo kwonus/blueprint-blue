@@ -16,7 +16,21 @@ namespace Blueprint.Blue
                 this.Label = string.Empty;
                 return;
             }
-            this.Label = args != null && args.Length == 1 ? args[0].text : string.Empty;
+            if (args != null && args.Length >= 1)
+            {
+                this.Label = args[0].text;
+                this.Arguments = new string[args.Length-1];
+
+                for (int i = 0; i < this.Arguments.Length; i++)
+                {
+                    this.Arguments[i] = args[i+1].text;
+                }
+            }
+            else
+            {
+                this.Label = string.Empty;
+                this.Arguments = new string[0];
+            }
         }
         public override (bool ok, string message) Execute()
         {
