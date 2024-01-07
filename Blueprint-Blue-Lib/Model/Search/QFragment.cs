@@ -13,7 +13,7 @@ namespace Blueprint.Blue
         [YamlIgnore]
         public QFind Search { get; private set; }
 
-        public QFragment(QFind context, string text, Parsed[] args, bool anchored = false)
+        public QFragment(QFind context, string text, Parsed[] args, bool anchored = false): base(text)
         {
             this.Search = context;
             this.Anchored = anchored;

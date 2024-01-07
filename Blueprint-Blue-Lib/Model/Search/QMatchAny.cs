@@ -10,15 +10,12 @@
 
     public class QMatchAny: SearchMatchAny
     {
-        private string Text;
-        public List<FeatureGeneric> AnyFeature { get; private set; }
         [JsonIgnore]
         [YamlIgnore]
         public QFind Search { get; private set; }
 
-        public QMatchAny(QFind context, string text, Parsed[] args)
+        public QMatchAny(QFind context, string text, Parsed[] args): base(text)
         {
-            this.Text = text;
             this.AnyFeature = new();
             this.Search = context;
 
