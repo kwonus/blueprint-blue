@@ -8,9 +8,6 @@ namespace Blueprint.Blue
 
     public class QPartOfSpeech : FeaturePartOfSpeech
     {
-        public UInt16 PnPos12 { get; private set; }
-        public UInt32 Pos32   { get; private set; }
-
         private static Dictionary<string, (UInt16 pnpos, bool negate)> PnPosTable { get; set; } = new()
         {
             { "/1p/",           (Numerics.PersonNumber.Person1st, false) },

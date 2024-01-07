@@ -29,7 +29,7 @@ namespace Blueprint.Blue
             this.Invocations = new();
             this.MacroLabel = applyLabel;
         }
-        public static QCommandSegment? CreateSegment(QContext env, QueryResult results, Parsed elements, QApply? applyLabel = null)
+        public static QCommandSegment CreateSegment(QContext env, QueryResult results, Parsed elements, QApply? applyLabel = null)
         {
             var segment = new QCommandSegment(env, results, elements.text, elements.rule, applyLabel);
             Dictionary<string, SearchFilter> filters = new();
@@ -100,7 +100,20 @@ namespace Blueprint.Blue
                     }
                 }
             }
+            segment.ConditionallyUpdateSpanToFragmentCount();
+
             return segment;
+        }
+        internal void ConditionallyUpdateSpanToFragmentCount()
+        {
+            if (this.SearchExpression != null && this.SearchExpression.Settings.SearchSpan != 0)
+            {
+                UInt16 fragCnt = (UInt16)this.SearchExpression.Fragments.Count;
+                if (fragCnt > this.SearchExpression.Settings.SearchSpan)
+                {
+                    this.Settings.Span.Update(fragCnt);
+                }
+            }
         }
     }
 }

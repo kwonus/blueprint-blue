@@ -6,32 +6,37 @@ namespace Blueprint.Blue
     using PhonemeEmbeddings;
     using AVXLib;
     using AVSearch.Model.Features;
+    using AVSearch.Interfaces;
 
     public class QLemma : FeatureLemma
     {
-        public UInt16[] Lemmata { get; private set; }
-        public HashSet<string> Phonetics { get; private set; }
-
-        private bool AddLemmata(UInt16[] lemmata)
-        {
+         private bool AddLemmata(UInt16[] lemmata, ISettings settings)
+         {
+            this.Lemmata = new();
             if (lemmata != null)
             {
-                this.Lemmata = lemmata;
-                foreach (var key in lemmata)
+                foreach (UInt16 lemma in lemmata)
                 {
-                    var modern = ObjectTable.AVXObjects.lexicon.GetLexModern(key);
-                    var phone = new NUPhoneGen(modern);
-                    if (!this.Phonetics.Contains(phone.Phonetic))
-                        this.Phonetics.Add(phone.Phonetic);
+                    if (this.Lemmata.Contains(lemma))
+                        continue;
+
+                    this.Lemmata.Add(lemma);
+
+                    if (settings.EnableFuzzyLemmata)
+                    {
+                        var modern = ObjectTable.AVXObjects.lexicon.GetLexModern(lemma);
+                        var phone = new NUPhoneGen(modern);
+                        if (!this.Phonetics.Contains(phone.Phonetic))
+                            this.Phonetics.Add(phone.Phonetic);
+                    }
                 }
                 return true;
             }
-            this.Lemmata = new UInt16[0];
             return false;
         }
         private void AddRawPhonetics(string word)
         {
-            this.Lemmata = new UInt16[0];
+            this.Lemmata = new();
 
             var phone = new NUPhoneGen(word);
             if (!this.Phonetics.Contains(phone.Phonetic))
@@ -39,6 +44,7 @@ namespace Blueprint.Blue
         }
         public QLemma(QFind search, string text, Parsed parse, bool negate) : base(text, negate)
         {
+            this.Lemmata = new();
             this.Phonetics = new();
 
             var normalized = text.ToLower();
@@ -49,17 +55,16 @@ namespace Blueprint.Blue
             if (lex > 0)
             {
                 var lemmas = ObjectTable.AVXObjects.lemmata.FindLemmataUsingWordKey(lex);
-                if (AddLemmata(lemmas)) 
+                if (AddLemmata(lemmas, search.Settings)) 
                 {
                     return;  // If it is OOV, we can infer that this is a lemma
                 }
                 lemmas = ObjectTable.AVXObjects.lemmata.FindLemmataInList(lex);
 
-                if (AddLemmata(lemmas))
+                if (AddLemmata(lemmas, search.Settings))
                 {
                     return;  // If it is OOV, we can infer that this is a lemma
                 }
-                this.Lemmata = new UInt16[0];
             }
             var oov = ObjectTable.AVXObjects.oov.GetReverseEntry(normalized);
 
@@ -67,14 +72,14 @@ namespace Blueprint.Blue
             {
                 var lemmas = ObjectTable.AVXObjects.lemmata.FindLemmataUsingWordKey(oov);
 
-                if (AddLemmata(lemmas))
+                if (AddLemmata(lemmas, search.Settings))
                 {
                     return;  // If it is OOV, we can infer that this is a lemma
                 }
 
                 lemmas = ObjectTable.AVXObjects.lemmata.FindLemmataInList(oov);
 
-                if (AddLemmata(lemmas))
+                if (AddLemmata(lemmas, search.Settings))
                 {
                     return;  // If it is OOV, we can infer that this is a lemma
                 }

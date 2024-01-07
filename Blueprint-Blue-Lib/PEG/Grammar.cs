@@ -8,11 +8,11 @@
     public class RootParse
     {
         [DataMember]
-        public string input { set; get; }
+        public required string   input  { set; get; }
         [DataMember]
-        public Parsed[] result { set; get; }
+        public required Parsed[] result { set; get; }
         [DataMember]
-        public string error { set; get; }
+        public required string   error  { set; get; }
 
         public static (RootParse root, bool ok) Create(Stream stream)
         {
@@ -45,11 +45,16 @@
     public class RawParseResult
     {
         [DataMember]
-        public string input { set; get; }
+        public required string input  { set; get; }
         [DataMember]
-        public string result { set; get; }
+        public required string result { set; get; }
         [DataMember]
-        public string error { set; get; }
+        public required string error  { set; get; }
+
+        public RawParseResult()
+        {
+
+        }
 
         public static (RawParseResult root, bool ok) Create(Stream stream)
         {

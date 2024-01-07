@@ -5,7 +5,7 @@ namespace Blueprint.Model.Implicit
     using Blueprint.Blue;
     using Pinshot.PEG;
     using System;
-
+    using System.Data;
     using static global::Blueprint.Model.Implicit.QLexicalDomain;
 
     internal enum SIMILARITY { NONE = 0, FUZZY_MIN = 33, FUZZY_MAX = 99, EXACT = 100 }
@@ -19,15 +19,16 @@ namespace Blueprint.Model.Implicit
         {
             this.Value = VERSE;
         }
-        public QSpan(ushort val)
+        public QSpan(UInt16 span)
         {
-            this.Value = val;
+            this.Update(span);
         }
-        public QSpan(string val)
+        public QSpan(string span)
         {
-            this.Value = FromString(val);
+            UInt16 ispan = FromString(span);
+            this.Update(ispan);
         }
-        public static ushort FromString(string val)
+        public static UInt16 FromString(string val)
         {
             string test = val.Trim();
             if (test.Equals("verse", StringComparison.InvariantCultureIgnoreCase))
@@ -38,7 +39,7 @@ namespace Blueprint.Model.Implicit
             {
                 try
                 {
-                    return ushort.Parse(val);
+                    return UInt16.Parse(val);
                 }
                 catch
                 {
@@ -54,6 +55,10 @@ namespace Blueprint.Model.Implicit
         public string AsYaml()
         {
             return "span: " + ToString();
+        }
+        internal void Update(UInt16 span)
+        {
+            this.Value = span <= 999 ? span : (UInt16)999;
         }
     }
     public class QSimilarity

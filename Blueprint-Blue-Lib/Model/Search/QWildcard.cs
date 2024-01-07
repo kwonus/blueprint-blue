@@ -1,22 +1,15 @@
 namespace Blueprint.Blue
 {
     using AVSearch.Interfaces;
+    using AVSearch.Model.Types;
     using AVXLib;
     using Blueprint.Model.Implicit;
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;
 
-    public class QWildcard
+    public class QWildcard: TypeWildcard
     {
-        public List<string> Contains { get; private set; }
-        public string? Beginning { get; private set; }
-        public string? Ending { get; private set; }
-        public List<string> ContainsHyphenated { get; private set; }
-        public string? BeginningHyphenated { get; private set; }
-        public string? EndingHyphenated { get; private set; }
-        public string Text { get; private set; }
-
         private void AddParts(Parsed parse)
         {
             if ((parse.children == null) || (parse.children.Length != 1) || !parse.children[0].rule.Equals("text", StringComparison.InvariantCultureIgnoreCase))
@@ -64,17 +57,15 @@ namespace Blueprint.Blue
             }
         }
 
-        public QWildcard(string text, Parsed parse)
+        public QWildcard(string text, Parsed parse): base(text)
         {
             this.Text = text.Trim();
 
             this.Beginning = null;
             this.Ending = null;
-            this.Contains = new();
 
             this.BeginningHyphenated = null;
             this.EndingHyphenated = null;
-            this.ContainsHyphenated = new();
 
             if (parse.children != null)
             {
@@ -83,72 +74,6 @@ namespace Blueprint.Blue
                     this.AddParts(child);
                 }
             }
-        }
-        public UInt16[] GetLexemes(ISettings settings)
-        {
-            var lexicon = ObjectTable.AVXObjects.Mem.Lexicon.Slice(1).ToArray();
-            var lexemes = new List<UInt16>();
-
-            UInt16 key = 0;
-            foreach (var lex in lexicon)
-            {
-                bool match = false;
-                ++key;
-
-                string kjv = lex.Display.ToString();
-                string avx = lex.Modern.ToString();
-
-                (bool normalized, bool hyphenated) kjvMatch = (false, false);
-                (bool normalized, bool hyphenated) avxMatch = (false, false);
-
-                bool hyphenated = kjv.Contains('-');
-
-                string kjvNorm = hyphenated ? lex.Search.ToString() : kjv;
-                string avxNorm = hyphenated ? lex.Search.ToString() : avx;  // transliterated names do not differ between kjv and avx
-
-                kjvMatch.normalized = settings.UseLexiconAV
-                    && ((this.Beginning == null) || kjvNorm.StartsWith(this.Beginning, StringComparison.InvariantCultureIgnoreCase))
-                    && ((this.Ending    == null) || kjvNorm.EndsWith(  this.Ending,    StringComparison.InvariantCultureIgnoreCase));
-
-                avxMatch.normalized = settings.UseLexiconAVX
-                    && ((this.Beginning == null) || avxNorm.StartsWith(this.Beginning, StringComparison.InvariantCultureIgnoreCase))
-                    && ((this.Ending    == null) || avxNorm.EndsWith(  this.Ending,    StringComparison.InvariantCultureIgnoreCase));
-
-                match = kjvMatch.normalized || avxMatch.normalized;
-
-                if (hyphenated)
-                {
-                    kjvMatch.hyphenated = settings.UseLexiconAV
-                        && ((this.Beginning == null) || kjv.StartsWith(this.Beginning, StringComparison.InvariantCultureIgnoreCase))
-                        && ((this.Ending    == null) || kjv.EndsWith(  this.Ending,    StringComparison.InvariantCultureIgnoreCase));
-
-                    avxMatch.hyphenated = settings.UseLexiconAVX
-                        && ((this.Beginning == null) || avx.StartsWith(this.Beginning, StringComparison.InvariantCultureIgnoreCase))
-                        && ((this.Ending    == null) || avx.EndsWith(  this.Ending,    StringComparison.InvariantCultureIgnoreCase));
-
-                    match = match || kjvMatch.hyphenated || avxMatch.hyphenated;
-                }
-                if (match && this.Contains.Count > 0)
-                {
-                    foreach (var piece in this.Contains)
-                    {
-                        if (kjvMatch.normalized)
-                            kjvMatch.normalized = kjvNorm.Contains(piece, StringComparison.InvariantCultureIgnoreCase);
-                        if (avxMatch.normalized)
-                            avxMatch.normalized = avxNorm.Contains(piece, StringComparison.InvariantCultureIgnoreCase);
-
-                        if (kjvMatch.hyphenated)
-                            kjvMatch.hyphenated = kjv.Contains(piece, StringComparison.InvariantCultureIgnoreCase);
-                        if (avxMatch.hyphenated)
-                            avxMatch.hyphenated = avx.Contains(piece, StringComparison.InvariantCultureIgnoreCase);
-                    }
-                }
-                if (kjvMatch.normalized || avxMatch.normalized || kjvMatch.hyphenated || avxMatch.hyphenated)
-                {
-                    lexemes.Add(key);
-                }
-            }
-            return lexemes.ToArray();
         }
     }
 }

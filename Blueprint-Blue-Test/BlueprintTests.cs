@@ -7,8 +7,6 @@ namespace Blueprint_Blue_Test
     [TestClass]
     public class BlueprintTests
     {
-        private PinshotLib lib_pinshot;
-
         public BlueprintTests()
         {
             ;
