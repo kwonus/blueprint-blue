@@ -26,12 +26,12 @@
         public ExpandableInvocation(QCommandSegment statement)
         {
             this.Time = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            this.Expression = statement.SearchExpression != null ? statement.SearchExpression.Expression : null;
+            this.Expression = statement.FindExpression != null ? statement.FindExpression.Expression : null;
             this.Settings = new QSettings(statement.Settings);
-            if (statement.SearchExpression != null && statement.SearchExpression.Scope.Count > 0 )
+            if (statement.FindExpression != null && statement.FindExpression.Scope.Count > 0 )
             {
                 this.Filters = new();
-                foreach (var filter in statement.SearchExpression.Scope.Values)
+                foreach (var filter in statement.FindExpression.Scope.Values)
                 {
                     this.Filters.Add(((QFilter)filter).Filter);
                 }

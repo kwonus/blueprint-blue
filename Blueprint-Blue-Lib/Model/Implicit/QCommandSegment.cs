@@ -13,18 +13,18 @@ namespace Blueprint.Blue
 
     public class QCommandSegment : QCommand, ICommand
     {
-        public QFind? SearchExpression      { get; internal set; }
-        public List<QAssign>  Assignments   { get; internal set; }
-        public List<QInvoke>  Invocations   { get; internal set; }
-        public QApply?        MacroLabel    { get; internal set; }
-        public QSettings      Settings      { get; protected set; }
-        public QueryResult    Results       { get; protected set; }
+        public QFind?         FindExpression { get; internal set; }
+        public List<QAssign>  Assignments    { get; internal set; }
+        public List<QInvoke>  Invocations    { get; internal set; }
+        public QApply?        MacroLabel     { get; internal set; }
+        public QSettings      Settings       { get; protected set; }
+        public QueryResult    Results        { get; protected set; }
 
         private QCommandSegment(QContext env, QueryResult results, string text, string verb, QApply? applyLabel = null) : base(env, text, verb)
         {
             this.Settings = new QSettings(env.GlobalSettings);
             this.Results = results;
-            this.SearchExpression = null;
+            this.FindExpression = null;
             this.Assignments = new();
             this.Invocations = new();
             this.MacroLabel = applyLabel;
@@ -83,14 +83,14 @@ namespace Blueprint.Blue
 
                         if (expression.rule.Equals("search", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            segment.SearchExpression = QFind.Create(env, segment, filters, expression.text, clause.children);
+                            segment.FindExpression = QFind.Create(env, segment, filters, expression.text, clause.children);
                         }
                         else if (expression.rule.Equals("invoke_full", StringComparison.InvariantCultureIgnoreCase))
                         {
                             var invocation = QInvoke.Create(env, clause.text, clause.children, partial: false);
                             if (invocation != null)
                             {
-                                segment.SearchExpression = invocation.Expression;
+                                segment.FindExpression = invocation.Expression;
                                 segment.Settings.CopyFrom(invocation.Settings);
                                 QFind.AddFilters(filters, invocation.Filters);
 
@@ -106,10 +106,10 @@ namespace Blueprint.Blue
         }
         internal void ConditionallyUpdateSpanToFragmentCount()
         {
-            if (this.SearchExpression != null && this.SearchExpression.Settings.SearchSpan != 0)
+            if (this.FindExpression != null && this.FindExpression.Settings.SearchSpan != 0)
             {
-                UInt16 fragCnt = (UInt16)this.SearchExpression.Fragments.Count;
-                if (fragCnt > this.SearchExpression.Settings.SearchSpan)
+                UInt16 fragCnt = (UInt16)this.FindExpression.Fragments.Count;
+                if (fragCnt > this.FindExpression.Settings.SearchSpan)
                 {
                     this.Settings.Span.Update(fragCnt);
                 }

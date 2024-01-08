@@ -8,6 +8,8 @@
     using Blueprint.Model.Implicit;
     using static AVXLib.Framework.Numerics;
     using AVSearch.Model.Results;
+    using System.Runtime.CompilerServices;
+    using AVSearch.Model.Expressions;
 
     public class QImplicitCommands
     {
@@ -15,28 +17,40 @@
         [YamlIgnore]
         public QContext Context { get; set; }
 
-        public AVSearch.Model.Results.QueryResult Results { get; set; }
+        public QueryResult Results { get; set; }
 
         public QExport? ExportDirective { get; internal set; }
         public QPrint?  LimitDirective  { get; internal set; }
 
         public List<QCommandSegment> Segments { get; internal set; }
 
-        public bool Execute() // TO DO: Quoted searches do not appear to be parsing correctly
+        [JsonIgnore]
+        [YamlIgnore]
+        public IEnumerable<SearchExpression> Expressions
         {
-            this.Results = new();
+            get
+            {
+                foreach (QCommandSegment seg in this.Segments)
+                {
+                    if (seg.FindExpression != null)
+                        yield return seg.FindExpression;
+                }
+            }
+        }
 
+        public (bool ok, QueryResult query) Execute() // TO DO: Quoted searches do not appear to be parsing correctly
+        {
             bool executed = false;
             foreach (var segment in this.Segments)
             {
-                if (segment.SearchExpression != null)
+                if (segment.FindExpression != null)
                 {
-                    executed = executed || (segment.SearchExpression.Scope.Count == 0
-                        ? this.Search(segment.SearchExpression)
-                        : this.SearchWithScope(segment.SearchExpression));
+                    executed = executed || (segment.FindExpression.Scope.Count == 0
+                        ? this.Search(segment.FindExpression)
+                        : this.SearchWithScope(segment.FindExpression));
                 }
             }
-            return executed;
+            return (executed, this.Results);
         }
         private bool Search(QFind search)
         {
@@ -87,7 +101,6 @@
             if (stmt.rule.Equals("implicits", StringComparison.InvariantCultureIgnoreCase) && (stmt.children.Length >= 1))
             {
                 Parsed[] segments = stmt.children;
-                var query = new QueryResult();
 
                 for (int s = 0; s < segments.Length; s++)
                 {
@@ -102,13 +115,15 @@
                             var macro = segment.children[1];
                             macroLabel = QApply.Create(context, segment.text, macro);
                         }
-                        QCommandSegment seg = QCommandSegment.CreateSegment(context, query, elements, macroLabel);
+                        QCommandSegment seg = QCommandSegment.CreateSegment(context, implicits.Results, elements, macroLabel);
                         valid = (seg != null);
                         if (seg != null)
                             implicits.Segments.Add(seg);
                     }
                 }
             }
+            implicits.Results = new QueryResult(implicits.Expressions);
+
             return valid ? implicits : null;
         }
     }
