@@ -17,8 +17,6 @@ namespace Blueprint.Blue
         public static QFilter? Create(IDiagnostic diagnostics, string text, Parsed[] args)
         {
             return args.Length == 1 ? new QFilter(args[0].text) : null;
-            // TO DO:
-            // Fill out the range in accordance with the prammar
-        }
+        } 
     }
 }

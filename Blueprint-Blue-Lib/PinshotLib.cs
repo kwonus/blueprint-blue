@@ -30,7 +30,7 @@ namespace Pinshot.Blue
                 UInt16 actual = get_library_revision();
                 Pinshot_RustFFI.VERSION = "2." + ((actual & 0xF000) >> 12).ToString() + "." + (actual & 0x0FFF).ToString("X3");
 
-                UInt16 expected = 0x3C27; // "2.3.C27" major version is inferred (2.)
+                UInt16 expected = 0x4111; // "2.4.111" major version is inferred (2.)
                 UInt16 version = assert_grammar_revision(expected);
 
                 Console.WriteLine("Using Quelle Grammar version: " + Pinshot_RustFFI.VERSION);
