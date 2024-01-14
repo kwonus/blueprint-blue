@@ -50,6 +50,12 @@
                         : this.SearchWithScope(segment.FindExpression));
                 }
             }
+            foreach (SearchExpression exp in this.Expressions)
+            {
+                for (byte b = 1; b <= 66; b++)
+                    if (exp.Books.ContainsKey(b) && (exp.Books[b].Chapters.Count == 0))
+                        exp.Books.Remove(b);
+            }
             return (executed, this.Results);
         }
         private bool Search(QFind search)

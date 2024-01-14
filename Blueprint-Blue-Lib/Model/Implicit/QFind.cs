@@ -72,10 +72,10 @@ namespace Blueprint.Blue
                     }
                     else
                     {
-                        this.Valid = gchild.rule.Equals("unanchored") && (gchild.children.Length > 0);
+                        this.Valid = (gchild.children.Length > 0);
                         if (!this.Valid)
                             break;
-                        frag = new QFragment(this, gchild.children[0].text, gchild.children[0].children, anchored: false);
+                        frag = new QFragment(this, gchild.children[0].text, gchild.children[0].children, anchored: gchild.rule.Equals("anchored"));
                     }
                     if (this.Valid)
                         this.Fragments.Add(frag);
