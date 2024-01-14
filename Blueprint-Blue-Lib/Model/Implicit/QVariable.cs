@@ -238,9 +238,10 @@ namespace Blueprint.Model.Implicit
         public enum QFormatVal
         {
             JSON = 0,
-            TEXT = 1,
-            HTML = 2,
-            MD = 3
+            YAML = 1,
+            TEXT = 2,
+            HTML = 3,
+            MD = 4
         }
         public const QFormatVal DEFAULT = QFormatVal.JSON;
         public QFormatVal Value { get; set; }
@@ -261,8 +262,13 @@ namespace Blueprint.Model.Implicit
             switch (val.Trim().ToUpper())
             {
                 case "JSON": return QFormatVal.JSON;
+                case "YAML": return QFormatVal.YAML;
+                case "TXT": 
+                case "UTF": 
+                case "UTF8":
                 case "TEXT": return QFormatVal.TEXT;
                 case "HTML": return QFormatVal.HTML;
+                case "MARKDOWN":
                 case "MD": return QFormatVal.MD;
                 default: return DEFAULT;
             }
@@ -272,6 +278,7 @@ namespace Blueprint.Model.Implicit
             switch (val)
             {
                 case QFormatVal.JSON: return "json";
+                case QFormatVal.YAML: return "yaml";
                 case QFormatVal.TEXT: return "text";
                 case QFormatVal.HTML: return "html";
                 case QFormatVal.MD:   return "md";
