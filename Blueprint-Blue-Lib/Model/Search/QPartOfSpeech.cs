@@ -5,55 +5,56 @@ namespace Blueprint.Blue
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;
+    using static AVXLib.Framework.Numerics;
 
     public class QPartOfSpeech : FeaturePartOfSpeech
     {
-        private static Dictionary<string, (UInt16 pnpos, bool negate)> PnPosTable { get; set; } = new()
+        private static Dictionary<string, UInt16> PnPosTable { get; set; } = new()
         {
-            { "/1p/",           (Numerics.PersonNumber.Person1st, false) },
-            { "/2p/",           (Numerics.PersonNumber.Person2nd, false) },
-            { "/3p/",           (Numerics.PersonNumber.Person3rd, false) },
-            { "/noun/",         (Numerics.POS12.Noun, false) },
-            { "/n/",            (Numerics.POS12.Noun, false) },
-            { "/verb/",         (Numerics.POS12.Verb, false) },
-            { "/v/",            (Numerics.POS12.Verb, false) },
-            { "/pronoun/",      (Numerics.POS12.Pronoun, false) },
-            { "/pn/",           (Numerics.POS12.Pronoun, false) },
-            { "/adjective/",    (Numerics.POS12.Adjective, false) },
-            { "/adj/",          (Numerics.POS12.Adjective, false) },
-            { "/adverb/",       (Numerics.POS12.Adverb, false) },
-            { "/adv/",          (Numerics.POS12.Adverb, false) },
-            { "/determiner/",   (Numerics.POS12.Determiner, false) },
-            { "/det/",          (Numerics.POS12.Determiner, false) },
-            { "/particle/",     (Numerics.POS12.Particle, false) },
-            { "/part/",         (Numerics.POS12.Particle, false) },
-            { "/wh/",           (Numerics.PersonNumber.WH, false) },
-            { "/singular/",     (Numerics.PersonNumber.Singular, false) },
-            { "/pural/",        (Numerics.PersonNumber.Plural, false) },
+            { "/1p/",           Numerics.PersonNumber.Person1st },
+            { "/2p/",           Numerics.PersonNumber.Person2nd },
+            { "/3p/",           Numerics.PersonNumber.Person3rd },
+            { "/noun/",         Numerics.POS12.Noun },
+            { "/n/",            Numerics.POS12.Noun },
+            { "/verb/",         Numerics.POS12.Verb },
+            { "/v/",            Numerics.POS12.Verb },
+            { "/pronoun/",      Numerics.POS12.Pronoun },
+            { "/pn/",           Numerics.POS12.Pronoun },
+            { "/adjective/",    Numerics.POS12.Adjective },
+            { "/adj/",          Numerics.POS12.Adjective },
+            { "/adverb/",       Numerics.POS12.Adverb },
+            { "/adv/",          Numerics.POS12.Adverb },
+            { "/determiner/",   Numerics.POS12.Determiner },
+            { "/det/",          Numerics.POS12.Determiner },
+            { "/particle/",     Numerics.POS12.Particle },
+            { "/part/",         Numerics.POS12.Particle },
+            { "/wh/",           Numerics.PersonNumber.WH },
+            { "/singular/",     Numerics.PersonNumber.Singular },
+            { "/pural/",        Numerics.PersonNumber.Plural },
                                
-            { "/preposition/",  (Numerics.POS12.Preposition, false) },
-            { "/prep/",         (Numerics.POS12.Preposition, false) },
-            { "/interjection/", (Numerics.POS12.Interjection, false) },
-            { "/inter/",        (Numerics.POS12.Interjection, false) },
-            { "/conjunction/",  (Numerics.POS12.Conjunction, false) },
-            { "/conj/",         (Numerics.POS12.Conjunction, false) },
-            { "/numeric/",      (Numerics.POS12.Numeric, false) },
-            { "/num/",          (Numerics.POS12.Numeric, false) },
+            { "/preposition/",  Numerics.POS12.Preposition },
+            { "/prep/",         Numerics.POS12.Preposition },
+            { "/interjection/", Numerics.POS12.Interjection },
+            { "/inter/",        Numerics.POS12.Interjection },
+            { "/conjunction/",  Numerics.POS12.Conjunction },
+            { "/conj/",         Numerics.POS12.Conjunction },
+            { "/numeric/",      Numerics.POS12.Numeric },
+            { "/num/",          Numerics.POS12.Numeric },
 
-            { "/pn_neuter/",    (Numerics.POS12.Pronoun_Neuter, false) },
-            { "/pn_masculine/", (Numerics.POS12.Pronoun_Masculine, false) },
-            { "/pn_male/",      (Numerics.POS12.Pronoun_Masculine, false) },
-            { "/pn_feminine/",  (Numerics.POS12.Pronoun_Feminine, false) },
-            { "/pn_fem/",       (Numerics.POS12.Pronoun_Feminine, false) },
+            { "/pn_neuter/",    Numerics.POS12.Pronoun_Neuter },
+            { "/pn_masculine/", Numerics.POS12.Pronoun_Masculine },
+            { "/pn_male/",      Numerics.POS12.Pronoun_Masculine },
+            { "/pn_feminine/",  Numerics.POS12.Pronoun_Feminine },
+            { "/pn_fem/",       Numerics.POS12.Pronoun_Feminine },
 
-            { "/pn_genitive/",  (Numerics.POS12.PronounOrNoun_Genitive, false) },
-            { "/pn_gen/",       (Numerics.POS12.PronounOrNoun_Genitive, false) },
-            { "/pn_nominative/",(Numerics.POS12.Pronoun_Nominative, false) },
-            { "/pn_nom/",       (Numerics.POS12.Pronoun_Nominative, false) },
-            { "/pn_objective/", (Numerics.POS12.Pronoun_Objective, false) },
-            { "/pn_obj/",       (Numerics.POS12.Pronoun_Objective, false) },
-            { "/pn_reflexive/", (Numerics.POS12.Pronoun_Reflexive, false) },
-            { "/pn_rfx/",       (Numerics.POS12.Pronoun_Reflexive, false) }
+            { "/pn_genitive/",  Numerics.POS12.PronounOrNoun_Genitive },
+            { "/pn_gen/",       Numerics.POS12.PronounOrNoun_Genitive },
+            { "/pn_nominative/",Numerics.POS12.Pronoun_Nominative },
+            { "/pn_nom/",       Numerics.POS12.Pronoun_Nominative },
+            { "/pn_objective/", Numerics.POS12.Pronoun_Objective },
+            { "/pn_obj/",       Numerics.POS12.Pronoun_Objective },
+            { "/pn_reflexive/", Numerics.POS12.Pronoun_Reflexive },
+            { "/pn_rfx/",       Numerics.POS12.Pronoun_Reflexive }
 
         };
         static QPartOfSpeech()
@@ -61,54 +62,92 @@ namespace Blueprint.Blue
             ;
         }
 
-        public static ((UInt16 pnpos, bool negate) result, bool found) Lookup(string pnpos)
+        public static (UInt16 pnpos, bool found, bool numeric) Lookup(string pnpos)
         {
-            ((UInt16 pnpos, bool negate) result, bool found) entry = ((0, false), QPartOfSpeech.PnPosTable.ContainsKey(pnpos));
+            if (!string.IsNullOrEmpty(pnpos))
+            {
+                (UInt16 pnpos, bool found, bool numeric) entry = (0, QPartOfSpeech.PnPosTable.ContainsKey(pnpos), false);
 
-            if (entry.found)
-                entry.result = QPartOfSpeech.PnPosTable[pnpos];
+                if (entry.found)
+                {
+                    entry.pnpos = QPartOfSpeech.PnPosTable[pnpos];
+                }
+                else if (pnpos.StartsWith('#') && pnpos.Length == 5) // #FFFF
+                {
+                    foreach (char c in pnpos.Substring(1))
+                    {
+                        entry.numeric = char.IsAsciiHexDigit(c);
 
-            return entry;
+                        if (!entry.numeric)
+                            break;
+                    }
+                    if (entry.numeric)
+                    {
+                        entry.found = true;
+                        entry.pnpos = UInt16.Parse(pnpos, System.Globalization.NumberStyles.HexNumber);
+                    }
+                }
+                return entry;
+            }
+            return (0, false, false);
+        }
+
+        public static (UInt32 pos32, bool found, bool numeric) Decode(string pos32)
+        {
+            if (!string.IsNullOrEmpty(pos32))
+            {
+                (UInt32 pos32, bool found, bool numeric) entry = (0, !string.IsNullOrEmpty(pos32), false);
+
+                if (entry.found)
+                {
+                    entry.pos32 = FiveBitEncoding.EncodePOS(pos32);
+                    entry.found = (entry.pos32 > 0);
+                }
+                if (!entry.found)
+                {
+                    if (pos32.StartsWith('#') && pos32.Length == 9) // #FFFFFFFF
+                    {
+                        foreach (char c in pos32.Substring(1))
+                        {
+                            entry.numeric = char.IsAsciiHexDigit(c);
+
+                            if (!entry.numeric)
+                                break;
+                        }
+                        if (entry.numeric)
+                        {
+                            entry.found = true;
+                            entry.pos32 = UInt32.Parse(pos32, System.Globalization.NumberStyles.HexNumber);
+                        }
+                    }
+                }
+                return entry;
+            }
+            return (0, false, false);
         }
 
         public QPartOfSpeech(QFind search, string text, Parsed parse, bool negate) : base(text, negate)
         {
-            var pnpos = this.Text.ToLower().Replace(" ", "");
+            var pos = this.Text.ToLower().Replace(" ", "");
 
             this.PnPos12 = 0;
             this.Pos32 = 0;
 
-            var entry = Lookup(pnpos);
+            var entry16 = QPartOfSpeech.Lookup(pos);
 
-            if (entry.found)
+            if (entry16.found)
             {
-                this.PnPos12 = entry.result.pnpos;
+                this.PnPos12 = entry16.pnpos;
             }
             else if (parse.children.Length == 1)
             {
                 var child = parse.children[0];
-                if (child.text.StartsWith('#'))
+
+                var entry32 = QPartOfSpeech.Decode(child.text);
+
+                if (entry32.found)
                 {
-                    var pos = child.text.Substring(1);
-                    try
-                    {
-                        if (child.rule == "nupos")
-                        {
-                            this.Pos32 = Blueprint.Blue.FiveBitEncoding.EncodePOS(pos);
-                        }
-                        else if (child.rule == "pos32") // do we really want to support numeric representation of nupos strings?
-                        {
-                            this.Pos32 = UInt32.Parse(pos);
-                        }
-                        else if (child.rule == "pn_pos12")
-                        {
-                            this.PnPos12 = UInt16.Parse(pos);
-                        }
-                    }
-                    catch
-                    {
-                        ;
-                    }
+                    this.Pos32 = entry32.pos32;
                 }
             }
             if (this.Pos32 == 0 && this.PnPos12 == 0)
