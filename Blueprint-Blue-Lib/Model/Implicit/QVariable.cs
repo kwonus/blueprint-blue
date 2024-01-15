@@ -2,6 +2,7 @@
 //
 namespace Blueprint.Model.Implicit
 {
+    using AVSearch.Interfaces;
     using Blueprint.Blue;
     using Pinshot.PEG;
     using System;
@@ -129,10 +130,10 @@ namespace Blueprint.Model.Implicit
     {
         public enum QLexiconVal
         {
-            UNDEFINED = 0,
-            AV = 1,
-            AVX = 2,
-            BOTH = 3
+            UNDEFINED = ISettings.Lexion_UNDEFINED,
+            AV = ISettings.Lexion_AV,
+            AVX = ISettings.Lexion_AVX,
+            BOTH = ISettings.Lexion_BOTH
         }
         public const QLexiconVal DEFAULT = QLexiconVal.BOTH;
         public QLexiconVal Value { get; set; }
@@ -185,9 +186,9 @@ namespace Blueprint.Model.Implicit
     {
         public enum QDisplayVal
         {
-            UNDEFINED,
-            AV = 1,
-            AVX = 2
+            UNDEFINED = ISettings.Lexion_UNDEFINED,
+            AV = ISettings.Lexion_AV,
+            AVX = ISettings.Lexion_AVX
         }
         public const QDisplayVal DEFAULT = QDisplayVal.AV;
         public QDisplayVal Value { get; set; }
@@ -237,11 +238,11 @@ namespace Blueprint.Model.Implicit
     {
         public enum QFormatVal
         {
-            JSON = 0,
-            YAML = 1,
-            TEXT = 2,
-            HTML = 3,
-            MD = 4
+            JSON = ISettings.Formatting_JSON,
+            YAML = ISettings.Formatting_YAML,
+            TEXT = ISettings.Formatting_TEXT,
+            HTML = ISettings.Formatting_HTML,
+            MD   = ISettings.Formatting_MD
         }
         public const QFormatVal DEFAULT = QFormatVal.JSON;
         public QFormatVal Value { get; set; }
