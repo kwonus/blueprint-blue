@@ -1,5 +1,6 @@
 ﻿namespace Blueprint.FuzzyLex
 {
+    using AVXLib.Memory;
     using PhonemeEmbeddings;
     using System;
     using System.Collections.Generic;
@@ -139,10 +140,12 @@
         private BlueprintLex(UInt16 wkey, AVXLib.Memory.Lexicon entry)
         {
             this.wkey = wkey;
-            this.Lex = entry.Search.ToString();
-            this.Mod = entry.Modern.ToString().Replace("-", "").Replace(" ", ""); // e.g. vilest => most vile
-            this.ModernOrthography = (this.Mod != this.Lex);
-            this.Display = entry.Display.ToString();
+            this.Lex = LEXICON.ToSearchString(entry);
+            this.Mod = LEXICON.IsHyphenated(entry) ? LEXICON.ToSearchString(entry) : LEXICON.ToModernString(entry);
+            if (!LEXICON.IsModernSameAsDisplay(entry))
+                this.Mod = this.Mod.Replace(" ", ""); // e.g. vilest => most vile
+            this.ModernOrthography = !LEXICON.IsModernSameAsDisplay(entry);
+            this.Display = LEXICON.ToDisplayString(entry);
             this.POS = entry.POS;
             this.Entities = entry.Entities;
 

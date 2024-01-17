@@ -12,7 +12,14 @@ namespace Blueprint.Blue
     {
         private void AddParts(Parsed parse)
         {
-            if ((parse.children == null) || (parse.children.Length != 1) || !parse.children[0].rule.Equals("text", StringComparison.InvariantCultureIgnoreCase))
+            if ((parse.children == null) || (parse.children.Length != 1))
+                return;
+
+            if (parse.children[0].rule.Equals("nuphone", StringComparison.InvariantCultureIgnoreCase))
+                this.TermType = WildcardType.NuphoneTerm;
+            else if (parse.children[0].rule.Equals("text", StringComparison.InvariantCultureIgnoreCase))
+                this.TermType = WildcardType.EnglishTerm;
+            else
                 return;
 
             var text = parse.children[0].text;

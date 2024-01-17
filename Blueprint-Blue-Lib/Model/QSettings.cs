@@ -151,9 +151,15 @@
         [YamlIgnore]
         public bool EnableFuzzyLemmata    { get => this.Similarity.EnableLemmaMatching; }
         [YamlIgnore]
-        public bool UseLexiconAV          { get => this.Lexicon.Value == QLexicalDomain.QLexiconVal.AV  || this.Lexicon.Value == QLexicalDomain.QLexiconVal.BOTH; }
+        public bool SearchAsAV            { get => this.Lexicon.Value == QLexicalDomain.QLexiconVal.AV  || this.Lexicon.Value == QLexicalDomain.QLexiconVal.BOTH; }
         [YamlIgnore]
-        public bool UseLexiconAVX         { get => this.Lexicon.Value == QLexicalDomain.QLexiconVal.AVX || this.Lexicon.Value == QLexicalDomain.QLexiconVal.BOTH; }
+        public bool SearchAsAVX           { get => this.Lexicon.Value == QLexicalDomain.QLexiconVal.AVX || this.Lexicon.Value == QLexicalDomain.QLexiconVal.BOTH; }
+        [YamlIgnore]
+        public bool RenderAsAV            { get => this.Display.Value == QLexicalDisplay.QDisplayVal.AV; } // mutually exclusive with RenderAsAVX
+        [YamlIgnore]
+        public bool RenderAsAVX           { get => this.Display.Value == QLexicalDisplay.QDisplayVal.AVX; } // mutually exclusive with RenderAsAV
+        [YamlIgnore]
+        public int  RenderingFormat       { get => (int)this.Format.Value; }
         [YamlIgnore]
         public byte SearchSimilarity      { get => this.Similarity.Value; }
         [YamlIgnore]
