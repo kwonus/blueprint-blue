@@ -6,7 +6,7 @@
 
     public class QStrongs : FeatureStrongs
     {
-        public QStrongs(QFind search, string text, Parsed parse, bool negate) : base(text, negate)
+        public QStrongs(QFind search, string text, Parsed parse, bool negate) : base(text, negate, search.Settings)
         {
             var parts = text.Split(':');
             if (parts.Length == 2)

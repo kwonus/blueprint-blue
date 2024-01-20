@@ -6,7 +6,7 @@ namespace Blueprint.Blue
     {
         public byte Punctuation { get; private set; }
 
-        public QPunctuation(QFind search, string text, Parsed parse, bool negate) : base(text, negate)
+        public QPunctuation(QFind search, string text, Parsed parse, bool negate) : base(text, negate, search.Settings)
         {
             this.Punctuation = 0;
         }

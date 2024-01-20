@@ -16,7 +16,7 @@ namespace Blueprint.Blue
             {
                 if (args[0].children.Length == 3    // @set lexicon = av
                 && args[0].children[0].rule.Equals("set_command", StringComparison.InvariantCultureIgnoreCase)
-                && args[0].children[1].rule.EndsWith("_key", StringComparison.InvariantCultureIgnoreCase)
+                && args[0].children[1].rule.EndsWith("_VAR", StringComparison.InvariantCultureIgnoreCase)
                 && args[0].children[2].rule.EndsWith("_option", StringComparison.InvariantCultureIgnoreCase))
                 {
                     this.IsValid = true;
@@ -44,7 +44,7 @@ namespace Blueprint.Blue
                 }
 
                 else if (args[0].children.Length == 2    // @lexicon = av
-                     && args[0].children[0].rule.EndsWith("_key", StringComparison.InvariantCultureIgnoreCase)
+                     && args[0].children[0].rule.EndsWith("_SET", StringComparison.InvariantCultureIgnoreCase)
                      && args[0].children[1].rule.EndsWith("_option", StringComparison.InvariantCultureIgnoreCase))
                 {
                     this.IsValid = true;
@@ -56,7 +56,7 @@ namespace Blueprint.Blue
                     }
                     else
                     {
-                        this.Key = args[0].children[0].text;
+                        this.Key = args[0].children[0].text.Replace('@', '%');
                     }
 
                     if (string.IsNullOrWhiteSpace(args[0].children[1].text))

@@ -24,31 +24,54 @@ namespace Blueprint.Blue
 
                     if (settings.EnableFuzzyLemmata)
                     {
-                        var modern = ObjectTable.AVXObjects.lexicon.GetLexModern(lemma);
-                        var phone = new NUPhoneGen(modern);
-                        if (!this.Phonetics.Contains(phone.Phonetic))
-                            this.Phonetics.Add(phone.Phonetic);
+                        string modern = ObjectTable.AVXObjects.lexicon.GetLexModern(lemma);
+                        this.AddGeneratedNUPhone(modern);
                     }
                 }
                 return true;
             }
             return false;
         }
-        private void AddRawPhonetics(string word)
+        private void AddGeneratedNUPhone(string word)
         {
-            this.Lemmata = new();
+            int threshold = this.Settings.SearchSimilarity;
 
-            var phone = new NUPhoneGen(word);
-            if (!this.Phonetics.Contains(phone.Phonetic))
-                this.Phonetics.Add(phone.Phonetic);
+            if (threshold > 0 && threshold <= FeatureGeneric.FullMatch/100)
+            {
+                var nuphone = new NUPhoneGen(word);
+                if (!this.Phonetics.ContainsKey(nuphone.Phonetic))
+                {
+                    Dictionary<UInt16, UInt16> matches = new();
+                    this.Phonetics[nuphone.Phonetic] = matches;
+
+                    foreach (UInt16 key in ObjectTable.AVXObjects.Mem.Phonetics.Keys)
+                    {
+                        string payload = ObjectTable.AVXObjects.Mem.Phonetics[key].ToString();
+                        string[] items = payload.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+                        foreach (string ipa in items)
+                        {
+                            NUPhoneGen candidate = new(ipa);
+                            UInt16 score = nuphone.Compare(candidate);
+                            if (score >= threshold*100 && score <= FeatureGeneric.FullMatch)
+                            {
+                                matches[key] = score;
+                            }
+                        }
+                    }
+                }
+            }
         }
-        public QLemma(QFind search, string text, Parsed parse, bool negate) : base(text, negate)
+        public QLemma(QFind search, string text, Parsed parse, bool negate) : base(text, negate, search.Settings)
         {
             this.Lemmata = new();
             this.Phonetics = new();
 
             var normalized = text.ToLower();
-            AddRawPhonetics(normalized);
+            if (this.Settings.EnableFuzzyLemmata)
+            {
+                AddGeneratedNUPhone(normalized);
+            }
 
             var lex = ObjectTable.AVXObjects.lexicon.GetReverseLexExtensive(normalized)[0];
 

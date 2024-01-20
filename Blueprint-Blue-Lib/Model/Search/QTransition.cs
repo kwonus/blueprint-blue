@@ -5,7 +5,7 @@
 
     public class QTransition : FeatureTransition
     {
-        public QTransition(QFind search, string text, Parsed parse, bool negate) : base(text, negate)
+        public QTransition(QFind search, string text, Parsed parse, bool negate) : base(text, negate, search.Settings)
         {
             this.Transition = 0;
         }

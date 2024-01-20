@@ -5,7 +5,7 @@
 
     public class QDelta : FeatureDelta
     {
-        public QDelta(QFind search, string text, Parsed parse, bool negate) : base(text, negate)
+        public QDelta(QFind search, string text, Parsed parse, bool negate) : base(text, negate, search.Settings)
         {
             ;
         }

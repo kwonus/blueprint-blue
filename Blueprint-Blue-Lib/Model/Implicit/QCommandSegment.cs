@@ -41,7 +41,7 @@ namespace Blueprint.Blue
                     {
                         var variable = clause.children[0];
 
-                        if (variable.rule.Equals("var_opt", StringComparison.InvariantCultureIgnoreCase))
+                        if (variable.rule.Equals("assignment", StringComparison.InvariantCultureIgnoreCase))
                         {
                             QAssign? assignment = QVariable.CreateAssignment(env, variable.text, variable.children);
                             if (assignment != null)

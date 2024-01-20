@@ -64,7 +64,7 @@ namespace Blueprint.Blue
             }
         }
 
-        public QWildcard(string text, Parsed parse): base(text)
+        public QWildcard(string text, Parsed parse, WildcardType type) : base(text, type)
         {
             this.Text = text.Trim();
 
