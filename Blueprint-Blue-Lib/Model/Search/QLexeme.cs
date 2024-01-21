@@ -7,6 +7,7 @@ namespace Blueprint.Blue
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;
+    using static System.Net.Mime.MediaTypeNames;
 
     public class QLexeme : FeatureLexeme
     {
@@ -26,13 +27,16 @@ namespace Blueprint.Blue
             }
             return false;
         }
-        private void AddGeneratedNUPhone(string word, bool raw = false)
+        private bool AddGeneratedNUPhone(string word, bool raw = false)
         {
-            int threshold = this.Settings.SearchSimilarity;
+            bool found = false;
+            byte threshold = this.Settings.SearchSimilarity;
 
-            if (threshold > 0 && threshold <= FeatureGeneric.FullMatch / 100)
+            if (threshold > 0 && threshold*10 <= FeatureGeneric.FullMatch)
             {
                 var nuphone = new NUPhoneGen(word, raw);
+                if (raw == true)
+                    found = true;
                 if (!this.Phonetics.ContainsKey(nuphone.Phonetic))
                 {
                     Dictionary<UInt16, UInt16> matches = new();
@@ -43,18 +47,23 @@ namespace Blueprint.Blue
                         string payload = ObjectTable.AVXObjects.Mem.Phonetics[key].ToString();
                         string[] items = payload.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
+                        // NUPhone scoring is 1 to 10000
+                        // scoring HERE is 1 to 1000
+                        // threshold score is 33 to 100
                         foreach (string ipa in items)
                         {
                             NUPhoneGen candidate = new(ipa);
-                            UInt16 score = nuphone.Compare(candidate);
-                            if (score >= threshold * 100 && score <= FeatureGeneric.FullMatch)
+                            UInt16? score = nuphone.Compare(candidate, threshold);
+                            if (score != null && score.Value >= threshold * 100 && score.Value <= FeatureGeneric.FullMatch * 10)
                             {
-                                matches[key] = score;
+                                matches[key] = (UInt16)(score.Value / 10);
+                                found = true;
                             }
                         }
                     }
                 }
             }
+            return found;
         }
         private void AddRawNUPhone(string phonetic)
         {
@@ -86,8 +95,9 @@ namespace Blueprint.Blue
                     this.WordKeys.Add(wkey);
 
                 if (!AddPhonetics())
+                {
                     AddGeneratedNUPhone(text);
-
+                }
                 if (this.WordKeys.Count == 0)
                 {
                     search.AddWarning("'" + text + "' is not in the lexicon (only sounds-alike searching can be used to match this token).");

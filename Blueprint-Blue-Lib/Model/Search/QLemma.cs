@@ -34,9 +34,9 @@ namespace Blueprint.Blue
         }
         private void AddGeneratedNUPhone(string word)
         {
-            int threshold = this.Settings.SearchSimilarity;
+            byte threshold = this.Settings.SearchSimilarity;
 
-            if (threshold > 0 && threshold <= FeatureGeneric.FullMatch/100)
+            if (threshold > 0 && threshold*10 <= FeatureGeneric.FullMatch)
             {
                 var nuphone = new NUPhoneGen(word);
                 if (!this.Phonetics.ContainsKey(nuphone.Phonetic))
@@ -49,13 +49,16 @@ namespace Blueprint.Blue
                         string payload = ObjectTable.AVXObjects.Mem.Phonetics[key].ToString();
                         string[] items = payload.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
+                        // NUPhone scoring is 1 to 10000
+                        // scoring HERE is 1 to 1000
+                        // threshold score is 33 to 100
                         foreach (string ipa in items)
                         {
                             NUPhoneGen candidate = new(ipa);
-                            UInt16 score = nuphone.Compare(candidate);
-                            if (score >= threshold*100 && score <= FeatureGeneric.FullMatch)
+                            UInt16? score = nuphone.Compare(candidate, threshold);
+                            if (score != null && score.Value >= threshold*100 && score.Value <= FeatureGeneric.FullMatch*10)
                             {
-                                matches[key] = score;
+                                matches[key] = (UInt16) (score.Value / 10);
                             }
                         }
                     }
