@@ -46,6 +46,8 @@ namespace Blueprint.Blue
                         case "hebrew": return new QStrongs(search, text, child, !positive);
 
                         case "delta": return new QDelta(search, text, child, !positive);
+
+                        case "entities": return new QEntity(search, text, child, !positive);
                     }
                 }
             }

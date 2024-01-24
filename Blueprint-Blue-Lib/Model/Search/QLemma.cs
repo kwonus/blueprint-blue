@@ -7,6 +7,7 @@ namespace Blueprint.Blue
     using AVXLib;
     using AVSearch.Model.Features;
     using AVSearch.Interfaces;
+    using System.Runtime.Versioning;
 
     public class QLemma : FeatureLemma
     {
@@ -22,7 +23,7 @@ namespace Blueprint.Blue
 
                     this.Lemmata.Add(lemma);
 
-                    if (settings.EnableFuzzyLemmata)
+                    if (settings.SearchSimilarity.lemma != 0)
                     {
                         string modern = ObjectTable.AVXObjects.lexicon.GetLexModern(lemma);
                         this.AddGeneratedNUPhone(modern);
@@ -34,7 +35,8 @@ namespace Blueprint.Blue
         }
         private void AddGeneratedNUPhone(string word)
         {
-            byte threshold = this.Settings.SearchSimilarity;
+            (byte word, byte lemma) thresholds = this.Settings.SearchSimilarity;
+            byte threshold = thresholds.lemma;
 
             if (threshold > 0 && threshold*10 <= FeatureGeneric.FullMatch)
             {
@@ -55,8 +57,8 @@ namespace Blueprint.Blue
                         foreach (string ipa in items)
                         {
                             NUPhoneGen candidate = new(ipa);
-                            UInt16? score = nuphone.Compare(candidate, threshold);
-                            if (score != null && score.Value >= threshold*100 && score.Value <= FeatureGeneric.FullMatch*10)
+                            UInt16? score = nuphone.Compare(candidate, thresholds.word);
+                            if (score != null && score.Value >= thresholds.word*100 && score.Value <= FeatureGeneric.FullMatch*10)
                             {
                                 matches[key] = (UInt16) (score.Value / 10);
                             }
@@ -71,25 +73,26 @@ namespace Blueprint.Blue
             this.Phonetics = new();
 
             var normalized = text.ToLower();
-            if (this.Settings.EnableFuzzyLemmata)
+            if (this.Settings.SearchSimilarity.lemma > 0)
             {
                 AddGeneratedNUPhone(normalized);
             }
 
-            var lex = ObjectTable.AVXObjects.lexicon.GetReverseLexExtensive(normalized)[0];
-
-            if (lex > 0)
+            foreach (UInt16 lex in AVXLib.Framework.Lexicon.GetReverseLexExtensive(normalized))
             {
-                var lemmas = ObjectTable.AVXObjects.lemmata.FindLemmataUsingWordKey(lex);
-                if (AddLemmata(lemmas, search.Settings)) 
+                if (lex > 0)
                 {
-                    return;  // If it is OOV, we can infer that this is a lemma
-                }
-                lemmas = ObjectTable.AVXObjects.lemmata.FindLemmataInList(lex);
+                    var lemmas = ObjectTable.AVXObjects.lemmata.FindLemmataUsingWordKey(lex);
+                    if (AddLemmata(lemmas, search.Settings))
+                    {
+                        return;  // If it is OOV, we can infer that this is a lemma
+                    }
+                    lemmas = ObjectTable.AVXObjects.lemmata.FindLemmataInList(lex);
 
-                if (AddLemmata(lemmas, search.Settings))
-                {
-                    return;  // If it is OOV, we can infer that this is a lemma
+                    if (AddLemmata(lemmas, search.Settings))
+                    {
+                        return;  // If it is OOV, we can infer that this is a lemma
+                    }
                 }
             }
             var oov = ObjectTable.AVXObjects.oov.GetReverseEntry(normalized);

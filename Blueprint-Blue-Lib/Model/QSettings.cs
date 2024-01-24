@@ -48,40 +48,38 @@
                 case "lexicon":    this.Lexicon = new QLexicalDomain(assignment.Value);  return true;
                 case "display":    this.Display = new QLexicalDisplay(assignment.Value); return true;
                 case "format":     this.Format = new QFormat(assignment.Value);          return true;
-                case "similarity": this.Similarity = new QSimilarity(assignment.Value);  return true;
+                case "similarity": this.Similarity = new QSimilarity(assignment.Value, this);  return true;
             }
             return false;
         }
         public bool Set(QSet setting)
         {
-            string key = (setting.Key.Length >= 1 && setting.Key[0] == '%') ? setting.Key.Substring(1) : setting.Key;
-            switch (key)
+            switch (setting.Key)
             {
                 case "span":       this.Span = new QSpan(setting.Value);              break;
                 case "lexicon":    this.Lexicon = new QLexicalDomain(setting.Value);  break;
                 case "display":    this.Display = new QLexicalDisplay(setting.Value); break;
                 case "format":     this.Format = new QFormat(setting.Value);          break;
-                case "similarity": this.Similarity = new QSimilarity(setting.Value);  break;
+                case "similarity": this.Similarity = new QSimilarity(setting.Value, this);  break;
                 default:           return false;
             }
             return Update();
         }
         public bool Clear(QClear clear)
         {
-            string key = (clear.Key.Length >= 1 && clear.Key[0] == '%') ? clear.Key.Substring(1) : clear.Key;
-            switch (key)
+            switch (clear.Key)
             {
                 case "span":       this.Span = new QSpan(QSpan.DEFAULT);                        break;
                 case "lexicon":    this.Lexicon = new QLexicalDomain(QLexicalDomain.DEFAULT);   break;
                 case "display":    this.Display = new QLexicalDisplay(QLexicalDisplay.DEFAULT); break;
                 case "format":     this.Format = new QFormat(QFormat.DEFAULT);                  break;
-                case "similarity": this.Similarity = new QSimilarity(QSimilarity.DEFAULT);      break;
+                case "similarity": this.Similarity = new QSimilarity(QSimilarity.DEFAULT.word, QSimilarity.DEFAULT.lemma); break;
 
                 case "all":        this.Span = new QSpan(QSpan.DEFAULT);
-                                    this.Lexicon = new QLexicalDomain(QLexicalDomain.DEFAULT);
-                                    this.Display = new QLexicalDisplay(QLexicalDisplay.DEFAULT);
-                                    this.Format = new QFormat(QFormat.DEFAULT);
-                                    this.Similarity = new QSimilarity(QSimilarity.DEFAULT);      break;
+                                   this.Lexicon = new QLexicalDomain(QLexicalDomain.DEFAULT);
+                                   this.Display = new QLexicalDisplay(QLexicalDisplay.DEFAULT);
+                                   this.Format = new QFormat(QFormat.DEFAULT);
+                                   this.Similarity = new QSimilarity(QSimilarity.DEFAULT.word, QSimilarity.DEFAULT.lemma); break;
 
                 default:           return false;
             }
@@ -149,8 +147,6 @@
 
         // Implement ISettings
         [YamlIgnore]
-        public bool EnableFuzzyLemmata    { get => this.Similarity.EnableLemmaMatching; }
-        [YamlIgnore]
         public bool SearchAsAV            { get => this.Lexicon.Value == QLexicalDomain.QLexiconVal.AV  || this.Lexicon.Value == QLexicalDomain.QLexiconVal.BOTH; }
         [YamlIgnore]
         public bool SearchAsAVX           { get => this.Lexicon.Value == QLexicalDomain.QLexiconVal.AVX || this.Lexicon.Value == QLexicalDomain.QLexiconVal.BOTH; }
@@ -161,7 +157,7 @@
         [YamlIgnore]
         public int  RenderingFormat       { get => (int)this.Format.Value; }
         [YamlIgnore]
-        public byte SearchSimilarity      { get => this.Similarity.Value; }
+        public (byte word, byte lemma) SearchSimilarity      { get => this.Similarity.Value; }
         [YamlIgnore]
         public UInt16 SearchSpan          { get => this.Span.Value; }
 
@@ -204,7 +200,7 @@
             this.Lexicon = new QLexicalDomain(source.Lexicon.Value);
             this.Display = new QLexicalDisplay(source.Display.Value);
             this.Span    = new QSpan(source.Span.Value);
-            this.Similarity = new QSimilarity(source.Similarity.Value);
+            this.Similarity = new QSimilarity(source.Similarity.Value.word, source.Similarity.Value.lemma);
 
             return this;
         }

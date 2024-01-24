@@ -7,21 +7,19 @@ namespace Blueprint.Blue
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;
+    using YamlDotNet.Serialization;
     using static System.Net.Mime.MediaTypeNames;
 
     public class QLexeme : FeatureLexeme
     {
         private bool AddPhonetics()
         {
-            if (this.WordKeys != null && this.Wildcard == null && this.Settings.SearchSimilarity > 0)
+            if (this.WordKeys != null && this.Wildcard == null && this.Settings.SearchSimilarity.lemma > 0)
             {
                 foreach (var key in this.WordKeys)
                 {
-                    if (this.Settings.EnableFuzzyLemmata)
-                    {
-                        string modern = ObjectTable.AVXObjects.lexicon.GetLexModern(key);
-                        AddGeneratedNUPhone(modern);
-                    }
+                    string modern = ObjectTable.AVXObjects.lexicon.GetLexModern(key);
+                    AddGeneratedNUPhone(modern);
                 }
                 return this.WordKeys.Count > 0;
             }
@@ -30,7 +28,7 @@ namespace Blueprint.Blue
         private bool AddGeneratedNUPhone(string word, bool raw = false)
         {
             bool found = false;
-            byte threshold = this.Settings.SearchSimilarity;
+            byte threshold = this.Settings.SearchSimilarity.word;
 
             if (threshold > 0 && threshold*10 <= FeatureGeneric.FullMatch)
             {
@@ -89,7 +87,7 @@ namespace Blueprint.Blue
             }
             else
             {
-                var wkey = ObjectTable.AVXObjects.lexicon.GetReverseLex(text);
+                var wkey = AVXLib.Framework.Lexicon.GetReverseLex(text);
                 this.WordKeys = new();
                 if (wkey != 0)
                     this.WordKeys.Add(wkey);

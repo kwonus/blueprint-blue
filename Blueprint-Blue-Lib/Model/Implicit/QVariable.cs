@@ -7,6 +7,7 @@ namespace Blueprint.Model.Implicit
     using Pinshot.PEG;
     using System;
     using System.Data;
+    using System.Runtime.Intrinsics.X86;
     using static global::Blueprint.Model.Implicit.QLexicalDomain;
 
     internal enum SIMILARITY { NONE = 0, FUZZY_MIN = 33, FUZZY_MAX = 99, EXACT = 100 }
@@ -64,66 +65,122 @@ namespace Blueprint.Model.Implicit
     }
     public class QSimilarity
     {
-        public static byte DEFAULT
+        public static (byte word, byte lemma) DEFAULT
         {
             get
             {
-                return (byte)SIMILARITY.NONE;
+                return ((byte)SIMILARITY.NONE, (byte)SIMILARITY.NONE);
             }
         }
-        public byte Value { get; private set; }
-        public bool EnableLemmaMatching { get; private set; }
+        public (byte word, byte lemma) Value { get; private set; }
         public QSimilarity()
         {
             Value = DEFAULT;
-            EnableLemmaMatching = false;
         }
-        public QSimilarity(byte val)
+        public QSimilarity(byte val, ISettings? baseline = null)
         {
-            Value = val >= (byte)SIMILARITY.FUZZY_MIN && val <= (byte)SIMILARITY.EXACT ? val : (byte)0;
-            EnableLemmaMatching = val >= 33;
+            this.Value = (
+                val >= (byte)SIMILARITY.FUZZY_MIN && val <= (byte)SIMILARITY.EXACT ? val : baseline != null ? baseline.SearchSimilarity.word  : DEFAULT.word,
+                val >= (byte)SIMILARITY.FUZZY_MIN && val <= (byte)SIMILARITY.EXACT ? val : baseline != null ? baseline.SearchSimilarity.lemma : DEFAULT.lemma);
         }
-        public QSimilarity(string val)
+        public QSimilarity(byte word, byte lemma, ISettings? baseline = null)
         {
-            var result = FromString(val);
-            EnableLemmaMatching = result.automaticLemmaMatching;
-            Value = result.threshold;
+            this.Value = (
+                word  >= (byte)SIMILARITY.FUZZY_MIN && word  <= (byte)SIMILARITY.EXACT ? word  : baseline != null ? baseline.SearchSimilarity.word  : DEFAULT.word,
+                lemma >= (byte)SIMILARITY.FUZZY_MIN && lemma <= (byte)SIMILARITY.EXACT ? lemma : baseline != null ? baseline.SearchSimilarity.lemma : DEFAULT.lemma);
         }
-        public static (bool automaticLemmaMatching, byte threshold) FromString(string val)
+        public QSimilarity(string val, ISettings? baseline = null)
         {
-            (bool enableLemmaMatching, byte threshold) result;
+            string input = val.ToLower().Replace("word", ",word").Replace("lemma", ",lemma").Replace(" ", string.Empty).Replace("\t", string.Empty);
+            string[] parts = val.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
-            result.enableLemmaMatching = val.EndsWith('!');
-            string value = result.enableLemmaMatching ? val.Substring(0, val.Length - 1).Trim() : val;
+            if (parts.Length == 1)
+            {
+                if (!parts[0].Contains(':'))
+                {
+                    var result = QSimilarity.SimilarityFromString(parts[0], baseline);
+                    this.Value = (
+                        result >= (byte)SIMILARITY.FUZZY_MIN && result <= (byte)SIMILARITY.EXACT ? result : baseline != null ? baseline.SearchSimilarity.word  : DEFAULT.word,
+                        result >= (byte)SIMILARITY.FUZZY_MIN && result <= (byte)SIMILARITY.EXACT ? result : baseline != null ? baseline.SearchSimilarity.lemma : DEFAULT.lemma);
+                    return;
+                }
+                parts = parts[0].Split(':', StringSplitOptions.None);
+                if (parts.Length == 2)
+                {
+                    byte result = QSimilarity.SimilarityFromString(parts[1], baseline);
+                    switch (parts[0])
+                    {
+                        case "word":
+                            this.Value = (
+                                result >= (byte)SIMILARITY.FUZZY_MIN && result <= (byte)SIMILARITY.EXACT ? result : baseline != null ? baseline.SearchSimilarity.word : DEFAULT.word,
+                                baseline != null ? baseline.SearchSimilarity.lemma : DEFAULT.lemma);
+                            break;
 
-            if (value.Equals("none", StringComparison.InvariantCultureIgnoreCase))
-                return (false, 0);
-            if (value.Equals("exact", StringComparison.InvariantCultureIgnoreCase))
-                return (false, 100);
-            if (value.Length != 2)
-                return (false, DEFAULT);
+                        case "lemma":
+                            this.Value = (
+                                baseline != null ? baseline.SearchSimilarity.word : DEFAULT.word,
+                                result >= (byte)SIMILARITY.FUZZY_MIN && result <= (byte)SIMILARITY.EXACT ? result : baseline != null ? baseline.SearchSimilarity.lemma : DEFAULT.lemma);
+                            break;
+                    }
+                    return;
+                }
+                this.Value = DEFAULT;
+                return;
+            }
+        }
+
+        public QSimilarity(string sword, string slemma, ISettings? baseline = null)
+        {
+            var word  = QSimilarity.SimilarityFromString(sword);
+            var lemma = QSimilarity.SimilarityFromString(slemma);
+
+            this.Value = (
+                word  >= (byte)SIMILARITY.FUZZY_MIN && word  <= (byte)SIMILARITY.EXACT ? word  : baseline != null ? baseline.SearchSimilarity.word  : DEFAULT.word,
+                lemma >= (byte)SIMILARITY.FUZZY_MIN && lemma <= (byte)SIMILARITY.EXACT ? lemma : baseline != null ? baseline.SearchSimilarity.lemma : DEFAULT.lemma);
+        }
+        public static byte SimilarityFromString(string val, ISettings? baseline = null)
+        {
+            byte result;
+
+            if (val.Equals("none", StringComparison.InvariantCultureIgnoreCase))
+                return (byte)0;
+            if (val.Equals("exact", StringComparison.InvariantCultureIgnoreCase))
+                return (byte)100;
+            if (val.Length != 2)
+                return (byte)DEFAULT.word;
             try
             {
-                result.threshold = (byte)ushort.Parse(value);
+                result = (byte)ushort.Parse(val);
                 return result;
             }
             catch
             {
-                return (false, DEFAULT);
+                return DEFAULT.word;
             }
+        }
+        public static string SimilarityToString(byte similarity)
+        {
+            string result;
+
+            if (similarity <= (byte)SIMILARITY.FUZZY_MIN)
+                result = "none";
+            else if (similarity >= (byte)SIMILARITY.EXACT)
+                result = "exact";
+            else
+                result = similarity.ToString();
+
+            return result;
         }
         public override string ToString()
         {
-            string result = this.Value == 0 ? "exact" : this.Value.ToString();
+            string result = "word: "  + QSimilarity.SimilarityToString(this.Value.word) + ", "
+                          + "lemma: " + QSimilarity.SimilarityToString(this.Value.lemma);
 
-            if (Value < (byte)SIMILARITY.FUZZY_MIN || Value > (byte)SIMILARITY.EXACT)
-                result = "exact";
-
-            return this.EnableLemmaMatching && result != "exact" ? result + '!' : result;
+            return result;
         }
         public string AsYaml()
         {
-            return "similarity: " + ToString();
+            return "similarity: " + this.ToString();
         }
     }
     public class QLexicalDomain
