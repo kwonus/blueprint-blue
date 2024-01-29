@@ -40,50 +40,41 @@ namespace Blueprint.Blue
             this.Expression = text;
 
             this.Fragments = new();
-            this.Valid = (args.Length > 0 && args[0].children.Length > 0);
+            this.Valid = (args.Length == 1 && args[0].rule == "search" && args[0].children.Length == 1);
             if (this.Valid)
             {
+                Parsed child = args[0].children[0];
+
+                bool ordered = child.rule.Equals("ordered") && (child.children.Length > 0);
+                bool unordered = child.rule.Equals("unordered") && (child.children.Length > 0);
+
+                this.Valid = ordered || unordered;
+                this.Quoted = ordered;
+
                 string fulltext = text.Trim();
                 var beginQuote = fulltext.StartsWith("\"");
                 var endQuote = fulltext.StartsWith("\"");
 
-                this.Quoted = beginQuote && endQuote;
-
-                this.Valid = this.Quoted ? true : !fulltext.Contains('"');
-            }
-
-            if (this.Valid)
-            {
-                string rule = this.Quoted ? "ordered" : "unordered";
-                this.Valid = (args.Length == 1) && (args[0].children.Length == 1) && args[0].children[0].rule.Equals(rule, StringComparison.InvariantCultureIgnoreCase) && (args[0].children[0].children.Length > 0);
-            }
-            if (this.Valid)
-            {
-                var child = args[0].children[0];
-
-                foreach (var gchild in child.children)
+                if (this.Valid)
                 {
-                    QFragment frag;
+                    foreach (Parsed gchild in child.children)
+                    {
+                        bool anchored = gchild.rule.Equals("fragment") && (gchild.children.Length > 0);
+                        bool unanchored = gchild.rule.Equals("unanchored") && (gchild.children.Length == 1)
+                            && gchild.children[0].rule.Equals("fragment") && (gchild.children[0].children.Length > 0);
 
-                    this.Valid = gchild.rule.Equals("fragment") && (gchild.children.Length > 0);
-                    if (this.Valid)
-                    {
-                        frag = new QFragment(this, gchild.text, gchild.children, anchored: this.Quoted);
+                        this.Valid = anchored || unanchored;
+
+                        if (this.Valid)
+                        {
+                            Parsed frag = anchored ? gchild : gchild.children[0];
+                            QFragment fragment = new QFragment(this, frag, anchored: this.Quoted);
+                            this.Fragments.Add(fragment);
+                        }
+                        else break;
                     }
-                    else
-                    {
-                        this.Valid = (gchild.children.Length > 0);
-                        if (!this.Valid)
-                            break;
-                        frag = new QFragment(this, gchild.children[0].text, gchild.children[0].children, anchored: gchild.rule.Equals("anchored"));
-                    }
-                    if (this.Valid)
-                        this.Fragments.Add(frag);
-                    else
-                        break;
                 }
             }
-
         }
         public static QFind? Create(IDiagnostic diagnostics, QCommandSegment segment, Dictionary<string, SearchFilter> filters, string text, Parsed[] args)
         {
