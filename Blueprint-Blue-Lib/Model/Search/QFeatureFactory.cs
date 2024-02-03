@@ -8,46 +8,50 @@ namespace Blueprint.Blue
     {
         public static FeatureGeneric? Create(QFind search, string text, Parsed parse)
         {
-            if (parse.rule.Equals("feature", StringComparison.InvariantCultureIgnoreCase) && (parse.children.Length >= 1))
+            if (parse.rule.Equals("feature_option", StringComparison.InvariantCultureIgnoreCase) && (parse.children.Length >= 1))
             {
-                bool positive = true;
-                int cnt = 1;
-                int idx = 0;
-                if (parse.children[0].rule.Equals("not", StringComparison.InvariantCultureIgnoreCase) && (parse.children.Length == 2))
+                foreach (Parsed feature in parse.children)
                 {
-                    idx = 1;
-                    cnt = 2;
-                    positive = false;
-                }
-                if (parse.children[idx].rule.Equals("item", StringComparison.InvariantCultureIgnoreCase) && (parse.children.Length == cnt) && parse.children[idx].children.Length == 1)
-                {
-                    var child = parse.children[idx].children[0];
-
-                    switch (parse.children[idx].children[0].rule.ToLower())
+                    if (feature.rule.Equals("feature", StringComparison.InvariantCultureIgnoreCase) && (parse.children.Length >= 1))
                     {
-                        case "wildcard":
-                        case "text": return new QLexeme(search, text, child, !positive);
+                        bool positive = true;
 
-                        case "lemma": return new QLemma(search, text, child, !positive);
+                        Parsed item = feature.children[0];
+                        if (feature.rule.Equals("not", StringComparison.InvariantCultureIgnoreCase) && (feature.children.Length == 2))
+                        {
+                            item = feature.children[1];
+                            positive = false;
+                        }
+                        if (item.rule.Equals("item", StringComparison.InvariantCultureIgnoreCase) && (item.children.Length == 1) && parse.children[0].children.Length == 1)
+                        {
+                            Parsed type = item.children[0];
+                            switch (type.rule.ToLower())
+                            {
+                                case "wildcard":
+                                case "text":     return new QLexeme(search, text, type, !positive);
 
-                        case "pos":
-                        case "pos32":
-                        case "pn_pos12": return new QPartOfSpeech(search, text, child, !positive);
+                                case "lemma":    return new QLemma(search, text, type, !positive);
 
-                        case "loc":
-                        case "seg": return new QTransition(search, text, child, !positive);
+                                case "pos":
+                                case "pos32":
+                                case "pn_pos12": return new QPartOfSpeech(search, text, type, !positive);
 
-                        case "punc": return new QPunctuation(search, text, child, !positive);
+                                case "loc":
+                                case "seg":      return new QTransition(search, text, type, !positive);
 
-                        case "italics":
-                        case "jesus": return new QDecoration(search, text, child, !positive);
+                                case "punc":     return new QPunctuation(search, text, type, !positive);
 
-                        case "greek":
-                        case "hebrew": return new QStrongs(search, text, child, !positive);
+                                case "italics":
+                                case "jesus":    return new QDecoration(search, text, type, !positive);
 
-                        case "delta": return new QDelta(search, text, child, !positive);
+                                case "greek":
+                                case "hebrew":   return new QStrongs(search, text, type, !positive);
 
-                        case "entities": return new QEntity(search, text, child, !positive);
+                                case "delta":    return new QDelta(search, text, type, !positive);
+
+                                case "entities": return new QEntity(search, text, type, !positive);
+                            }
+                        }
                     }
                 }
             }

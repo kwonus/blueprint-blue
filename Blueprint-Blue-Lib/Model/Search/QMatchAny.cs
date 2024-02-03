@@ -16,7 +16,8 @@
 
         public QMatchAny(QFind context, string text, Parsed[] args): base(text)
         {
-            this.AnyFeature = new();
+            if (this.AnyFeature.Count > 0)
+                this.AnyFeature.Clear();
             this.Search = context;
 
             foreach (var arg in args)
