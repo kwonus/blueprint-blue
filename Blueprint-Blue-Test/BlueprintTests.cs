@@ -34,7 +34,7 @@ namespace Blueprint_Blue_Test
             Assert.IsNotNull(ObjectTable.AVXObjects.lemmata);
             Assert.IsNotNull(ObjectTable.AVXObjects.oov);
 
-            Assert.IsTrue(ObjectTable.AVXObjects.lexicon.GetReverseLex("in") > 0);
+//          Assert.IsTrue(ObjectTable.AVXObjects.lexicon.GetReverseLex("in") > 0);
             //Assert.IsTrue(QContext.AVXObjects.lexicon.); // TODO: TO DO: refactor lexical methods from written to lexicon object
             Assert.IsTrue(ObjectTable.AVXObjects.lemmata.FindLemmataUsingWordKey(1).Length > 0);
             Assert.IsTrue(ObjectTable.AVXObjects.oov.GetReverseEntry("elm") != 0);

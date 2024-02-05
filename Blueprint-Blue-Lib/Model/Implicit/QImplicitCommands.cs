@@ -38,7 +38,7 @@
             }
         }
 
-        public (bool ok, QueryResult query) Execute() // TO DO: Quoted searches do not appear to be parsing correctly
+        public (bool ok, QueryResult query) Execute()
         {
             bool executed = false;
             foreach (var segment in this.Segments)
