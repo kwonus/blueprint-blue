@@ -78,7 +78,7 @@ namespace Blueprint.Blue
                 AddGeneratedNUPhone(normalized);
             }
 
-            foreach (UInt16 lex in AVXLib.Framework.Lexicon.GetReverseLexExtensive(normalized))
+            foreach (UInt16 lex in AVXLib.Framework.Lexicon.GetReverseLex(normalized, this.Settings.SearchAsAV, this.Settings.SearchAsAVX))
             {
                 if (lex > 0)
                 {

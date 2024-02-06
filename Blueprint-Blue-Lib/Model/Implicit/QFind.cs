@@ -68,7 +68,7 @@ namespace Blueprint.Blue
                         if (this.Valid)
                         {
                             Parsed frag = anchored ? gchild : gchild.children[0];
-                            QFragment fragment = new QFragment(this, frag, anchored: this.Quoted);
+                            QFragment fragment = new QFragment(this, frag, anchored);
                             this.Fragments.Add(fragment);
                         }
                         else break;

@@ -87,10 +87,7 @@ namespace Blueprint.Blue
             }
             else
             {
-                var wkey = AVXLib.Framework.Lexicon.GetReverseLex(text);
-                this.WordKeys = new();
-                if (wkey != 0)
-                    this.WordKeys.Add(wkey);
+                this.WordKeys = AVXLib.Framework.Lexicon.GetReverseLex(text, this.Settings.SearchAsAV, this.Settings.SearchAsAVX);
 
                 if (!AddPhonetics())
                 {
