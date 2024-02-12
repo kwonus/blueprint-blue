@@ -15,8 +15,7 @@ namespace Blueprint.Blue
             if (args.Length == 1)
             {
                 if ((args[0].children.Length >= 2)    // @set lexicon = av
-                && args[0].children[0].rule.EndsWith("_key", StringComparison.InvariantCultureIgnoreCase)
-                && args[0].children[1].rule.Contains("_opt", StringComparison.InvariantCultureIgnoreCase))
+                && args[0].children[0].rule.EndsWith("_key", StringComparison.InvariantCultureIgnoreCase))
                 {
                     this.IsValid = true;
 
@@ -37,7 +36,7 @@ namespace Blueprint.Blue
                     }
                     else
                     {
-                        this.Value = args[0].children[1].text;
+                        this.Value = args[0].children[1].rule;
                     }
                     return;
                 }
