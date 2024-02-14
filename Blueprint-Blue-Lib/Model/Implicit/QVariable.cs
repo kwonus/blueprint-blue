@@ -321,7 +321,8 @@ namespace Blueprint.Model.Implicit
             {
                 case "JSON": return QFormatVal.JSON;
                 case "YAML": return QFormatVal.YAML;
-                case "TXT": 
+                case "TEXTUAL":
+                case "TXT":
                 case "UTF": 
                 case "UTF8":
                 case "TEXT": return QFormatVal.TEXT;

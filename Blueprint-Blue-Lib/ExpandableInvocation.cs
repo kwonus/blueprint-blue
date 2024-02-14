@@ -1,12 +1,8 @@
 ﻿namespace Blueprint.Blue
 {
-    using Blueprint.Blue;
     using System;
     using System.Text;
-    using YamlDotNet.RepresentationModel;
-    using YamlDotNet.Serialization.NamingConventions;
-    using YamlDotNet.Serialization;
-    using System.ComponentModel.DataAnnotations;
+    using System.Text.Json;
 
     public class ExpandableInvocation
     {
@@ -112,6 +108,56 @@
                 ;
             }
             return false;
+        }
+        public static bool JsonSerializer(string json, object obj)
+        {
+            try
+            {
+                string output = System.Text.Json.JsonSerializer.Serialize(obj);
+
+                using (var stream = new FileStream(json, FileMode.Create))
+                {
+                    // StreamWriter object that writes UTF-8 encoded text
+                    using (var writer = new StreamWriter(stream, Encoding.UTF8, leaveOpen: false))
+                    {
+                        writer.Write(output);
+                        writer.Flush(); // Make sure all data is written to the MemoryStream.
+                    }
+                    return true;
+                }
+            }
+            catch
+            {
+                ;
+            }
+            return false;
+        }
+        public static string SerializeToYamlString(object obj)
+        {
+            try
+            {
+                YamlDotNet.Serialization.Serializer serializer = new();
+                string output = serializer.Serialize(obj);
+                return output;
+            }
+            catch
+            {
+                ;
+            }
+            return string.Empty;
+        }
+        public static string SerializeToJsonString(object obj)
+        {
+            try
+            {
+                string output = System.Text.Json.JsonSerializer.Serialize(obj);
+                return output;
+            }
+            catch
+            {
+                ;
+            }
+            return string.Empty;
         }
     }
 }
