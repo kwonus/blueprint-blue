@@ -25,7 +25,7 @@ namespace Blueprint.Blue
 
                     if (settings.SearchSimilarity.lemma != 0)
                     {
-                        string modern = ObjectTable.AVXObjects.lexicon.GetLexModern(lemma);
+                        string modern = ObjectTable.AVXObjects.lexicon.GetLexModern(lemma, lemma);
                         this.AddGeneratedNUPhone(modern);
                     }
                 }

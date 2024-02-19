@@ -18,7 +18,7 @@ namespace Blueprint.Blue
             {
                 foreach (var key in this.WordKeys)
                 {
-                    string modern = ObjectTable.AVXObjects.lexicon.GetLexModern(key);
+                    string modern = ObjectTable.AVXObjects.lexicon.GetLexModern(key, 0);
                     AddGeneratedNUPhone(modern);
                 }
                 return this.WordKeys.Count > 0;
