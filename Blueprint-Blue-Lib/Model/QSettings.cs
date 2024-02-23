@@ -147,13 +147,13 @@
 
         // Implement ISettings
         [YamlIgnore]
-        public bool SearchAsAV            { get => this.Lexicon.Value == QLexicalDomain.QLexiconVal.AV  || this.Lexicon.Value == QLexicalDomain.QLexiconVal.BOTH; }
+        public bool SearchAsAV            { get => this.Lexicon.Value == QLexicalDomain.QLexiconVal.AV   || this.Lexicon.Value == QLexicalDomain.QLexiconVal.BOTH; }
         [YamlIgnore]
-        public bool SearchAsAVX           { get => this.Lexicon.Value == QLexicalDomain.QLexiconVal.AVX || this.Lexicon.Value == QLexicalDomain.QLexiconVal.BOTH; }
+        public bool SearchAsAVX           { get => this.Lexicon.Value == QLexicalDomain.QLexiconVal.AVX  || this.Lexicon.Value == QLexicalDomain.QLexiconVal.BOTH; }
         [YamlIgnore]
-        public bool RenderAsAV            { get => this.Display.Value == QLexicalDisplay.QDisplayVal.AV; } // mutually exclusive with RenderAsAVX
+        public bool RenderAsAV            { get => this.Display.Value == QLexicalDisplay.QDisplayVal.AV  || this.Display.Value == QLexicalDisplay.QDisplayVal.BOTH; }
         [YamlIgnore]
-        public bool RenderAsAVX           { get => this.Display.Value == QLexicalDisplay.QDisplayVal.AVX; } // mutually exclusive with RenderAsAV
+        public bool RenderAsAVX           { get => this.Display.Value == QLexicalDisplay.QDisplayVal.AVX || this.Display.Value == QLexicalDisplay.QDisplayVal.BOTH; }
         [YamlIgnore]
         public int  RenderingFormat       { get => (int)this.Format.Value; }
         [YamlIgnore]

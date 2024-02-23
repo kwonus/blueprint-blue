@@ -245,7 +245,8 @@ namespace Blueprint.Model.Implicit
         {
             UNDEFINED = ISettings.Lexion_UNDEFINED,
             AV = ISettings.Lexion_AV,
-            AVX = ISettings.Lexion_AVX
+            AVX = ISettings.Lexion_AVX,
+            BOTH = ISettings.Lexion_BOTH
         }
         public const QDisplayVal DEFAULT = QDisplayVal.AV;
         public QDisplayVal Value { get; set; }
@@ -270,6 +271,8 @@ namespace Blueprint.Model.Implicit
                 case "MODERN":
                 case "MOD":
                 case "AVX": return QDisplayVal.AVX;
+                case "BOTH":
+                case "DUAL": return QDisplayVal.BOTH;
                 default: return DEFAULT;
             }
         }
@@ -279,6 +282,7 @@ namespace Blueprint.Model.Implicit
             {
                 case QDisplayVal.AV:  return "av";
                 case QDisplayVal.AVX: return "avx";
+                case QDisplayVal.BOTH: return "both";
                 default: return ToString(QLexicalDisplay.DEFAULT);
             }
         }
