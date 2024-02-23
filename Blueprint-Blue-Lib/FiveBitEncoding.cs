@@ -9,7 +9,7 @@ namespace Blueprint.Blue
     using System;
     using System.Text;
 
-    class FiveBitEncoding
+    public class FiveBitEncoding
 	{
 		// These are for Hash64 functionality and related methods taking UINT64
 		const UInt64 UseFiveBitEncodingOrThreeBitHash = 0x8000000000000000; // hi-order bit marks hash hash-algorithm; helps determine is if hash can be decoded
@@ -57,39 +57,36 @@ namespace Blueprint.Blue
 			else
 				hyphen = (UInt32)0x0;
 
-			int c = 0;
-			char[] buffer = new char[6]; // 6x 5bit characters
-			for (var i = 0; i < len; i++)
+			byte[] buffer = [ 0, 0, 0, 0, 0, 0]; // 6x 5bit characters
+            int idx = buffer.Length-1;
+            for (int i = len-1; i >= 0 && idx >= 0; i--)
 			{
-				var b = input[i];
-				switch (b)
-				{
-					case '-':
-						continue;
-					case '0':
-					case '1':
-					case '2':
-					case '3':
-					case '4':
-						b -= '0';
-						b += (char)(27);
-						break;
-				}
-				buffer[c++] = b;
-			}
-			var position = (UInt32)0x02000000;
-			for (var i = 0; i < 6 - len; i++)
-			{
-				position >>= 5;
-			}
-			for (var i = 0; i < len; i++)
-			{
-				char letter = (char)(buffer[i] & 0x1F);
-				if (letter == 0)
-					break;
+				char c = input[i];
+				byte b = 0;
 
-				encoded |= (UInt32)letter * position;
-				position >>= 5;
+				if (c >= 'a' && c <= 'z')
+					b = (byte)((byte)c & 0x1F);
+
+                else if (c >= 'A' && c <= 'Z')
+                    b = (byte)((byte)c & 0x1F);
+
+                else switch (c)
+				{
+					case '-': continue;
+					case '0': b = 27; break;
+					case '1': b = 28; break;
+					case '2': b = 29; break;
+					case '3': b = 30; break;
+					case '4': b = 31; break;
+					default: return 0;
+				}
+				buffer[idx--] = b;
+			}
+			UInt32 bit = 0;
+			for (bit = 0x1, idx = buffer.Length - 1; idx >= 0 && buffer[idx] != 0; bit <<= 5, idx--)
+			{
+				UInt32 digit = (UInt32) (bit * buffer[idx]);
+				encoded |= digit;
 			}
 			return (UInt32)(encoded | hyphen);
 		}
@@ -97,35 +94,48 @@ namespace Blueprint.Blue
 		//  For Part-of-Speech:
 		public static string DecodePOS(UInt32 encoding)
 		{
-			char[] buffer = new char[7]; // 6x 5bit characters + 2bits for hyphen position = 32 bits;
+			char[] decoded = { ' ', ' ', ' ', ' ', ' ', ' ', ' '}; // 6x 5bit characters + 2bits for hyphen position = 32 bits;
 
 			var hyphen = (UInt32)(encoding & 0xC0000000);
 			if (hyphen > 0)
 				hyphen >>= 30;
 
-			var index = 0;
-			for (var mask = (UInt32)(0x1F << 25); mask >= 0x1F; mask >>= 5)
-			{
-				var digit = encoding & mask >> (5 * (5 - index));
-				if (digit == 0)
+			if (hyphen >= decoded.Length) // buffer cannot cause overflow
+                return string.Empty;
+
+            int idx;
+            UInt32 encoded;
+            for (encoded = (UInt32) (encoding & 0x3FFFFFFF), idx = decoded.Length; encoded != 0 && --idx >= 0; encoded >>= 5)
+            {
+				if (decoded[idx] == '-')
 					continue;
-				byte b = (byte)digit;
-				if (b <= 26)
-					b |= 0x60;
-				else
+
+                UInt32 digit = encoded & 0x1F;
+                switch (digit)
+                {                    
+                    case 27: decoded[idx] = '0'; break;
+                    case 28: decoded[idx] = '1'; break;
+                    case 29: decoded[idx] = '2'; break;
+                    case 30: decoded[idx] = '3'; break;
+                    case 31: decoded[idx] = '4'; break;
+					default: decoded[idx] = (char) ( '`' +  digit ); break;
+                }
+            }
+			if (hyphen > 0 && idx > 0)
+			{
+				hyphen += (UInt32)idx;
+
+				for (int i = idx; i < hyphen; i++)
 				{
-					b -= (byte)27;
-					b += (byte)'0';
+					if (decoded[i] == ' ')
+						continue;
+					decoded[i-1] = decoded[i];
 				}
-				if (hyphen == index)
-					buffer[index++] = '-';
-				buffer[index++] = (char)b;
+				decoded[hyphen-1] = '-';
+				idx--;
 			}
-			var decoded = new StringBuilder(index + 1);
-			for (int i = 0; i < index; i++)
-				decoded.Append((char)buffer[i]);
-			return decoded.ToString();
-		}
+            return new string(decoded, idx, decoded.Length-idx);
+        }
 #if ACCEPT_UNSAFE_CODE
         // input string must be ascii lowercase; hyphens are ignored
         // - reliability in question when string exceeds length 8 or 12:
