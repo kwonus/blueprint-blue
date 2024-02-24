@@ -305,7 +305,7 @@ namespace Blueprint.Model.Implicit
             HTML = ISettings.Formatting_HTML,
             MD   = ISettings.Formatting_MD
         }
-        public const QFormatVal DEFAULT = QFormatVal.JSON;
+        public const QFormatVal DEFAULT = QFormatVal.TEXT;
         public QFormatVal Value { get; set; }
         public QFormat()
         {
