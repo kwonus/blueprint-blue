@@ -15,7 +15,7 @@
         {
             this.Label = label;
         }
-        public ExpandableMacro(QInvoke invocation) : base(invocation)
+        public ExpandableMacro(QUtilizize invocation) : base(invocation)
         {
             this.Label = invocation.Label ?? string.Empty;
         }

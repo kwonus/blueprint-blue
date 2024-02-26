@@ -15,7 +15,7 @@ namespace Blueprint.Blue
     {
         public QFind?         FindExpression { get; internal set; }
         public List<QAssign>  Assignments    { get; internal set; }
-        public List<QInvoke>  Invocations    { get; internal set; }
+        public List<QUtilizize>  Invocations    { get; internal set; }
         public QApply?        MacroLabel     { get; internal set; }
         public QSettings      Settings       { get; protected set; }
         public QueryResult    Results        { get; protected set; }
@@ -52,7 +52,7 @@ namespace Blueprint.Blue
                         }
                         else if (variable.rule.Equals("invoke_partial", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            var invocation = QInvoke.Create(env, clause.text, clause.children);
+                            var invocation = QUtilizize.Create(env, clause.text, clause.children);
                             if (invocation != null)
                             {
                                 segment.Settings.CopyFrom(invocation.Settings);
@@ -87,7 +87,7 @@ namespace Blueprint.Blue
                         }
                         else if (expression.rule.Equals("invoke_full", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            var invocation = QInvoke.Create(env, clause.text, clause.children, partial: false);
+                            var invocation = QUtilizize.Create(env, clause.text, clause.children, partial: false);
                             if (invocation != null)
                             {
                                 segment.FindExpression = invocation.Expression;

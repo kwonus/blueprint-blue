@@ -14,7 +14,7 @@
         {
             this.Id = id;
         }
-        public ExpandableHistory(QInvoke invocation) : base(invocation)
+        public ExpandableHistory(QUtilizize invocation) : base(invocation)
         {
             this.Id = invocation.Id ?? 0;
         }

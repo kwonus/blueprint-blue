@@ -131,9 +131,6 @@ namespace Blueprint.Blue
         [JsonIgnore]
         [YamlIgnore]
         public QContext Context { get; protected set; }
-        [JsonIgnore]
-        [YamlIgnore]
-        public QHelpDoc HelpDoc { get => QHelpDoc.GetDocument(this.Verb); }
 
         protected QCommand(QContext context, string text, string verb)
         {

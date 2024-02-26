@@ -15,7 +15,7 @@ namespace Pinshot.Blue
         [DllImport("pinshot_blue.dll", EntryPoint = "assert_grammar_revision")]
         internal static extern UInt16 assert_grammar_revision(UInt16 revision);
         [DllImport("pinshot_blue.dll", EntryPoint = "get_library_revision")]
-        internal static extern UInt16 get_library_revision();
+        public static extern UInt16 get_library_revision();
         [DllImport("pinshot_blue.dll", EntryPoint = "create_quelle_parse_raw")]
         internal static extern ParsedStatementHandle pinshot_blue_raw_parse(string stmt);
         [DllImport("pinshot_blue.dll", EntryPoint = "create_quelle_parse")]
@@ -30,7 +30,7 @@ namespace Pinshot.Blue
                 UInt16 actual = get_library_revision();
                 Pinshot_RustFFI.VERSION = "2." + ((actual & 0xF000) >> 12).ToString() + "." + (actual & 0x0FFF).ToString("X3");
 
-                UInt16 expected = 0x4212; // "2.4.212" major version is inferred (2.)
+                UInt16 expected = 0x4224; // "2.4.224" major version is inferred (2.)
                 UInt16 version = assert_grammar_revision(expected);
 
                 Console.WriteLine("Using Quelle Grammar version: " + Pinshot_RustFFI.VERSION);

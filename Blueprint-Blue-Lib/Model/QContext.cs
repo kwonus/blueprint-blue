@@ -100,8 +100,8 @@
             var dateAfterOffset  = dateAfter  != null ? new DateTimeOffset(dateAfter.Value)  : DateTimeOffset.MinValue;
             var dateBeforeOffset = dateBefore != null ? new DateTimeOffset(dateBefore.Value) : DateTimeOffset.MaxValue;
 
-            long dateBeforeLong = dateAfterOffset.ToUnixTimeMilliseconds();
-            long dateAfterLong  = dateBeforeOffset.ToUnixTimeMilliseconds();
+            long dateBeforeLong = dateAfterOffset.ToFileTime();
+            long dateAfterLong  = dateBeforeOffset.ToFileTime();
 
             foreach (var entry in this.History)
             { 
@@ -179,8 +179,8 @@
             var notBeforeOffset = notBefore != null ? new DateTimeOffset(notBefore.Value) : DateTimeOffset.MinValue;
             var notAfterOffset = notAfter != null ? new DateTimeOffset(notAfter.Value) : DateTimeOffset.MaxValue;
 
-            var notBeforeLong = notBeforeOffset.ToUnixTimeMilliseconds();
-            var notAfterLong = notAfterOffset.ToUnixTimeMilliseconds();
+            var notBeforeLong = notBeforeOffset.ToFileTime();
+            var notAfterLong = notAfterOffset.ToFileTime();
 
             foreach (var entry in this.Macros)
             {

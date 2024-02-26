@@ -21,7 +21,7 @@
 
         public ExpandableInvocation(QCommandSegment statement)
         {
-            this.Time = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            this.Time = DateTimeOffset.Now.ToFileTime();
             this.Expression = statement.FindExpression != null ? statement.FindExpression.Expression : null;
             this.Settings = new QSettings(statement.Settings);
             if (statement.FindExpression != null && statement.FindExpression.Scope.Count > 0 )
@@ -33,7 +33,7 @@
                 }
             }
         }
-        public ExpandableInvocation(QInvoke invocation)
+        public ExpandableInvocation(QUtilizize invocation)
         {
             this.Time = 0;
             this.Expression = null;
@@ -43,7 +43,7 @@
             // TODO:
             // we need to read info from the in-memory macro-list or history-list
         }
-        public static bool ExpandInvocation(ref QInvoke invocation)
+        public static bool ExpandInvocation(ref QUtilizize invocation)
         {
             // TODO:
             // 1) we need to read info from the in-memory macro-list or history-list
@@ -53,7 +53,7 @@
 
         public DateTime GetDateTime()
         {
-            DateTimeOffset offset = DateTimeOffset.FromUnixTimeMilliseconds(this.Time);
+            DateTimeOffset offset = DateTimeOffset.FromFileTime(this.Time);
             return offset.DateTime;
         }
 
