@@ -50,7 +50,7 @@ namespace Blueprint.Blue
                                 segment.Settings.Assign(assignment);
                             }
                         }
-                        else if (variable.rule.Equals("invoke_partial", StringComparison.InvariantCultureIgnoreCase))
+                        else if (variable.rule.Equals("utilization_partial", StringComparison.InvariantCultureIgnoreCase))
                         {
                             var invocation = QUtilizize.Create(env, clause.text, clause.children);
                             if (invocation != null)
@@ -85,9 +85,9 @@ namespace Blueprint.Blue
                         {
                             segment.FindExpression = QFind.Create(env, segment, filters, expression.text, clause.children);
                         }
-                        else if (expression.rule.Equals("invoke_full", StringComparison.InvariantCultureIgnoreCase))
+                        else if (expression.rule.Equals("utilization_full", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            var invocation = QUtilizize.Create(env, clause.text, clause.children, partial: false);
+                            var invocation = QUtilizize.Create(env, clause.text, clause.children);
                             if (invocation != null)
                             {
                                 segment.FindExpression = invocation.Expression;
