@@ -2,6 +2,8 @@
 {
     using YamlDotNet.Serialization.NamingConventions;
     using YamlDotNet.Serialization;
+    using System.Text;
+
     public class ExpandableHistory: ExpandableInvocation
     {
         public UInt64 Id;
@@ -10,7 +12,7 @@
             this.Id = 0;
         }
 
-        public ExpandableHistory(QCommandSegment statement, UInt64 id): base(statement)
+        public ExpandableHistory(QCommandSegment statement, UInt64 id, bool partial): base(statement, partial)
         {
             this.Id = id;
         }
@@ -38,6 +40,13 @@
                 ;
             }
             return new Dictionary<long, ExpandableHistory>();
+        }
+        public new string AsMarkdown()
+        {
+            StringBuilder markdown = new(1024);
+            markdown.AppendLine("####" + this.Id.ToString());
+            markdown.Append(base.AsMarkdown());
+            return markdown.ToString();
         }
     }
 }

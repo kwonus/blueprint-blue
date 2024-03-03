@@ -20,6 +20,13 @@ namespace Blueprint.Blue
             this.Label = null;
             this.Generic = invocation.Trim();
             this.Partial = partial;
+
+            // TO DO: (YAML?)
+            /*
+             * Filters need to be read in from the macro definition
+             * Settings need to be read in from the macro definition
+             * Expression needs to be read in from the macro definition
+             */
         }
 
         private QUtilizize(QContext env, string text, uint id, bool partial) : base(env, text, "use")
@@ -31,6 +38,13 @@ namespace Blueprint.Blue
             this.Label = null;
             this.Generic = id.ToString();
             this.Partial = partial;
+
+            // TO DO: (YAML?)
+            /*
+             * Filters need to be read in from the History file
+             * Settings need to be read in from the History file
+             * Expression needs to be read in from the History file
+             */
         }
 
         public static QUtilizize? Create(QContext env, string text, Parsed[] args)

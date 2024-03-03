@@ -1,6 +1,8 @@
 ﻿namespace Blueprint.FuzzyLex
 {
+    using AVXLib;
     using AVXLib.Memory;
+    using Blueprint.Blue;
     using PhonemeEmbeddings;
     using System;
     using System.Collections.Generic;

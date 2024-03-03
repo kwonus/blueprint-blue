@@ -24,7 +24,6 @@
     {
         public QCommandCategory Category { get; private set; }
         public string Verb;
-        public string FilePath { get; protected set; }
         protected QStatement Statement { get; private set; }
         protected QExplicitCommand Command { get; private set; }
         public abstract string GetResponse();
@@ -37,7 +36,6 @@
         protected QExplicitResult(QExplicitCommand command, QStatement stmt, string path, QCommandCategory category)
         {
             this.Category = category;
-            this.FilePath = path;
             this.Verb = command.Verb;
             this.Statement = stmt;
             this.Command = command;
@@ -153,12 +151,12 @@
             {
                 if (this.Command.GetType() == typeof(QReview))
                 {
-                    if (File.Exists(this.FilePath))
-                    {
-                        string yaml = File.ReadAllText(this.FilePath);
-                        return "yaml";
-                    }
-                    return "error: Could not find the specified label.";
+                    QReview review = (QReview) this.Command;
+                    ExpandableInvocation macro = this.Command.Context.GetMacro(this.Label);
+
+                    YamlDotNet.Serialization.Serializer serializer = new();
+                    string yaml = serializer.Serialize(macro);
+                    return yaml;
                 }
                 else return "ok";
             }
@@ -212,38 +210,13 @@
                 {
                     switch (i)
                     {
-                        case 0: vals[i] = QSpan.DEFAULT.ToString(); break;
-                        case 1: vals[i] = QLexicalDomain.DEFAULT.ToString(); break;
-                        case 2: vals[i] = QLexicalDisplay.DEFAULT.ToString(); break;
-                        case 3: vals[i] = QFormat.DEFAULT.ToString(); break;
-                        case 4: vals[i] = QSimilarity.DEFAULT.ToString(); break;
+                        case 0: vals[i] = this.Command.Context.GlobalSettings.Span.ToString(); break;
+                        case 1: vals[i] = this.Command.Context.GlobalSettings.Lexicon.ToString(); break;
+                        case 2: vals[i] = this.Command.Context.GlobalSettings.Display.ToString(); break;
+                        case 3: vals[i] = this.Command.Context.GlobalSettings.Format.ToString(); break;
+                        case 4: vals[i] = this.Command.Context.GlobalSettings.Similarity.ToString(); break;
                         case 5: vals[i] = version[0] + "." + version[1] + "." + version.Substring(2); break;
                     }
-                }
-                if (File.Exists(this.FilePath))
-                {
-                    string[] lines = File.ReadAllLines(this.FilePath);
-                    foreach (string line in lines)
-                    {
-                        var parts = line.Split(':', 2);
-                        if (parts.Length == 2)
-                        {
-                            string key = parts[0].Trim();
-                            string val = parts[1].Trim();
-
-                            for (int i = 0; i < keys.Length - 1 && i < vals.Length - 1; i++)
-                            {
-                                if (key.Equals(vals[i], StringComparison.InvariantCultureIgnoreCase))
-                                {
-                                    vals[i] = val; break;
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    return "error";
                 }
                 for (int i = 0; i < vals.Length; i++)
                 {
@@ -253,17 +226,8 @@
                         break;
                     }
                 }
-                string table = @"| Setting | Meaning | Value |
-| ---------- | ------------------------------------------------------------ | ------------ |
-| {0}        | proximity distance limit                                     | {1}   |
-| {2}        | the lexicon to be used for the searching                     | {3}   |
-| {4}        | the lexicon to be used for display / rendering               | {5}   |
-| {6}        | format of results on output (e.g. for exported results)      | {7}   |
-| {8}        | fuzzy phonetics matching threshold is between 1 and 99 < br /> 0 or * none * means: do not match on phonetics(use text only) < br /> 100 or* exact*means that an *exact * phonetics match is expected | {9} |
-| {10}       | revision number of the grammar. This value is read-only.     | {11}   |";
-                string markdown = string.Format(table, keys[0], vals[0], keys[1], vals[1], keys[2], vals[2], keys[3], vals[3], keys[4], vals[4], keys[5], vals[5]);
-
-                return markdown;
+                string table = this.Command.Context.GlobalSettings.AsMarkdown(showDefaults: true, showExtendedSettings: true, bold: this.Setting);
+                return table;
             }
             else
             {

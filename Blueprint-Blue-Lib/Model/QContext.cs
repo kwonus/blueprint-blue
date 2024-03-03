@@ -15,20 +15,42 @@
     public class QContext: IDiagnostic
     {
         public QSettings GlobalSettings { get; internal set; }
-        public string Home { get; internal set; }
+        public static string Home { get; private set; }
         public uint InvocationCount     { get; internal set; }
 
         public UInt16[]?Fields { get; set; }
 
         public QStatement Statement { get; private set; }
 
-        public string HistoryPath { get; private set; } // not used yet
-        public string MacroPath { get; private set; }   // not used yet
-
         static QContext()
         {
+            QContext.Home = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AV-Bible");
             BlueprintLex.Initialize(ObjectTable.AVXObjects);
         }
+        public static string HistoryPath
+        {
+            get
+            {
+                if (!Directory.Exists(QContext.Home))
+                    Directory.CreateDirectory(QContext.Home);
+                return Path.Combine(QContext.Home, "history.yaml").Replace("\\", "/");
+            }
+        }
+        public static string MacroPath
+        {
+            get
+            {
+                if (!Directory.Exists(QContext.Home))
+                    Directory.CreateDirectory(QContext.Home);
+                string labels = Path.Combine(QContext.Home, "Labels").Replace("\\", "/");
+
+                if (!Directory.Exists(labels))
+                    Directory.CreateDirectory(labels);
+
+                return labels;
+            }
+        }
+
         public Dictionary<long, ExpandableHistory> History { get; private set; }
         public Dictionary<string, ExpandableMacro> Macros { get; private set; }
 
@@ -39,26 +61,12 @@
             this.InvocationCount = 0; // This can be updated when Create() is called on Implicit clauses
 
             this.Fields  = null;    // Null means that no fields were provided; In Quelle, this is different than an empty array of fields
-            this.HistoryPath = string.Empty;
-            this.MacroPath = string.Empty;
-            this.History = new();
-            this.Macros = new();
 
-            this.Home = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AV-Bible");
-
-            if (!string.IsNullOrEmpty(this.Home))
-            {
-                if (!Directory.Exists(this.Home))
-                    Directory.CreateDirectory(this.Home);
-
-                this.HistoryPath = Path.Combine(this.Home, "history.yaml").Replace("\\", "/");
-                this.MacroPath = Path.Combine(this.Home, "Labels").Replace("\\", "/");
-            }
-            else
+            if (string.IsNullOrEmpty(QContext.Home))
             {
                 this.AddWarning("A session context cannot be established");
             }
-            this.GlobalSettings = new QSettings(Path.Combine(this.Home, "settings.yaml"));
+            this.GlobalSettings = new QSettings(Path.Combine(QContext.Home, "settings.yaml"));
 
             if (!ObjectTable.AVXObjects.Mem.valid)
             {
@@ -86,13 +94,17 @@
         public void AddHistory(ExpandableHistory item)
         {
             this.History[item.Time] = item;
-            ExpandableInvocation.YamlSerializer(this.HistoryPath, this.History);    // highly inefficient, but ok for v1
+            ExpandableInvocation.YamlSerializer(QContext.HistoryPath, this.History);    // highly inefficient, but ok for v1
         }
         public void ReadAllHistory()
         {
-            if (File.Exists(this.HistoryPath))
+            if (File.Exists(QContext.HistoryPath))
             {
-                this.History = ExpandableHistory.YamlDeserializer(this.HistoryPath);
+                this.History = ExpandableHistory.YamlDeserializer(QContext.HistoryPath);
+            }
+            else
+            {
+                this.History = new();
             }
         }
         public IEnumerable<ExpandableHistory> GetHistory(UInt32 idAfter = 0, UInt32 idBefore = UInt32.MaxValue, DateTime? dateAfter = null, DateTime? dateBefore = null)
@@ -133,24 +145,24 @@
         }
         public void ReadAllMacros()
         {
-            if (Directory.Exists(this.MacroPath))
+            if (Directory.Exists(QContext.MacroPath))
             {
-                this.Macros = ExpandableMacro.YamlDeserializer(this.MacroPath);
+                this.Macros = ExpandableMacro.YamlDeserializer(QContext.MacroPath);
             }
         }
         public void AddMacro(ExpandableMacro macro)
         {
             if (!string.IsNullOrEmpty(macro.Label))
             {
-                var yaml = Path.Combine(this.MacroPath, macro.Label + ".yaml");
+                var yaml = Path.Combine(QContext.MacroPath, macro.Label + ".yaml");
                 ExpandableInvocation.YamlSerializer(yaml, macro);
             }
         }
         public ExpandableInvocation GetMacro(string label)
         {
-            var macro = Path.Combine(this.MacroPath, label + ".yaml");
+            var macro = Path.Combine(QContext.MacroPath, label + ".yaml");
 
-            var lines = File.ReadLines(this.HistoryPath);
+            var lines = File.ReadLines(QContext.HistoryPath);
 
             string time = string.Empty;
             string stmt = string.Empty;
@@ -219,6 +231,5 @@
                 }
             }
         }
-
     }
 }

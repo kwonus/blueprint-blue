@@ -2,16 +2,18 @@
 {
     using YamlDotNet.Serialization.NamingConventions;
     using YamlDotNet.Serialization;
+    using System.Security.Cryptography.X509Certificates;
+    using System.Text;
 
     public class ExpandableMacro: ExpandableInvocation
     {
-        public string Label;
+        public string Label { get; private set; }
         public ExpandableMacro() : base()
         {
             this.Label = string.Empty;
         }
 
-        public ExpandableMacro(QCommandSegment statement, string label) : base(statement)
+        public ExpandableMacro(QCommandSegment statement, string label, bool partial) : base(statement, partial)
         {
             this.Label = label;
         }
@@ -41,6 +43,13 @@
                 }
             }
             return macros;
+        }
+        public new string AsMarkdown()
+        {
+            StringBuilder markdown = new(1024);
+            markdown.AppendLine("####" + this.Label);
+            markdown.Append(base.AsMarkdown());
+            return markdown.ToString();
         }
     }
 }

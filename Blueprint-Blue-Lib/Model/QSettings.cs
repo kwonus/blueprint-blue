@@ -7,6 +7,13 @@
     using AVSearch.Interfaces;
     using Pinshot.Blue;
     using YamlDotNet.Serialization;
+    using AVXLib.Memory;
+    using static System.Net.Mime.MediaTypeNames;
+    using static System.Runtime.InteropServices.JavaScript.JSType;
+    using System.Runtime.Intrinsics.X86;
+    using System.Text.RegularExpressions;
+    using AVXLib.Framework;
+    using System.Diagnostics.CodeAnalysis;
 
     public class QSettings: ISettings
     {
@@ -204,15 +211,164 @@
 
             return this;
         }
-        public List<string> AsYaml()
+        public List<string> AsYaml(bool showDefaults = true, bool showExtendedSettings = false, HashSet<string>? exclude = null, HashSet<string>? include = null)
         {
             var yaml = new List<string>();
-            yaml.Add(this.Span.AsYaml());
-            yaml.Add(this.Similarity.AsYaml());
-            yaml.Add(this.Format.AsYaml());
-            yaml.Add(this.Lexicon.AsYaml());
-            yaml.Add(this.Display.AsYaml());
+            string val;
+
+            StringBuilder table = new StringBuilder(1024);
+
+            bool isHeader = true;
+            foreach (string key in MarkdownRow.Keys)
+            {
+                if (include != null && !include.Contains(key)) // include means that if key is NOT in include list, then exclude it.
+                    continue;
+                if (exclude != null && exclude.Contains(key))
+                    continue;
+
+                if (isHeader)
+                {
+                    isHeader = false;
+                }
+                else if (key == QSpan.Name)
+                {
+                    if (showDefaults || (this.Span.Value != QSpan.DEFAULT))
+                    {
+                        yaml.Add(this.Span.AsYaml());
+                    }
+                }
+                else if (key == QLexicalDomain.Name)
+                {
+                    if (showDefaults || (this.Lexicon.Value == QLexicalDomain.DEFAULT))
+                    {
+                        yaml.Add(this.Lexicon.AsYaml());
+                    }
+                }
+                else if (key == QLexicalDisplay.Name)
+                {
+                    if (showDefaults || (this.Display.Value == QLexicalDisplay.DEFAULT))
+                    {
+                        yaml.Add(this.Display.AsYaml());
+                    }
+                }
+                else if (key == QFormat.Name)
+                {
+                    if (showDefaults || (this.Format.Value == QFormat.DEFAULT))
+                    {
+                        yaml.Add(this.Format.AsYaml());
+                    }
+                }
+                else if (key == QSimilarity.Name)
+                {
+                    if (showDefaults || (this.Similarity.Value == QSimilarity.DEFAULT))
+                    {
+                        yaml.Add(this.Similarity.AsYaml());
+                    }
+                }
+                else if (showExtendedSettings && key.Equals(REVISION))
+                {
+                    yaml.Add(QSettings.AsYaml(key, Pinshot_RustFFI.VERSION));
+                }
+            }
             return yaml;
+        }
+        public static string AsYaml(string key, string value)
+        {
+            return key + ": " + value;
+        }
+
+        private static string GetKeyRepresentation(string key, string? bold)
+        {
+            if ((bold == null) || bold.Equals(key, StringComparison.InvariantCultureIgnoreCase))
+                return key;
+
+            return "**" + key + "**";
+        }
+        public string AsMarkdown(bool showDefaults = true, bool showExtendedSettings = false, HashSet<string>? exclude = null, HashSet<string>? include = null, string? bold = null)
+        {
+            string val;
+            List<string> rows = new();
+
+            StringBuilder table = new StringBuilder(1024);
+
+            string header = string.Empty;
+            bool isHeader = true;
+            foreach (string key in MarkdownRow.Keys)
+            {
+                if (include != null && !include.Contains(key)) // include means that if key is NOT in include list, then exclude it.
+                    continue;
+                if (exclude != null && exclude.Contains(key))
+                    continue;
+
+                if (isHeader)
+                {
+                    header = MarkdownRow[key];
+                    isHeader = false;
+                }
+                else if (key == QSpan.Name)
+                {
+                    if (showDefaults || (this.Span.Value != QSpan.DEFAULT))
+                    {
+                        val = this.Span.ToString();
+                        table.Append(string.Format(MarkdownRow[key], key, QSettings.GetKeyRepresentation(val, bold)));
+                    }
+                }
+                else if (key == QLexicalDomain.Name)
+                {
+                    if (showDefaults || (this.Lexicon.Value == QLexicalDomain.DEFAULT))
+                    {
+                        val = this.Lexicon.ToString();
+                        table.Append(string.Format(MarkdownRow[key], key, QSettings.GetKeyRepresentation(val, bold)));
+                    }
+                }
+                else if (key == QLexicalDisplay.Name)
+                {
+                    if (showDefaults || (this.Display.Value == QLexicalDisplay.DEFAULT))
+                    {
+                        val = this.Display.ToString();
+                        table.Append(string.Format(MarkdownRow[key], key, QSettings.GetKeyRepresentation(val, bold)));
+                    }
+                }
+                else if (key == QFormat.Name)
+                {
+                    if (showDefaults || (this.Format.Value == QFormat.DEFAULT))
+                    {
+                        val = this.Format.ToString();
+                        table.Append(string.Format(MarkdownRow[key], key, QSettings.GetKeyRepresentation(val, bold)));
+                    }
+                }
+                else if (key == QSimilarity.Name)
+                {
+                    if (showDefaults || (this.Similarity.Value == QSimilarity.DEFAULT))
+                    {
+                        val = this.Similarity.ToString();
+                        table.Append(string.Format(MarkdownRow[key], key, QSettings.GetKeyRepresentation(val, bold)));
+                    }
+                }
+                else if (showExtendedSettings && key.Equals(REVISION))
+                {
+                    table.Append(string.Format(MarkdownRow[key], key, QSettings.GetKeyRepresentation(Pinshot_RustFFI.VERSION, bold)));
+                    table.Append(MarkdownRow[key]);
+                }
+            }
+            if (table.Length > 0)
+            {
+                table.Insert(0, header);
+                return table.ToString();
+            }
+            return string.Empty;
+        }
+        public const string REVISION = "revision";
+        public static Dictionary<string, string> MarkdownRow { get; private set; } = new();
+        static QSettings()
+        {
+            QSettings.MarkdownRow.Add("header", "| Setting | Meaning | Value |\n" + "| ---------- | ------------------------------------------------------------ | ------------ |");
+            QSettings.MarkdownRow.Add(QSpan.Name, "| {0}        | proximity distance limit                                     | {1}   |");
+            QSettings.MarkdownRow.Add(QLexicalDomain.Name, "| {0}        | the lexicon to be used for the searching                     | {1}   |");
+            QSettings.MarkdownRow.Add(QLexicalDisplay.Name, "| {0}        | the lexicon to be used for display / rendering | {1}   |");
+            QSettings.MarkdownRow.Add(QFormat.Name, "| {0}        | format of results on output(e.g. for exported results)      | {1}   |");
+            QSettings.MarkdownRow.Add(QSimilarity.Name, "| {0}        | fuzzy phonetics matching threshold is between 1 and 99 < br /> 0 or* none *means: do not match on phonetics(use text only) < br /> 100 or* exact*means that an *exact * phonetics match is expected | {1} |");
+            QSettings.MarkdownRow.Add(REVISION, "| {0}        | revision number of the grammar. This value is read - only.     | {1}   |");
         }
     }
 }

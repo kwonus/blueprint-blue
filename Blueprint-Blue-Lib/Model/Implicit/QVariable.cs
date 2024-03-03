@@ -12,10 +12,13 @@ namespace Blueprint.Model.Implicit
 
     internal enum SIMILARITY { NONE = 0, FUZZY_MIN = 33, FUZZY_MAX = 99, EXACT = 100 }
 
-    public class QSpan
+    public class QSpan: ISetting
     {
+        public static readonly string Name = typeof(QSpan).Name.Substring(1).ToLower();
+        public string SettingName { get => Name; }
         public const ushort VERSE = 0;    // zero means verse-scope
         public const ushort DEFAULT = VERSE;
+
         public ushort Value { get; set; }
         public QSpan()
         {
@@ -63,8 +66,10 @@ namespace Blueprint.Model.Implicit
             this.Value = span <= 999 ? span : (UInt16)999;
         }
     }
-    public class QSimilarity
+    public class QSimilarity: ISetting
     {
+        public static readonly string Name = typeof(QSimilarity).Name.Substring(1).ToLower();
+        public string SettingName { get => Name; }
         public static (byte word, byte lemma) DEFAULT
         {
             get
@@ -183,8 +188,10 @@ namespace Blueprint.Model.Implicit
             return "similarity: " + this.ToString();
         }
     }
-    public class QLexicalDomain
+    public class QLexicalDomain: ISetting
     {
+        public static readonly string Name = typeof(QLexicalDomain).Name.Substring(8).ToLower();
+        public string SettingName { get => Name; }
         public enum QLexiconVal
         {
             UNDEFINED = ISettings.Lexion_UNDEFINED,
@@ -239,8 +246,10 @@ namespace Blueprint.Model.Implicit
             return "lexicon: " + ToString();
         }
     }
-    public class QLexicalDisplay
+    public class QLexicalDisplay: ISetting
     {
+        public static readonly string Name = typeof(QLexicalDisplay).Name.Substring(8).ToLower();
+        public string SettingName { get => Name; }
         public enum QDisplayVal
         {
             UNDEFINED = ISettings.Lexion_UNDEFINED,
@@ -295,8 +304,10 @@ namespace Blueprint.Model.Implicit
             return "display: " + ToString();
         }
     }
-    public class QFormat
+    public class QFormat: ISetting
     {
+        public static readonly string Name = typeof(QFormat).Name.Substring(1).ToLower();
+        public string SettingName { get => Name; }
         public enum QFormatVal
         {
             JSON = ISettings.Formatting_JSON,
