@@ -204,7 +204,7 @@
             {
                 UInt32 revision = Pinshot_RustFFI.get_library_revision();
                 string version = revision.ToString("X4");
-                string[] keys = new string[] { "span", "lexicon", "display", "format", "similarity", "version" };
+                string[] keys = new string[] { QSpan.Name, QLexicalDomain.Name, QLexicalDisplay.Name, QFormat.Name, QSimilarity.Name, "version" };
                 string[] vals = new string[6];
                 for (int i = 0; i < vals.Length; i++)
                 {

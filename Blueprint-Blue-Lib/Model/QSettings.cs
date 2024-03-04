@@ -14,6 +14,7 @@
     using System.Text.RegularExpressions;
     using AVXLib.Framework;
     using System.Diagnostics.CodeAnalysis;
+    using System;
 
     public class QSettings: ISettings
     {
@@ -36,8 +37,10 @@
             switch (key)
             {
                 case "span":       return this.Span.ToString();
-                case "lexicon":    return this.Lexicon.ToString();
-                case "display":    return this.Display.ToString();
+                case "lexicon.search":
+                case "search":     return this.Lexicon.ToString();
+                case "lexicon.render":
+                case "render":     return this.Display.ToString();
                 case "format":     return this.Format.ToString();
                 case "similarity": return this.Similarity.ToString();
                 case "version":    return Pinshot_RustFFI.VERSION;
@@ -51,9 +54,11 @@
             string key = (assignment.Key.Length >= 1 && assignment.Key[0] == '%') ? assignment.Key.Substring(1) : assignment.Key;
             switch (key)
             {
-                case "span":       this.Span = new QSpan(assignment.Value);              return true;
-                case "lexicon":    this.Lexicon = new QLexicalDomain(assignment.Value);  return true;
-                case "display":    this.Display = new QLexicalDisplay(assignment.Value); return true;
+                case "span":       this.Span = new QSpan(assignment.Value);              return true;   
+                case "lexicon.search":
+                case "search":     this.Lexicon = new QLexicalDomain(assignment.Value); return true;
+                case "lexicon.render":
+                case "render":     this.Display = new QLexicalDisplay(assignment.Value); return true;
                 case "format":     this.Format = new QFormat(assignment.Value);          return true;
                 case "similarity": this.Similarity = new QSimilarity(assignment.Value, this);  return true;
             }
@@ -64,8 +69,10 @@
             switch (setting.Key)
             {
                 case "span":       this.Span = new QSpan(setting.Value);              break;
-                case "lexicon":    this.Lexicon = new QLexicalDomain(setting.Value);  break;
-                case "display":    this.Display = new QLexicalDisplay(setting.Value); break;
+                case "lexicon.search":
+                case "search":     this.Lexicon = new QLexicalDomain(setting.Value); return true;
+                case "lexicon.render":
+                case "render":     this.Display = new QLexicalDisplay(setting.Value); return true;
                 case "format":     this.Format = new QFormat(setting.Value);          break;
                 case "similarity": this.Similarity = new QSimilarity(setting.Value, this);  break;
                 default:           return false;
@@ -77,8 +84,10 @@
             switch (clear.Key)
             {
                 case "span":       this.Span = new QSpan(QSpan.DEFAULT);                        break;
-                case "lexicon":    this.Lexicon = new QLexicalDomain(QLexicalDomain.DEFAULT);   break;
-                case "display":    this.Display = new QLexicalDisplay(QLexicalDisplay.DEFAULT); break;
+                case "lexicon.search":
+                case "search":     this.Lexicon = new QLexicalDomain(QLexicalDomain.DEFAULT); return true;
+                case "lexicon.render":
+                case "render":     this.Display = new QLexicalDisplay(QLexicalDisplay.DEFAULT); return true;
                 case "format":     this.Format = new QFormat(QFormat.DEFAULT);                  break;
                 case "similarity": this.Similarity = new QSimilarity(QSimilarity.DEFAULT.word, QSimilarity.DEFAULT.lemma); break;
 
@@ -136,8 +145,10 @@
                         switch (key)
                         {
                             case "span":       this.Span = new QSpan(val);              break;
-                            case "lexicon":    this.Lexicon = new QLexicalDomain(val);  break;
-                            case "display":    this.Display = new QLexicalDisplay(val); break;
+                            case "lexicon.search":
+                            case "search":     this.Lexicon = new QLexicalDomain(val);      break;
+                            case "lexicon.render":
+                            case "render":     this.Display = new QLexicalDisplay(val); break;
                             case "format":     this.Format = new QFormat(val);          break;
                             case "similarity": this.Similarity = new QSimilarity(val);  break;
                         }
@@ -154,13 +165,13 @@
 
         // Implement ISettings
         [YamlIgnore]
-        public bool SearchAsAV            { get => this.Lexicon.Value == QLexicalDomain.QLexiconVal.AV   || this.Lexicon.Value == QLexicalDomain.QLexiconVal.BOTH; }
+        public bool SearchAsAV            { get => this.Lexicon.Value == QLexicon.QLexiconVal.AV   || this.Lexicon.Value == QLexicon.QLexiconVal.BOTH; }
         [YamlIgnore]
-        public bool SearchAsAVX           { get => this.Lexicon.Value == QLexicalDomain.QLexiconVal.AVX  || this.Lexicon.Value == QLexicalDomain.QLexiconVal.BOTH; }
+        public bool SearchAsAVX           { get => this.Lexicon.Value == QLexicon.QLexiconVal.AVX  || this.Lexicon.Value == QLexicon.QLexiconVal.BOTH; }
         [YamlIgnore]
-        public bool RenderAsAV            { get => this.Display.Value == QLexicalDisplay.QDisplayVal.AV  || this.Display.Value == QLexicalDisplay.QDisplayVal.BOTH; }
+        public bool RenderAsAV            { get => this.Display.Value == QLexicon.QLexiconVal.AV  || this.Display.Value == QLexicon.QLexiconVal.BOTH; }
         [YamlIgnore]
-        public bool RenderAsAVX           { get => this.Display.Value == QLexicalDisplay.QDisplayVal.AVX || this.Display.Value == QLexicalDisplay.QDisplayVal.BOTH; }
+        public bool RenderAsAVX           { get => this.Display.Value == QLexicon.QLexiconVal.AVX || this.Display.Value == QLexicon.QLexiconVal.BOTH; }
         [YamlIgnore]
         public int  RenderingFormat       { get => (int)this.Format.Value; }
         [YamlIgnore]
