@@ -2,7 +2,7 @@ using Pinshot.PEG;
 
 namespace Blueprint.Blue
 {
-    public class QUtilizize : QCommand, ICommand
+    public class QUtilize : QCommand, ICommand
     {
         public string Generic { get; private set; } // either
         public string? Label { get; private set; } // macro
@@ -12,7 +12,7 @@ namespace Blueprint.Blue
         public QFind? Expression { get; private set; }
         public bool Partial { get; private set; }
 
-        private QUtilizize(QContext env, string text, string invocation, bool partial) : base(env, text, "use")
+        private QUtilize(QContext env, string text, string invocation, bool partial) : base(env, text, "use")
         {
             this.Filters = new();
             this.Settings = new QSettings(env.GlobalSettings);
@@ -29,7 +29,7 @@ namespace Blueprint.Blue
              */
         }
 
-        private QUtilizize(QContext env, string text, uint id, bool partial) : base(env, text, "use")
+        private QUtilize(QContext env, string text, uint id, bool partial) : base(env, text, "use")
         {
             this.Filters = new();
             this.Settings = new QSettings(env.GlobalSettings);
@@ -47,7 +47,7 @@ namespace Blueprint.Blue
              */
         }
 
-        public static QUtilizize? Create(QContext env, string text, Parsed[] args)
+        public static QUtilize? Create(QContext env, string text, Parsed[] args)
         {
             if (string.IsNullOrWhiteSpace(text))
                 return null;
@@ -67,7 +67,7 @@ namespace Blueprint.Blue
 
                 if (labelled)
                 {
-                    var invocation = QUtilizize.Create(env, text, generic, args, partial);
+                    var invocation = QUtilize.Create(env, text, generic, args, partial);
                     return invocation;
                 }
                 if (numerics)
@@ -81,28 +81,28 @@ namespace Blueprint.Blue
                     {
                         return null;
                     }
-                    var invocation = QUtilizize.Create(env, text, id, args, partial);
+                    var invocation = QUtilize.Create(env, text, id, args, partial);
                     return invocation;
                 }
             }
             return null;
         }
 
-        private static QUtilizize? Create(QContext env, string text, string label, Parsed[] args, bool partial)
+        private static QUtilize? Create(QContext env, string text, string label, Parsed[] args, bool partial)
         {
             if (string.IsNullOrWhiteSpace(text))
                 return null;
 
-            var invocation = new QUtilizize(env, text, label, partial);
+            var invocation = new QUtilize(env, text, label, partial);
 
             return invocation;
         }
-        private static QUtilizize? Create(QContext env, string text, uint id, Parsed[] args, bool partial)
+        private static QUtilize? Create(QContext env, string text, uint id, Parsed[] args, bool partial)
         {
             if (string.IsNullOrWhiteSpace(text) || (id == 0))
                 return null;
 
-            var invocation = new QUtilizize(env, text, id, partial);
+            var invocation = new QUtilize(env, text, id, partial);
             return invocation;
         }
 

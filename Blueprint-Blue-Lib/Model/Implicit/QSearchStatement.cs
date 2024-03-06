@@ -11,7 +11,7 @@
     using System.Runtime.CompilerServices;
     using AVSearch.Model.Expressions;
 
-    public class QImplicitCommands
+    public class QSearchStatement
     {
         [JsonIgnore]
         [YamlIgnore]
@@ -20,43 +20,30 @@
         public QueryResult Results { get; set; }
 
         public QExport? ExportDirective { get; internal set; }
-        public QPrint?  LimitDirective  { get; internal set; }
 
-        public List<QCommandSegment> Segments { get; internal set; }
-
-        [JsonIgnore]
-        [YamlIgnore]
-        public IEnumerable<SearchExpression> Expressions
-        {
-            get
-            {
-                foreach (QCommandSegment seg in this.Segments)
-                {
-                    if (seg.FindExpression != null)
-                        yield return seg.FindExpression;
-                }
-            }
-        }
+        public QSelectionCriteria Selection { get; internal set; }
 
         public (bool ok, QueryResult query) Execute()
         {
-            bool executed = false;
-            foreach (var segment in this.Segments)
+
+            if (this.Selection.FindExpression != null)
             {
-                if (segment.FindExpression != null)
+                bool executed = this.Selection.Scope.Count == 0
+                    ? this.Search(this.Selection.FindExpression)
+                    : this.SearchWithScope(this.Selection.FindExpression);
+
+                var exp = this.Selection.FindExpression;
                 {
-                    executed = executed || (segment.FindExpression.Scope.Count == 0
-                        ? this.Search(segment.FindExpression)
-                        : this.SearchWithScope(segment.FindExpression));
+                    for (byte b = 1; b <= 66; b++)
+                        if (exp.Books.ContainsKey(b) && (exp.Books[b].Chapters.Count == 0))
+                            exp.Books.Remove(b);
                 }
+                return (executed, this.Results);
             }
-            foreach (SearchExpression exp in this.Expressions)
+            else  // TO DO: account for selection criteria w/o a FindExpression
             {
-                for (byte b = 1; b <= 66; b++)
-                    if (exp.Books.ContainsKey(b) && (exp.Books[b].Chapters.Count == 0))
-                        exp.Books.Remove(b);
+                return (false, new QueryResult());
             }
-            return (executed, this.Results);
         }
         private bool Search(QFind search)
         {
@@ -90,19 +77,17 @@
             return result;
         }
 
-        private QImplicitCommands(QContext env, string stmtText)
+        private QSearchStatement(QContext env, string stmtText)
         {
             this.Context = env;
             this.ExportDirective = null;
-            this.LimitDirective  = null;
-
-            this.Segments = new();
+            this.Selection = null;
         }
 
-        public static QImplicitCommands? Create(QContext context, Parsed stmt, QStatement diagnostics)
+        public static QSearchStatement? Create(QContext context, Parsed stmt, QStatement diagnostics)
         {
             bool valid = false;
-            var implicits = new QImplicitCommands(context, stmt.text);
+            var selection = new QSearchStatement(context, stmt.text);
 
             if (stmt.rule.Equals("implicits", StringComparison.InvariantCultureIgnoreCase) && (stmt.children.Length >= 1))
             {
@@ -121,16 +106,16 @@
                             var macro = segment.children[1];
                             macroLabel = QApply.Create(context, segment.text, macro);
                         }
-                        QCommandSegment seg = QCommandSegment.CreateSegment(context, implicits.Results, elements, macroLabel);
+                        QSelectionCriteria seg = QSelectionCriteria.CreateSegment(context, selection.Results, elements, macroLabel);
                         valid = (seg != null);
                         if (seg != null)
-                            implicits.Segments.Add(seg);
+                            selection.Selection = seg;
                     }
                 }
             }
-            implicits.Results = new QueryResult(implicits.Expressions);
+            selection.Results = new QueryResult(selection.Selection.FindExpression);
 
-            return valid ? implicits : null;
+            return valid ? selection : null;
         }
     }
 }

@@ -12,11 +12,11 @@
             this.Id = 0;
         }
 
-        public ExpandableHistory(QCommandSegment statement, UInt64 id, bool partial): base(statement, partial)
+        public ExpandableHistory(QSelectionCriteria statement, UInt64 id, bool partial): base(statement, partial)
         {
             this.Id = id;
         }
-        public ExpandableHistory(QUtilizize invocation) : base(invocation)
+        public ExpandableHistory(QUtilize invocation) : base(invocation)
         {
             this.Id = invocation.Id ?? 0;
         }

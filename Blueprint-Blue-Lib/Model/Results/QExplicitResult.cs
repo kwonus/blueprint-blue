@@ -85,11 +85,6 @@
             string path = string.Empty;
             return new QControlsResult(clear, stmt, path);
         }
-        protected static QExplicitResult Create(QPrint print, QStatement stmt)
-        {
-            string path = string.Empty;
-            return new QOutputResult(print, stmt, path, QCommandPoutFileMode.CREATE);
-        }
         protected static QExplicitResult Create(QHistory history, QStatement stmt)
         {
             return new QHistoryResult(history, stmt, string.Empty);
@@ -110,26 +105,12 @@
                 return Create((QSet)command, stmt);
             if (command.GetType() == typeof(QClear))
                 return Create((QClear)command, stmt);
-            if (command.GetType() == typeof(QPrint))
-                return Create((QPrint)command, stmt);
             if (command.GetType() == typeof(QHistory))
                 return Create((QHistory)command, stmt);
  //         if (command.GetType() == typeof(QHistoryResult))
  //             return Create((QHistoryResult)command, stmt);
 
             return null;
-        }
-    }
-    public class QOutputResult: QExplicitResult
-    {
-        QCommandPoutFileMode OutputFileMode;
-        public QOutputResult(QExplicitCommand command, QStatement stmt, string path, QCommandPoutFileMode mode) : base(command, stmt, path, QCommandCategory.OUTPUT)
-        {
-            this.OutputFileMode = mode;
-        }
-        public override string GetResponse()
-        {
-            return this.IsValid ? "ok" : "error";
         }
     }
     public class QLabelResult : QExplicitResult

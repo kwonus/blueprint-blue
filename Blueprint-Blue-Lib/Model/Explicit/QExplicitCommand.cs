@@ -26,7 +26,6 @@ namespace Blueprint.Blue
                         case "get":        return new QGet(env,     command.text, command.children);
                         case "set":        return new QSet(env,     command.text, command.children);
                         case "clear":      return new QClear(env,   command.text, command.children);
-                        case "print":      return new QPrint(env,   command.text, command.children);
                         case "history":    return new QHistory(env, command.text, command.children);
                         case "invoke":     return new QHistory(env, command.text, command.children);
                     }

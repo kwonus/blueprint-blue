@@ -6,33 +6,38 @@ namespace Blueprint.Blue
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;
-    using System.Runtime.CompilerServices;
-    using System.Text.Json.Serialization;
-    using YamlDotNet.Serialization;
-    using static AVXLib.Framework.Numerics;
 
-    public class QCommandSegment : QCommand, ICommand
+    public class QSelectionCriteria : QCommand, ICommand
     {
-        public QFind?         FindExpression { get; internal set; }
-        public List<QAssign>  Assignments    { get; internal set; }
-        public List<QUtilizize>  Invocations    { get; internal set; }
-        public QApply?        MacroLabel     { get; internal set; }
-        public QSettings      Settings       { get; protected set; }
-        public QueryResult    Results        { get; protected set; }
+        public QFind?        FindExpression     { get; protected internal set; }
+        public QUtilize?     UtilizeExpression  { get; protected internal set; }
+        public List<QFilter> Scope              { get; protected internal set; }
+        public QUtilize?     UtilizeScope       { get; protected internal set; }
+        public List<QAssign> Assignments        { get; protected internal set; }
+        public QUtilize?     UtilizeAssignments { get; protected internal set; }
+        public QApply?       MacroLabel         { get; protected internal set; }
+        public QSettings     Settings           { get; protected internal set; }
+        public QueryResult   Results            { get; protected internal set; }
 
-        private QCommandSegment(QContext env, QueryResult results, string text, string verb, QApply? applyLabel = null) : base(env, text, verb)
+        private QSelectionCriteria(QContext env, QueryResult results, string text, string verb, QApply? applyLabel = null) : base(env, text, verb)
         {
-            this.Settings = new QSettings(env.GlobalSettings);
-            this.Results = results;
             this.FindExpression = null;
             this.Assignments = new();
-            this.Invocations = new();
+            this.Scope = new();
             this.MacroLabel = applyLabel;
-        }
-        public static QCommandSegment CreateSegment(QContext env, QueryResult results, Parsed elements, QApply? applyLabel = null)
+            this.Settings = new QSettings(env.GlobalSettings);
+            this.Results = results;
+
+            this.UtilizeExpression = null;
+            this.UtilizeScope = null;
+            this.UtilizeAssignments = null;
+    }
+        public static QSelectionCriteria CreateSegment(QContext env, QueryResult results, Parsed elements, QApply? applyLabel = null)
         {
-            var segment = new QCommandSegment(env, results, elements.text, elements.rule, applyLabel);
+            var segment = new QSelectionCriteria(env, results, elements.text, elements.rule, applyLabel);
             Dictionary<string, SearchFilter> filters = new();
+
+            // TO DO: Add Scope
             foreach (Parsed clause in elements.children)
             {
                 if (clause.rule.Equals("element"))
@@ -52,13 +57,13 @@ namespace Blueprint.Blue
                         }
                         else if (variable.rule.Equals("utilization_partial", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            var invocation = QUtilizize.Create(env, clause.text, clause.children);
+                            var invocation = QUtilize.Create(env, clause.text, clause.children);
                             if (invocation != null)
                             {
                                 segment.Settings.CopyFrom(invocation.Settings);
                                 QFind.AddFilters(filters, invocation.Filters);
 
-                                segment.Invocations.Add(invocation);
+                                segment.UtilizeAssignments = invocation;
                             }
                         }
                         else if (variable.rule.Equals("filter", StringComparison.InvariantCultureIgnoreCase))
@@ -87,14 +92,14 @@ namespace Blueprint.Blue
                         }
                         else if (expression.rule.Equals("utilization_full", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            var invocation = QUtilizize.Create(env, clause.text, clause.children);
+                            var invocation = QUtilize.Create(env, clause.text, clause.children);
                             if (invocation != null)
                             {
                                 segment.FindExpression = invocation.Expression;
                                 segment.Settings.CopyFrom(invocation.Settings);
                                 QFind.AddFilters(filters, invocation.Filters);
 
-                                segment.Invocations.Add(invocation);
+                                segment.UtilizeExpression = invocation;
                             }
                         }
                     }

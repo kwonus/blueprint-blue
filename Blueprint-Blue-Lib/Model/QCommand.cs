@@ -126,8 +126,8 @@ namespace Blueprint.Blue
 
     public class QCommand
     {
-        public string Text { get; set; }
-        public string Verb { get; set; }
+        public string Text { get; protected set; }
+        public string Verb { get; protected set; }
         [JsonIgnore]
         [YamlIgnore]
         public QContext Context { get; protected set; }

@@ -13,11 +13,11 @@
             this.Label = string.Empty;
         }
 
-        public ExpandableMacro(QCommandSegment statement, string label, bool partial) : base(statement, partial)
+        public ExpandableMacro(QSelectionCriteria statement, string label, bool partial) : base(statement, partial)
         {
             this.Label = label;
         }
-        public ExpandableMacro(QUtilizize invocation) : base(invocation)
+        public ExpandableMacro(QUtilize invocation) : base(invocation)
         {
             this.Label = invocation.Label ?? string.Empty;
         }

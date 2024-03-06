@@ -15,7 +15,7 @@ namespace Blueprint.Blue
         public Dictionary<string, string> Disposition { get; set; }
 
         public QExplicitCommand? Singleton { get; set; }
-        public QImplicitCommands? Commands { get; set; }
+        public QSearchStatement? Commands { get; set; }
         public QContext Context { get; private set; }
 
         private QStatement()
@@ -59,7 +59,7 @@ namespace Blueprint.Blue
                         }
                         else if (command.rule.Equals("implicits", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            stmt.Commands = QImplicitCommands.Create(stmt.Context, command, stmt);
+                            stmt.Commands = QSearchStatement.Create(stmt.Context, command, stmt);
                             stmt.IsValid = stmt.Commands != null;
                             if ((stmt.Errors.Count == 0) && !stmt.IsValid)
                             {
