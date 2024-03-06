@@ -20,19 +20,20 @@
         public QueryResult Results { get; set; }
 
         public QExport? ExportDirective { get; internal set; }
+        public QApply?  MacroDirective  { get; internal set; }
 
-        public QSelectionCriteria Selection { get; internal set; }
+        public QSelectionCriteria SelectionCriteria { get; internal set; }
 
         public (bool ok, QueryResult query) Execute()
         {
 
-            if (this.Selection.FindExpression != null)
+            if (this.SelectionCriteria.FindExpression != null)
             {
-                bool executed = this.Selection.Scope.Count == 0
-                    ? this.Search(this.Selection.FindExpression)
-                    : this.SearchWithScope(this.Selection.FindExpression);
+                bool executed = this.SelectionCriteria.Scope.Count == 0
+                    ? this.Search(this.SelectionCriteria.FindExpression)
+                    : this.SearchWithScope(this.SelectionCriteria.FindExpression);
 
-                var exp = this.Selection.FindExpression;
+                var exp = this.SelectionCriteria.FindExpression;
                 {
                     for (byte b = 1; b <= 66; b++)
                         if (exp.Books.ContainsKey(b) && (exp.Books[b].Chapters.Count == 0))
@@ -81,7 +82,8 @@
         {
             this.Context = env;
             this.ExportDirective = null;
-            this.Selection = null;
+            this.MacroDirective = null;
+            this.SelectionCriteria = null;
         }
 
         public static QSearchStatement? Create(QContext context, Parsed stmt, QStatement diagnostics)
@@ -97,23 +99,22 @@
                 {
                     Parsed segment = segments[s];
 
-                    QApply? macroLabel = null;
                     if ((segment.children.Length >= 1) && segment.children[0].rule.StartsWith("elements", StringComparison.InvariantCultureIgnoreCase))
                     {
                         var elements = segment.children[0];
                         if ((segment.children.Length == 2) && segment.children[1].rule.StartsWith("apply_macro_", StringComparison.InvariantCultureIgnoreCase))
                         {
                             var macro = segment.children[1];
-                            macroLabel = QApply.Create(context, segment.text, macro);
+                            selection.MacroDirective = QApply.Create(context, segment.text, macro);
                         }
-                        QSelectionCriteria seg = QSelectionCriteria.CreateSegment(context, selection.Results, elements, macroLabel);
+                        QSelectionCriteria seg = QSelectionCriteria.CreateSegment(context, selection.Results, elements, selection.MacroDirective);
                         valid = (seg != null);
                         if (seg != null)
-                            selection.Selection = seg;
+                            selection.SelectionCriteria = seg;
                     }
                 }
             }
-            selection.Results = new QueryResult(selection.Selection.FindExpression);
+            selection.Results = new QueryResult(selection.SelectionCriteria.FindExpression);
 
             return valid ? selection : null;
         }
