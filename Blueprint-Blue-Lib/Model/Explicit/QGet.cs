@@ -2,7 +2,7 @@ namespace Blueprint.Blue
 {
     using Pinshot.PEG;
 
-    public class QGet : QExplicitCommand, ICommand
+    public class QGet : QSingleton, ICommand
     {
         public string Key { get; set; }
         public QGet(QContext env, string text, Parsed[] args) : base(env, text, "get")

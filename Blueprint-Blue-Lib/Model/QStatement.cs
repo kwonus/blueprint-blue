@@ -14,8 +14,8 @@ namespace Blueprint.Blue
         public List<string> Warnings { get; set; }
         public Dictionary<string, string> Disposition { get; set; }
 
-        public QExplicitCommand? Singleton { get; set; }
-        public QSearchStatement? Commands { get; set; }
+        public QSingleton? Singleton { get; set; }
+        public QSelectionStatement? Commands { get; set; }
         public QContext Context { get; private set; }
 
         private QStatement()
@@ -52,14 +52,14 @@ namespace Blueprint.Blue
 
                         if (command.rule.Equals("singleton", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            stmt.Singleton = QExplicitCommand.Create(stmt.Context, command);
+                            stmt.Singleton = QSingleton.Create(stmt.Context, command);
                             stmt.IsValid = stmt.Singleton != null;
                             if (!stmt.IsValid)
                                 stmt.Errors.Add("Unable to extract explicit command.");
                         }
-                        else if (command.rule.Equals("implicits", StringComparison.InvariantCultureIgnoreCase))
+                        else if (command.rule.Equals("selection_statement", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            stmt.Commands = QSearchStatement.Create(stmt.Context, command, stmt);
+                            stmt.Commands = QSelectionStatement.Create(stmt.Context, command, stmt);
                             stmt.IsValid = stmt.Commands != null;
                             if ((stmt.Errors.Count == 0) && !stmt.IsValid)
                             {

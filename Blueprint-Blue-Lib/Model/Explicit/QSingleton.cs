@@ -2,13 +2,13 @@ namespace Blueprint.Blue
 {
     using Pinshot.PEG;
 
-    public abstract class QExplicitCommand : QCommand, ICommand
+    public abstract class QSingleton : QCommand, ICommand
     {
-        protected QExplicitCommand(QContext env, string text, string verb) : base(env, text, verb)
+        protected QSingleton(QContext env, string text, string verb) : base(env, text, verb)
         {
             ;
         }
-        public static QExplicitCommand? Create(QContext env, Parsed item)
+        public static QSingleton? Create(QContext env, Parsed item)
         {
             if (item.rule.Equals("singleton", StringComparison.InvariantCultureIgnoreCase))
             {

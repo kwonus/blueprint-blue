@@ -3,20 +3,21 @@
     using YamlDotNet.Serialization.NamingConventions;
     using YamlDotNet.Serialization;
     using System.Text;
+    using System.IO;
 
     public class ExpandableHistory: ExpandableInvocation
     {
         public UInt64 Id;
-        public ExpandableHistory(): base()
+        public ExpandableHistory(): base(MacroComponents.Ignore)
         {
             this.Id = 0;
         }
 
-        public ExpandableHistory(QSelectionCriteria statement, UInt64 id, bool partial): base(statement, partial)
+        public ExpandableHistory(QSelectionCriteria statement, UInt64 id, MacroComponents parts) : base(statement, parts)
         {
             this.Id = id;
         }
-        public ExpandableHistory(QUtilize invocation) : base(invocation)
+        public ExpandableHistory(QUtilize invocation, MacroComponents parts) : base(invocation, parts)
         {
             this.Id = invocation.Id ?? 0;
         }

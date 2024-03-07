@@ -2,7 +2,7 @@
 {
     using Pinshot.PEG;
 
-    public class QClear : QExplicitCommand, ICommand
+    public class QClear : QSingleton, ICommand
     {
         public string Key { get; protected set; }
         public bool IsValid { get; protected set; }

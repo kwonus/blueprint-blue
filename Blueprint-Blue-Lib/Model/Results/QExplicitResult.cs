@@ -25,7 +25,7 @@
         public QCommandCategory Category { get; private set; }
         public string Verb;
         protected QStatement Statement { get; private set; }
-        protected QExplicitCommand Command { get; private set; }
+        protected QSingleton Command { get; private set; }
         public abstract string GetResponse();
 
         public bool IsValid { get => this.Statement.IsValid; }
@@ -33,7 +33,7 @@
         public List<string> Errors { get => this.Statement.Errors; }
         public List<string> Warnings { get => this.Statement.Warnings; }
         public Dictionary<string, string> Disposition { get => this.Statement.Disposition; }
-        protected QExplicitResult(QExplicitCommand command, QStatement stmt, string path, QCommandCategory category)
+        protected QExplicitResult(QSingleton command, QStatement stmt, string path, QCommandCategory category)
         {
             this.Category = category;
             this.Verb = command.Verb;
@@ -89,7 +89,7 @@
         {
             return new QHistoryResult(history, stmt, string.Empty);
         }
-        public static QExplicitResult? Create(QExplicitCommand command, QStatement stmt)
+        public static QExplicitResult? Create(QSingleton command, QStatement stmt)
         {
             if (command.GetType() == typeof(QHelp))
                 return Create((QHelp)command, stmt);
@@ -117,7 +117,7 @@
     {
         string Label;
 
-        public QLabelResult(QExplicitCommand command, QStatement stmt, string path) : base(command, stmt, path, QCommandCategory.LABELING)
+        public QLabelResult(QSingleton command, QStatement stmt, string path) : base(command, stmt, path, QCommandCategory.LABELING)
         {
             if (command.GetType() == typeof(QDeleteLabel))
                 this.Label = ((QDeleteLabel)command).Label;
@@ -146,7 +146,7 @@
     }
     public class QHistoryResult : QExplicitResult
     {
-        public QHistoryResult(QExplicitCommand command, QStatement stmt, string path) : base(command, stmt, path, QCommandCategory.HISTORY)
+        public QHistoryResult(QSingleton command, QStatement stmt, string path) : base(command, stmt, path, QCommandCategory.HISTORY)
         {
             ;
         }
@@ -166,7 +166,7 @@
     public class QControlsResult : QExplicitResult
     {
         string Setting;
-        public QControlsResult(QExplicitCommand command, QStatement stmt, string path) : base(command, stmt, path, QCommandCategory.CONTROLS)
+        public QControlsResult(QSingleton command, QStatement stmt, string path) : base(command, stmt, path, QCommandCategory.CONTROLS)
         {
             if (command.GetType() == typeof(QSet))
                 this.Setting = ((QSet)command).Key;
@@ -219,7 +219,7 @@
     public class QSystemResult : QExplicitResult
     {
         string Parameter;
-        public QSystemResult(QExplicitCommand command, QStatement stmt, string path) : base(command, stmt, path, QCommandCategory.SYSTEM)
+        public QSystemResult(QSingleton command, QStatement stmt, string path) : base(command, stmt, path, QCommandCategory.SYSTEM)
         {
             if (command.GetType() == typeof(QHelp))
                 this.Parameter = ((QHelp)command).Topic;

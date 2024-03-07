@@ -3,7 +3,7 @@ namespace Blueprint.Blue
     using Pinshot.PEG;
     using System;
 
-    public class QHelp : QExplicitCommand, ICommand
+    public class QHelp : QSingleton, ICommand
     {
         public string Document { get; set; }
         public string Topic { get; set; }

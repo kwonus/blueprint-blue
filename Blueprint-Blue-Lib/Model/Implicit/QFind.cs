@@ -33,17 +33,17 @@ namespace Blueprint.Blue
                 baseline[filter.Filter] = filter;
         }
 
-        private QFind(IDiagnostic diagnostics, QSelectionCriteria segment, Dictionary<string, SearchFilter> filters, string text, Parsed[] args): base(segment.Settings, segment.Results)
+        private QFind(IDiagnostic diagnostics, QSelectionCriteria segment, string text, Parsed expression, Parsed[]? filters, Parsed[]? settings): base(segment.Settings, segment.Results)
         {
             this.Diagnostics = diagnostics;
-            this.Scope = filters;
+            this.Scope = new();
             this.Expression = text;
 
             this.Fragments = new();
-            this.Valid = (args.Length == 1 && args[0].rule == "search" && args[0].children.Length == 1);
+            this.Valid = (expression.rule == "search" && expression.children.Length == 1);
             if (this.Valid)
             {
-                Parsed child = args[0].children[0];
+                Parsed child = expression.children[0];
 
                 bool ordered = child.rule.Equals("ordered") && (child.children.Length > 0);
                 bool unordered = child.rule.Equals("unordered") && (child.children.Length > 0);
@@ -76,9 +76,9 @@ namespace Blueprint.Blue
                 }
             }
         }
-        public static QFind? Create(IDiagnostic diagnostics, QSelectionCriteria segment, Dictionary<string, SearchFilter> filters, string text, Parsed[] args)
+        public static QFind? Create(IDiagnostic diagnostics, QSelectionCriteria segment, string text, Parsed expression, Parsed[]? filters, Parsed[]? settings)
         {
-            QFind? search = new QFind(diagnostics, segment, filters, text, args);
+            QFind? search = new QFind(diagnostics, segment, text, expression, filters, settings);   // see caller /*commented_code*/ for how to consume settings
 
             return search.Valid ? search : null;
         }

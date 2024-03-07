@@ -2,7 +2,7 @@ namespace Blueprint.Blue
 {
     using Pinshot.PEG;
 
-    public class QAbsorb : QExplicitCommand, ICommand
+    public class QAbsorb : QSingleton, ICommand
     {
         public string Label   { get; set; } // macro
         public uint   Command { get; set; } // history

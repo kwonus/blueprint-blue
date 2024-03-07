@@ -4,7 +4,7 @@ using YamlDotNet.Core.Tokens;
 
 namespace Blueprint.Blue
 {
-    public class QSet : QExplicitCommand
+    public class QSet : QSingleton
     {
         public string Key { get; protected set; }
         public string Value { get; protected set; }

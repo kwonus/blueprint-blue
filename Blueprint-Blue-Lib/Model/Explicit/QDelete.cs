@@ -2,7 +2,7 @@ namespace Blueprint.Blue
 {
     using Pinshot.PEG;
 
-    public class QDeleteLabel : QExplicitCommand, ICommand
+    public class QDeleteLabel : QSingleton, ICommand
     {
         public string Label { get; private set; } // macro
 
@@ -20,7 +20,7 @@ namespace Blueprint.Blue
             return (false, "Operation has not been implemented yet.");
         }
     }
-    public class QDeleteHistory : QExplicitCommand, ICommand
+    public class QDeleteHistory : QSingleton, ICommand
     {
         public UInt32 fromId { get; private set; }
         public UInt32 untilId { get; private set; }

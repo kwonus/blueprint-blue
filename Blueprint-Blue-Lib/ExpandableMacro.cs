@@ -4,20 +4,21 @@
     using YamlDotNet.Serialization;
     using System.Security.Cryptography.X509Certificates;
     using System.Text;
+    using System.IO;
 
     public class ExpandableMacro: ExpandableInvocation
     {
         public string Label { get; private set; }
-        public ExpandableMacro() : base()
+        public ExpandableMacro() : base(MacroComponents.Ignore)
         {
             this.Label = string.Empty;
         }
 
-        public ExpandableMacro(QSelectionCriteria statement, string label, bool partial) : base(statement, partial)
+        public ExpandableMacro(QSelectionCriteria statement, string label, MacroComponents parts) : base(statement, parts)
         {
             this.Label = label;
         }
-        public ExpandableMacro(QUtilize invocation) : base(invocation)
+        public ExpandableMacro(QUtilize invocation, MacroComponents parts) : base(invocation, parts)
         {
             this.Label = invocation.Label ?? string.Empty;
         }

@@ -6,25 +6,24 @@ namespace Blueprint.Blue
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;
+    using static System.Reflection.Metadata.BlobBuilder;
 
     public class QSelectionCriteria : QCommand, ICommand
     {
-        public QFind?        FindExpression     { get; protected internal set; }
+        public QFind?        SearchExpression   { get; protected internal set; }
         public QUtilize?     UtilizeExpression  { get; protected internal set; }
         public List<QFilter> Scope              { get; protected internal set; }
         public QUtilize?     UtilizeScope       { get; protected internal set; }
         public List<QAssign> Assignments        { get; protected internal set; }
         public QUtilize?     UtilizeAssignments { get; protected internal set; }
-        public QApply?       MacroLabel         { get; protected internal set; }
         public QSettings     Settings           { get; protected internal set; }
         public QueryResult   Results            { get; protected internal set; }
 
-        private QSelectionCriteria(QContext env, QueryResult results, string text, string verb, QApply? applyLabel = null) : base(env, text, verb)
+        private QSelectionCriteria(QContext env, QueryResult results, string text, string verb) : base(env, text, verb)
         {
-            this.FindExpression = null;
+            this.SearchExpression = null;
             this.Assignments = new();
             this.Scope = new();
-            this.MacroLabel = applyLabel;
             this.Settings = new QSettings(env.GlobalSettings);
             this.Results = results;
 
@@ -32,14 +31,51 @@ namespace Blueprint.Blue
             this.UtilizeScope = null;
             this.UtilizeAssignments = null;
     }
-        public static QSelectionCriteria CreateSegment(QContext env, QueryResult results, Parsed elements, QApply? applyLabel = null)
+        public static QSelectionCriteria CreateSelectionCriteria(QContext env, QueryResult results, Parsed criteria)
         {
-            var segment = new QSelectionCriteria(env, results, elements.text, elements.rule, applyLabel);
-            Dictionary<string, SearchFilter> filters = new();
+            var segment = new QSelectionCriteria(env, results, criteria.text, criteria.rule);
 
-            // TO DO: Add Scope
-            foreach (Parsed clause in elements.children)
+            if (criteria.rule.Equals("selection_criteria", StringComparison.InvariantCultureIgnoreCase) && (criteria.children.Length >= 1))
             {
+                Dictionary<string, Parsed[]?> blocks = new() {
+                    { "expression_block", null },
+                    { "settings_block", null },
+                    { "filer_block", null }
+                };
+
+                foreach (Parsed block in criteria.children)
+                {
+                    if (block.children.Length >= 1)
+                    {
+                        blocks[block.rule] = block.children;
+                    }
+                }
+                // Expression block will subsume settings and filters 
+                // (they need not be processed in this method when expression is part of imperative)
+                if (blocks["expression_block"] != null)
+                {
+                    Parsed[]? expressions = blocks["expression_block"];
+                    if (expressions.Length == 1)
+                    {
+                        Parsed expression = expressions[0];
+                        segment.SearchExpression = QFind.Create(env, segment, expression.text, expression, blocks["filter_block"], blocks["settings_block"]);
+                    }
+                    return segment; // done with Selection/Search Criteria
+                }
+                if (blocks["settings_block"] != null)
+                {
+                    // TO DO: add settings
+                }
+                if (blocks["filters_block"] != null)
+                {
+                    // TO DO: add filters
+                }
+            }
+            return segment;
+        }/*
+            // TO DO: Add Scope
+            foreach (Parsed clause in selection.children)
+                {
                 if (clause.rule.Equals("element"))
                 {
                     if (clause.children.Length == 1)
@@ -78,7 +114,7 @@ namespace Blueprint.Blue
                 }
             }
 
-            foreach (Parsed clause in elements.children)
+            foreach (Parsed clause in selection.children)
             {
                 if (clause.rule.Equals("expression"))
                 {
@@ -88,14 +124,14 @@ namespace Blueprint.Blue
 
                         if (expression.rule.Equals("search", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            segment.FindExpression = QFind.Create(env, segment, filters, expression.text, clause.children);
+                            segment.SearchExpression = QFind.Create(env, segment, filters, expression.text, clause.children);
                         }
                         else if (expression.rule.Equals("utilization_full", StringComparison.InvariantCultureIgnoreCase))
                         {
                             var invocation = QUtilize.Create(env, clause.text, clause.children);
                             if (invocation != null)
                             {
-                                segment.FindExpression = invocation.Expression;
+                                segment.SearchExpression = invocation.Expression;
                                 segment.Settings.CopyFrom(invocation.Settings);
                                 QFind.AddFilters(filters, invocation.Filters);
 
@@ -108,13 +144,13 @@ namespace Blueprint.Blue
             segment.ConditionallyUpdateSpanToFragmentCount();
 
             return segment;
-        }
+        }*/
         internal void ConditionallyUpdateSpanToFragmentCount()
         {
-            if (this.FindExpression != null && this.FindExpression.Settings.SearchSpan != 0)
+            if (this.SearchExpression != null && this.SearchExpression.Settings.SearchSpan != 0)
             {
-                UInt16 fragCnt = (UInt16)this.FindExpression.Fragments.Count;
-                if (fragCnt > this.FindExpression.Settings.SearchSpan)
+                UInt16 fragCnt = (UInt16)this.SearchExpression.Fragments.Count;
+                if (fragCnt > this.SearchExpression.Settings.SearchSpan)
                 {
                     this.Settings.Span.Update(fragCnt);
                 }

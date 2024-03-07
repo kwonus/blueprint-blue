@@ -1,7 +1,7 @@
 namespace Blueprint.Blue
 {
     using Pinshot.PEG;
-    public class QHistory : QExplicitCommand, ICommand
+    public class QHistory : QSingleton, ICommand     // QHistory object is the @view command for history
     {
         public uint? From         { get; private set; }
         public uint? Unto         { get; private set; }

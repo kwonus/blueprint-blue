@@ -10,8 +10,10 @@
     using AVSearch.Model.Results;
     using System.Runtime.CompilerServices;
     using AVSearch.Model.Expressions;
+    using System.Xml.Linq;
+    using YamlDotNet.Core;
 
-    public class QSearchStatement
+    public class QSelectionStatement
     {
         [JsonIgnore]
         [YamlIgnore]
@@ -27,13 +29,13 @@
         public (bool ok, QueryResult query) Execute()
         {
 
-            if (this.SelectionCriteria.FindExpression != null)
+            if (this.SelectionCriteria.SearchExpression != null)
             {
                 bool executed = this.SelectionCriteria.Scope.Count == 0
-                    ? this.Search(this.SelectionCriteria.FindExpression)
-                    : this.SearchWithScope(this.SelectionCriteria.FindExpression);
+                    ? this.Search(this.SelectionCriteria.SearchExpression)
+                    : this.SearchWithScope(this.SelectionCriteria.SearchExpression);
 
-                var exp = this.SelectionCriteria.FindExpression;
+                var exp = this.SelectionCriteria.SearchExpression;
                 {
                     for (byte b = 1; b <= 66; b++)
                         if (exp.Books.ContainsKey(b) && (exp.Books[b].Chapters.Count == 0))
@@ -78,7 +80,7 @@
             return result;
         }
 
-        private QSearchStatement(QContext env, string stmtText)
+        private QSelectionStatement(QContext env, string stmtText)
         {
             this.Context = env;
             this.ExportDirective = null;
@@ -86,37 +88,33 @@
             this.SelectionCriteria = null;
         }
 
-        public static QSearchStatement? Create(QContext context, Parsed stmt, QStatement diagnostics)
+        public static QSelectionStatement? Create(QContext context, Parsed stmt, QStatement diagnostics)
         {
-            bool valid = false;
-            var selection = new QSearchStatement(context, stmt.text);
+            var selection = new QSelectionStatement(context, stmt.text);
 
-            if (stmt.rule.Equals("implicits", StringComparison.InvariantCultureIgnoreCase) && (stmt.children.Length >= 1))
+            if (stmt.rule.Equals("selection_statement", StringComparison.InvariantCultureIgnoreCase) && (stmt.children.Length >= 1))
             {
-                Parsed[] segments = stmt.children;
+                Parsed criteria = stmt.children[0];
 
-                for (int s = 0; s < segments.Length; s++)
+                QSelectionCriteria? seg = QSelectionCriteria.CreateSelectionCriteria(context, selection.Results, criteria);
+                if (seg == null)
+                    return null;
+
+                selection.SelectionCriteria = seg;
+
+                if (stmt.children.Length >= 2)
                 {
-                    Parsed segment = segments[s];
-
-                    if ((segment.children.Length >= 1) && segment.children[0].rule.StartsWith("elements", StringComparison.InvariantCultureIgnoreCase))
+                    Parsed directive = stmt.children[1];
+                    switch (directive.rule)
                     {
-                        var elements = segment.children[0];
-                        if ((segment.children.Length == 2) && segment.children[1].rule.StartsWith("apply_macro_", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            var macro = segment.children[1];
-                            selection.MacroDirective = QApply.Create(context, segment.text, macro);
-                        }
-                        QSelectionCriteria seg = QSelectionCriteria.CreateSegment(context, selection.Results, elements, selection.MacroDirective);
-                        valid = (seg != null);
-                        if (seg != null)
-                            selection.SelectionCriteria = seg;
+                        case "macro_directive":  selection.MacroDirective  = QApply.Create(context, directive.text, directive); break;
+                        case "export_directive": selection.ExportDirective = QExport.Create(context, directive.text, directive.children); break;
                     }
                 }
             }
-            selection.Results = new QueryResult(selection.SelectionCriteria.FindExpression);
+            selection.Results = new QueryResult(selection.SelectionCriteria.SearchExpression);
 
-            return valid ? selection : null;
+            return selection;
         }
     }
 }

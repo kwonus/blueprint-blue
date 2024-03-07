@@ -2,7 +2,7 @@ namespace Blueprint.Blue
 {
     using Pinshot.PEG;
 
-    public class QReview : QExplicitCommand, ICommand
+    public class QReview : QSingleton, ICommand     // QReview object is the @view command for macros
     {
         public string Label { get; private set; }
         public DateTime? Since { get; private set; }

@@ -2,48 +2,57 @@
 {
     using Blueprint.Model.Implicit;
     using System;
+    using System.IO;
     using System.Text;
     using System.Text.Json;
 
+    public enum MacroComponents
+    {
+        Ignore = 0,
+        SettingsOnly = 1,
+        ScopingOnly = 2,
+        ExpressionOnly = 4,
+        FullMacro = 7,
+    }
     public class ExpandableInvocation
     {
         public long Time                    { get; protected set; }
         public string? Expression           { get; protected set; }
         public List<string>? Filters        { get; protected set; }
         public QSettings Settings           { get; protected set; }
-        public bool Partial                 { get; protected set; }
+        public MacroComponents Parts        { get; protected set; }
 
-        public ExpandableInvocation()
+        public ExpandableInvocation(MacroComponents parts)
         {
             this.Time = 0;
             this.Expression = null;
             this.Filters = null;
             this.Settings = new QSettings();
-            this.Partial = true;
+            this.Parts = parts;
         }
 
-        public ExpandableInvocation(QSelectionCriteria statement, bool partial)
+        public ExpandableInvocation(QSelectionCriteria statement, MacroComponents parts)
         {
             this.Time = DateTimeOffset.Now.ToFileTime();
-            this.Expression = statement.FindExpression != null ? statement.FindExpression.Expression : null;
+            this.Expression = statement.SearchExpression != null ? statement.SearchExpression.Expression : null;
             this.Settings = new QSettings(statement.Settings);
-            this.Partial = partial;
-            if (statement.FindExpression != null && statement.FindExpression.Scope.Count > 0 )
+            this.Parts = parts;
+            if (statement.SearchExpression != null && statement.SearchExpression.Scope.Count > 0 )
             {
                 this.Filters = new();
-                foreach (var filter in statement.FindExpression.Scope.Values)
+                foreach (var filter in statement.SearchExpression.Scope.Values)
                 {
                     this.Filters.Add(((QFilter)filter).Filter);
                 }
             }
         }
-        public ExpandableInvocation(QUtilize invocation)
+        public ExpandableInvocation(QUtilize invocation, MacroComponents parts)
         {
             this.Time = 0;
             this.Expression = null;
             this.Filters = null;
             this.Settings = invocation.Settings;
-            this.Partial = invocation.Partial;
+            this.Parts = parts;
 
             // TODO:
             // we need to read info from the in-memory macro-list or history-list
@@ -177,34 +186,27 @@
             markdown.Append(time);
             markdown.AppendLine(" |");
 
-            markdown.Append("| Type | ");
-            markdown.Append(this.Partial ? "Partial" : "Full");
-            markdown.AppendLine(" |");
-
-            if (!this.Partial)
+            if (!string.IsNullOrWhiteSpace(this.Expression))
             {
-                if (!string.IsNullOrWhiteSpace(this.Expression))
-                {
-                    markdown.Append("| Expression | ");
-                    markdown.Append(this.Expression);
-                    markdown.AppendLine(" |");
-                }
-                if (this.Filters != null && this.Filters.Count > 0)
-                {
-                    markdown.Append("| Filters | ");
-                    foreach (var filter in this.Filters)
-                    {
-                        if (!string.IsNullOrWhiteSpace(filter))
-                        {
-                            markdown.Append(filter);
-                            markdown.AppendLine(", ");
-                        }
-                    }
-                    markdown.AppendLine(" |");
-                }
-                markdown.AppendLine();
-
+                markdown.Append("| Expression | ");
+                markdown.Append(this.Expression);
+                markdown.AppendLine(" |");
             }
+            if (this.Filters != null && this.Filters.Count > 0)
+            {
+                markdown.Append("| Filters | ");
+                foreach (var filter in this.Filters)
+                {
+                    if (!string.IsNullOrWhiteSpace(filter))
+                    {
+                        markdown.Append(filter);
+                        markdown.AppendLine(", ");
+                    }
+                }
+                markdown.AppendLine(" |");
+            }
+            markdown.AppendLine();
+
             this.Settings.AsMarkdown(showDefaults: true, showExtendedSettings: false);
 
             return markdown.ToString();
