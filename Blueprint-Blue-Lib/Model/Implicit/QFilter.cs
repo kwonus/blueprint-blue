@@ -14,9 +14,13 @@ namespace Blueprint.Blue
         {
             this.Filter = filter;
         }
-        public static QFilter? Create(IDiagnostic diagnostics, string text, Parsed[] args)
+        public static QFilter? Create(Parsed filter)
         {
-            return args.Length == 1 ? new QFilter(args[0].text) : null;
+            if (filter.rule.Equals("filter", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return new QFilter(filter.text);
+            }
+            return null;
         } 
     }
 }

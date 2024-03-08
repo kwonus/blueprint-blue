@@ -624,15 +624,14 @@ namespace Blueprint.Model.Implicit
             }
             return string.Empty;
         }
-        public static QAssign? CreateAssignment(QContext env, string text, Parsed[] args)
+        public static QAssign? CreateAssignment(QContext env, string text, Parsed arg)
         {
-            if (args.Length == 1)
+            if (arg.rule.EndsWith("_var"))
             {
-                if (args[0].children.Length == 2
-                && args[0].children[0].rule.EndsWith("_key", StringComparison.InvariantCultureIgnoreCase)
-                && args[0].children[1].rule.EndsWith("_option", StringComparison.InvariantCultureIgnoreCase))
+                if (arg.children.Length == 2
+                && arg.children[0].rule.EndsWith("_key", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    return new QAssign(env, text, args[0].children[0].text, args[0].children[1].text);
+                    return new QAssign(env, text, arg.children[0].text, arg.children[1].rule);
                 }
             }
             return null;

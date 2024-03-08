@@ -33,29 +33,31 @@ namespace Blueprint.Blue
                 baseline[filter.Filter] = filter;
         }
 
-        private QFind(IDiagnostic diagnostics, QSelectionCriteria segment, string text, Parsed expression, Parsed[]? filters, Parsed[]? settings): base(segment.Settings, segment.Results)
+        private QFind(IDiagnostic diagnostics, QSelectionCriteria selection, string text, Parsed? expression, bool useExplicitSettings): base(selection.Settings, selection.Results)
         {
             this.Diagnostics = diagnostics;
             this.Scope = new();
             this.Expression = text;
+            this.Settings = selection.Settings;
+            this.AddFilters(selection.Scope);
 
             this.Fragments = new();
-            this.Valid = (expression.rule == "search" && expression.children.Length == 1);
-            if (this.Valid)
+            this.NonEmptySelection = (expression != null) && (expression.rule == "search" && expression.children.Length == 1);
+            if (this.NonEmptySelection)
             {
                 Parsed child = expression.children[0];
 
                 bool ordered = child.rule.Equals("ordered") && (child.children.Length > 0);
                 bool unordered = child.rule.Equals("unordered") && (child.children.Length > 0);
 
-                this.Valid = ordered || unordered;
+                this.NonEmptySelection = ordered || unordered;
                 this.Quoted = ordered;
 
                 string fulltext = text.Trim();
                 var beginQuote = fulltext.StartsWith("\"");
                 var endQuote = fulltext.StartsWith("\"");
 
-                if (this.Valid)
+                if (this.NonEmptySelection)
                 {
                     foreach (Parsed gchild in child.children)
                     {
@@ -63,9 +65,9 @@ namespace Blueprint.Blue
                         bool unanchored = gchild.rule.Equals("unanchored") && (gchild.children.Length == 1)
                             && gchild.children[0].rule.Equals("fragment") && (gchild.children[0].children.Length > 0);
 
-                        this.Valid = anchored || unanchored;
+                        this.NonEmptySelection = anchored || unanchored;
 
-                        if (this.Valid)
+                        if (this.NonEmptySelection)
                         {
                             Parsed frag = anchored ? gchild : gchild.children[0];
                             QFragment fragment = new QFragment(this, frag, anchored);
@@ -75,12 +77,17 @@ namespace Blueprint.Blue
                     }
                 }
             }
+            else
+            {
+                this.NonEmptySelection = this.Scope.Count > 0;
+            }
         }
-        public static QFind? Create(IDiagnostic diagnostics, QSelectionCriteria segment, string text, Parsed expression, Parsed[]? filters, Parsed[]? settings)
+        public static QFind? Create(IDiagnostic diagnostics, QSelectionCriteria selection, string text, Parsed? expression, bool useExplicitSettings)
         {
-            QFind? search = new QFind(diagnostics, segment, text, expression, filters, settings);   // see caller /*commented_code*/ for how to consume settings
-
-            return search.Valid ? search : null;
+            // TODO: COnside that this could be a fiull or demoted/partial macro and process accordingly
+            //
+            QFind? search = new QFind(diagnostics, selection, text, expression, useExplicitSettings);
+            return search.NonEmptySelection ? search : null;
         }
         public List<string> AsYaml()
         {

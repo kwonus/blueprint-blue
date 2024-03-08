@@ -1,12 +1,10 @@
 namespace Blueprint.Blue
 {
-    using AVSearch.Model.Expressions;
     using AVSearch.Model.Results;
     using Blueprint.Model.Implicit;
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;
-    using static System.Reflection.Metadata.BlobBuilder;
 
     public class QSelectionCriteria : QCommand, ICommand
     {
@@ -33,118 +31,99 @@ namespace Blueprint.Blue
     }
         public static QSelectionCriteria CreateSelectionCriteria(QContext env, QueryResult results, Parsed criteria)
         {
-            var segment = new QSelectionCriteria(env, results, criteria.text, criteria.rule);
+            var selection = new QSelectionCriteria(env, results, criteria.text, criteria.rule);
+            bool user_supplied_settings = false;
 
             if (criteria.rule.Equals("selection_criteria", StringComparison.InvariantCultureIgnoreCase) && (criteria.children.Length >= 1))
             {
-                Dictionary<string, Parsed[]?> blocks = new() {
-                    { "expression_block", null },
-                    { "settings_block", null },
-                    { "scoping_block", null }
-                };
+                Parsed? expression = null;
 
                 foreach (Parsed block in criteria.children)
                 {
-                    if (block.children.Length >= 1)
+                    if (block.children.Length > 1)
                     {
-                        blocks[block.rule] = block.children;
+                        switch (block.rule.ToLower())
+                        {
+                            case "settings_block":   foreach (Parsed setting in block.children)
+                                                        QSelectionCriteria.SettingsFactory(selection, setting, possibleMacro: false);
+                                                     user_supplied_settings = true;
+                                                     break;  
+                            case "scoping_block":    foreach (Parsed filter in block.children)
+                                                        QSelectionCriteria.FilterFactory(selection, filter, possibleMacro: false);
+                                                     break; 
+                        }
+                    }
+                    else if (block.children.Length == 1)
+                    {
+                        switch (block.rule.ToLower())
+                        {
+                            case "expression_block": expression = block.children[0]; 
+                                                     break;      
+                            case "settings_block":   QSelectionCriteria.SettingsFactory(selection, block.children[0], possibleMacro: true);
+                                                     user_supplied_settings = true;
+                                                     break;  
+                            case "scoping_block":    QSelectionCriteria.FilterFactory(selection, block.children[0], possibleMacro: true);
+                                                     break; 
+                        }
                     }
                 }
-                // Expression block will subsume settings and filters 
+                // SearchExpression(QFind) subsumes expression, settings, and filters in selection object
                 // (they need not be processed in this method when expression is part of imperative)
-                if (blocks["expression_block"] != null)
-                {
-                    Parsed[]? expressions = blocks["expression_block"];
-                    if (expressions.Length == 1)
-                    {
-                        Parsed expression = expressions[0];
-                        segment.SearchExpression = QFind.Create(env, segment, expression.text, expression, blocks["scoping_block"], blocks["settings_block"]);
-                    }
-                    return segment; // done with Selection/Search Criteria
-                }
-                if (blocks["settings_block"] != null)
-                {
-                    // TO DO: add settings
-                }
-                if (blocks["filter_block"] != null)
-                {
-                    // TO DO: add filters
-                }
+                selection.SearchExpression = QFind.Create(env, selection, selection.Text, expression, user_supplied_settings);
             }
-            return segment;
-        }/*
-            // TO DO: Add Scope
-            foreach (Parsed clause in selection.children)
-                {
-                if (clause.rule.Equals("element"))
-                {
-                    if (clause.children.Length == 1)
-                    {
-                        var variable = clause.children[0];
+            return selection;
+        }
+        private static void FilterFactory(QSelectionCriteria selection, Parsed filter, bool possibleMacro)
+        {
+            QFilter? instance = QFilter.Create(filter);
 
-                        if (variable.rule.Equals("assignment", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            QAssign? assignment = QVariable.CreateAssignment(env, variable.text, variable.children);
-                            if (assignment != null)
-                            {
-                                segment.Assignments.Add(assignment);
-                                segment.Settings.Assign(assignment);
-                            }
-                        }
-                        else if (variable.rule.Equals("utilization_partial", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            var invocation = QUtilize.Create(env, clause.text, clause.children);
-                            if (invocation != null)
-                            {
-                                segment.Settings.CopyFrom(invocation.Settings);
-                                QFind.AddFilters(filters, invocation.Filters);
-
-                                segment.UtilizeAssignments = invocation;
-                            }
-                        }
-                        else if (variable.rule.Equals("filter", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            QFilter? filter = QFilter.Create(env, variable.text, clause.children);
-                            if (filter != null)
-                            {
-                                QFind.AddFilter(filters, filter);
-                            }
-                        }
-                    }
-                }
-            }
-
-            foreach (Parsed clause in selection.children)
+            if (instance != null)
             {
-                if (clause.rule.Equals("expression"))
+                selection.Scope.Add(instance);
+            }
+            else if (possibleMacro)
+            {
+                if (filter.rule.StartsWith("hashtag"))
                 {
-                    if (clause.children.Length == 1)
+                    // this is a partial utilization [macro or history]
+                    var invocation = QUtilize.Create(selection.Context, filter.text, filter.children);
+                    if (invocation != null)
                     {
-                        var expression = clause.children[0];
-
-                        if (expression.rule.Equals("search", StringComparison.InvariantCultureIgnoreCase))
+                        foreach (QFilter item in invocation.Filters)
                         {
-                            segment.SearchExpression = QFind.Create(env, segment, filters, expression.text, clause.children);
-                        }
-                        else if (expression.rule.Equals("utilization_full", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            var invocation = QUtilize.Create(env, clause.text, clause.children);
-                            if (invocation != null)
-                            {
-                                segment.SearchExpression = invocation.Expression;
-                                segment.Settings.CopyFrom(invocation.Settings);
-                                QFind.AddFilters(filters, invocation.Filters);
-
-                                segment.UtilizeExpression = invocation;
-                            }
+                            selection.Scope.Add(item);
                         }
                     }
                 }
             }
-            segment.ConditionallyUpdateSpanToFragmentCount();
+        }
 
-            return segment;
-        }*/
+        private static void SettingsFactory(QSelectionCriteria selection, Parsed variable, bool possibleMacro)
+        {
+            if (variable.children.Length == 1)
+            {
+                QAssign? assignment = QVariable.CreateAssignment(selection.Context, variable.text, variable.children[0]);
+
+                if (assignment != null)
+                {
+                    selection.Assignments.Add(assignment);
+                }
+                else if (possibleMacro)
+                {
+                    if (variable.rule.StartsWith("hashtag"))
+                    {
+                        // this is a partial utilization [macro or history]
+                        var invocation = QUtilize.Create(selection.Context, variable.text, variable.children);
+                        if (invocation != null)
+                        {
+                            selection.Settings.CopyFrom(invocation.Settings);
+                            selection.UtilizeAssignments = invocation;
+                        }
+                    }
+                }
+            }
+        }
+
         internal void ConditionallyUpdateSpanToFragmentCount()
         {
             if (this.SearchExpression != null && this.SearchExpression.Settings.SearchSpan != 0)
