@@ -1,10 +1,10 @@
 ﻿namespace Blueprint.Blue
 {
-    using Blueprint.Model.Implicit;
     using System;
     using System.IO;
     using System.Text;
-    using System.Text.Json;
+    using System.Text.Json.Serialization;
+    using YamlDotNet.Serialization;
 
     public enum MacroComponents
     {
@@ -18,12 +18,18 @@
     {
         public long Time                    { get; protected set; }
         public string? Expression           { get; protected set; }
+        public string Statement             { get; protected set; }
+
         public List<string>? Filters        { get; protected set; }
         public QSettings Settings           { get; protected set; }
+
+        [JsonIgnore]
+        [YamlIgnore]
         public MacroComponents Parts        { get; protected set; }
 
         public ExpandableInvocation(MacroComponents parts)
         {
+            this.Statement = string.Empty;
             this.Time = 0;
             this.Expression = null;
             this.Filters = null;
@@ -31,8 +37,9 @@
             this.Parts = parts;
         }
 
-        public ExpandableInvocation(QSelectionCriteria statement, MacroComponents parts)
+        public ExpandableInvocation(string rawText, QSelectionCriteria statement, MacroComponents parts)
         {
+            this.Statement = rawText;
             this.Time = DateTimeOffset.Now.ToFileTime();
             this.Expression = statement.SearchExpression != null ? statement.SearchExpression.Expression : null;
             this.Settings = new QSettings(statement.Settings);
@@ -46,8 +53,9 @@
                 }
             }
         }
-        public ExpandableInvocation(QUtilize invocation, MacroComponents parts)
+        public ExpandableInvocation(string rawText, QUtilize invocation, MacroComponents parts)
         {
+            this.Statement = rawText;
             this.Time = 0;
             this.Expression = null;
             this.Filters = null;

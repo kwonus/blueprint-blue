@@ -40,7 +40,7 @@ namespace Blueprint.Blue
                 Dictionary<string, Parsed[]?> blocks = new() {
                     { "expression_block", null },
                     { "settings_block", null },
-                    { "filer_block", null }
+                    { "scoping_block", null }
                 };
 
                 foreach (Parsed block in criteria.children)
@@ -58,7 +58,7 @@ namespace Blueprint.Blue
                     if (expressions.Length == 1)
                     {
                         Parsed expression = expressions[0];
-                        segment.SearchExpression = QFind.Create(env, segment, expression.text, expression, blocks["filter_block"], blocks["settings_block"]);
+                        segment.SearchExpression = QFind.Create(env, segment, expression.text, expression, blocks["scoping_block"], blocks["settings_block"]);
                     }
                     return segment; // done with Selection/Search Criteria
                 }
@@ -66,7 +66,7 @@ namespace Blueprint.Blue
                 {
                     // TO DO: add settings
                 }
-                if (blocks["filters_block"] != null)
+                if (blocks["filter_block"] != null)
                 {
                     // TO DO: add filters
                 }

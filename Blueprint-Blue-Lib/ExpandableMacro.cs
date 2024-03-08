@@ -14,11 +14,11 @@
             this.Label = string.Empty;
         }
 
-        public ExpandableMacro(QSelectionCriteria statement, string label, MacroComponents parts) : base(statement, parts)
+        public ExpandableMacro(string rawText, QSelectionCriteria statement, string label, MacroComponents parts) : base(rawText, statement, parts)
         {
             this.Label = label;
         }
-        public ExpandableMacro(QUtilize invocation, MacroComponents parts) : base(invocation, parts)
+        public ExpandableMacro(string rawText, QUtilize invocation, MacroComponents parts) : base(rawText, invocation, parts)
         {
             this.Label = invocation.Label ?? string.Empty;
         }

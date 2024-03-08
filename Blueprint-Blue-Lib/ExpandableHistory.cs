@@ -13,11 +13,11 @@
             this.Id = 0;
         }
 
-        public ExpandableHistory(QSelectionCriteria statement, UInt64 id, MacroComponents parts) : base(statement, parts)
+        public ExpandableHistory(string rawText, QSelectionCriteria statement, UInt64 id, MacroComponents parts) : base(rawText, statement, parts)
         {
             this.Id = id;
         }
-        public ExpandableHistory(QUtilize invocation, MacroComponents parts) : base(invocation, parts)
+        public ExpandableHistory(string rawText, QUtilize invocation, MacroComponents parts) : base(rawText, invocation, parts)
         {
             this.Id = invocation.Id ?? 0;
         }

@@ -1,17 +1,11 @@
 ﻿namespace Blueprint.Blue
 {
     using Pinshot.PEG;
-    using System.Collections.Generic;
     using System;
     using YamlDotNet.Serialization;
     using System.Text.Json.Serialization;
     using Blueprint.Model.Implicit;
-    using static AVXLib.Framework.Numerics;
     using AVSearch.Model.Results;
-    using System.Runtime.CompilerServices;
-    using AVSearch.Model.Expressions;
-    using System.Xml.Linq;
-    using YamlDotNet.Core;
 
     public class QSelectionStatement
     {
