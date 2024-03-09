@@ -2,10 +2,7 @@ namespace Blueprint.Blue
 {
     using AVSearch.Model.Expressions;
     using Pinshot.PEG;
-    using System;
     using System.Collections.Generic;
-    using YamlDotNet.Serialization;
-    using static AVXLib.Framework.Numerics;
 
     public class QFind: SearchExpression, IDiagnostic
     {
@@ -32,9 +29,9 @@ namespace Blueprint.Blue
             if (!baseline.ContainsKey(filter.Filter))
                 baseline[filter.Filter] = filter;
         }
-
         private QFind(IDiagnostic diagnostics, QSelectionCriteria selection, string text, Parsed? expression, bool useExplicitSettings): base(selection.Settings, selection.Results)
         {
+            this.IsValid = false;
             this.Diagnostics = diagnostics;
             this.Scope = new();
             this.Expression = text;
@@ -42,32 +39,33 @@ namespace Blueprint.Blue
             this.AddFilters(selection.Scope);
 
             this.Fragments = new();
-            this.NonEmptySelection = (expression != null) && (expression.rule == "search" && expression.children.Length == 1);
-            if (this.NonEmptySelection)
+            bool validExpression = (expression != null) && (expression.rule == "search" && expression.children.Length == 1) && !string.IsNullOrWhiteSpace(text);
+            if ((expression != null) && validExpression)
             {
                 Parsed child = expression.children[0];
 
                 bool ordered = child.rule.Equals("ordered") && (child.children.Length > 0);
                 bool unordered = child.rule.Equals("unordered") && (child.children.Length > 0);
 
-                this.NonEmptySelection = ordered || unordered;
-                this.Quoted = ordered;
-
-                string fulltext = text.Trim();
-                var beginQuote = fulltext.StartsWith("\"");
-                var endQuote = fulltext.StartsWith("\"");
-
-                if (this.NonEmptySelection)
+                if (ordered || unordered)
                 {
+                    this.Expression = string.Empty;
+
+                    this.Quoted = ordered;
+
+                    string fulltext = text.Trim();
+                    var beginQuote = fulltext.StartsWith("\"");
+                    var endQuote = fulltext.StartsWith("\"");
+
                     foreach (Parsed gchild in child.children)
                     {
                         bool anchored = gchild.rule.Equals("fragment") && (gchild.children.Length > 0);
                         bool unanchored = gchild.rule.Equals("unanchored") && (gchild.children.Length == 1)
                             && gchild.children[0].rule.Equals("fragment") && (gchild.children[0].children.Length > 0);
 
-                        this.NonEmptySelection = anchored || unanchored;
+                        validExpression = anchored || unanchored;
 
-                        if (this.NonEmptySelection)
+                        if (validExpression)
                         {
                             Parsed frag = anchored ? gchild : gchild.children[0];
                             QFragment fragment = new QFragment(this, frag, anchored);
@@ -76,18 +74,40 @@ namespace Blueprint.Blue
                         else break;
                     }
                 }
+                if (validExpression)
+                {
+                    this.IsValid = true;
+                    return;
+                }
             }
-            else
+            validExpression = (expression != null) && (expression.rule.StartsWith("hashtag_") && expression.children.Length == 1) && !string.IsNullOrWhiteSpace(text);
+            if (validExpression && (expression != null))
             {
-                this.NonEmptySelection = this.Scope.Count > 0;
+                var invocation = QUtilize.Create(selection.Context, expression.text, expression.children);
+                if (invocation != null)
+                {
+                    selection.SearchExpression = invocation.Expression;
+                    if (selection.Scope.Count == 0)
+                        selection.Scope = invocation.Filters;
+                    if (!useExplicitSettings)
+                        selection.Settings.CopyFrom(invocation.Settings);
+                    this.IsValid = true;
+                    return;
+                }
+                validExpression = false;
             }
+            if (useExplicitSettings)
+            {
+                this.IsValid = true;
+            }
+            this.Expression = string.Empty; // fall through here, makes *expression* invalid (even though selection might be valid)
         }
         public static QFind? Create(IDiagnostic diagnostics, QSelectionCriteria selection, string text, Parsed? expression, bool useExplicitSettings)
         {
-            // TODO: COnside that this could be a fiull or demoted/partial macro and process accordingly
+            // TODO: Consider that this could be a fiull or demoted/partial macro and process accordingly
             //
             QFind? search = new QFind(diagnostics, selection, text, expression, useExplicitSettings);
-            return search.NonEmptySelection ? search : null;
+            return search.IsValid ? search : null;
         }
         public List<string> AsYaml()
         {

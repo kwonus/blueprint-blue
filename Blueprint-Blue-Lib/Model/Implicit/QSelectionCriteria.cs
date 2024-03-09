@@ -5,6 +5,7 @@ namespace Blueprint.Blue
     using Pinshot.PEG;
     using System;
     using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
 
     public class QSelectionCriteria : QCommand, ICommand
     {
@@ -45,11 +46,11 @@ namespace Blueprint.Blue
                         switch (block.rule.ToLower())
                         {
                             case "settings_block":   foreach (Parsed setting in block.children)
-                                                        QSelectionCriteria.SettingsFactory(selection, setting, possibleMacro: false);
+                                                        selection.SettingsFactory(setting, possibleMacro: false);
                                                      user_supplied_settings = true;
                                                      break;  
                             case "scoping_block":    foreach (Parsed filter in block.children)
-                                                        QSelectionCriteria.FilterFactory(selection, filter, possibleMacro: false);
+                                                        selection.FilterFactory(filter, possibleMacro: false);
                                                      break; 
                         }
                     }
@@ -59,10 +60,10 @@ namespace Blueprint.Blue
                         {
                             case "expression_block": expression = block.children[0]; 
                                                      break;      
-                            case "settings_block":   QSelectionCriteria.SettingsFactory(selection, block.children[0], possibleMacro: true);
+                            case "settings_block":   selection.SettingsFactory(block.children[0], possibleMacro: true);
                                                      user_supplied_settings = true;
                                                      break;  
-                            case "scoping_block":    QSelectionCriteria.FilterFactory(selection, block.children[0], possibleMacro: true);
+                            case "scoping_block":    selection.FilterFactory(block.children[0], possibleMacro: true);
                                                      break; 
                         }
                     }
@@ -73,51 +74,51 @@ namespace Blueprint.Blue
             }
             return selection;
         }
-        private static void FilterFactory(QSelectionCriteria selection, Parsed filter, bool possibleMacro)
+        private void FilterFactory(Parsed filter, bool possibleMacro)
         {
             QFilter? instance = QFilter.Create(filter);
 
             if (instance != null)
             {
-                selection.Scope.Add(instance);
+                this.Scope.Add(instance);
             }
             else if (possibleMacro)
             {
                 if (filter.rule.StartsWith("hashtag"))
                 {
                     // this is a partial utilization [macro or history]
-                    var invocation = QUtilize.Create(selection.Context, filter.text, filter.children);
+                    var invocation = QUtilize.Create(this.Context, filter.text, filter.children);
                     if (invocation != null)
                     {
                         foreach (QFilter item in invocation.Filters)
                         {
-                            selection.Scope.Add(item);
+                            this.Scope.Add(item);
                         }
                     }
                 }
             }
         }
 
-        private static void SettingsFactory(QSelectionCriteria selection, Parsed variable, bool possibleMacro)
+        private void SettingsFactory(Parsed variable, bool possibleMacro)
         {
             if (variable.children.Length == 1)
             {
-                QAssign? assignment = QVariable.CreateAssignment(selection.Context, variable.text, variable.children[0]);
+                QAssign? assignment = QVariable.CreateAssignment(this.Context, variable.text, variable.children[0]);
 
                 if (assignment != null)
                 {
-                    selection.Assignments.Add(assignment);
+                    this.Assignments.Add(assignment);
                 }
                 else if (possibleMacro)
                 {
                     if (variable.rule.StartsWith("hashtag"))
                     {
                         // this is a partial utilization [macro or history]
-                        var invocation = QUtilize.Create(selection.Context, variable.text, variable.children);
+                        var invocation = QUtilize.Create(this.Context, variable.text, variable.children);
                         if (invocation != null)
                         {
-                            selection.Settings.CopyFrom(invocation.Settings);
-                            selection.UtilizeAssignments = invocation;
+                            this.Settings.CopyFrom(invocation.Settings);
+                            this.UtilizeAssignments = invocation;
                         }
                     }
                 }
