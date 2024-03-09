@@ -83,7 +83,7 @@ namespace Blueprint.Blue
             validExpression = (expression != null) && (expression.rule.StartsWith("hashtag_") && expression.children.Length == 1) && !string.IsNullOrWhiteSpace(text);
             if (validExpression && (expression != null))
             {
-                var invocation = QUtilize.Create(selection.Context, expression.text, expression.children);
+                var invocation = QUtilize.Create(selection.Context, expression.text, expression.children[0]);
                 if (invocation != null)
                 {
                     selection.SearchExpression = invocation.Expression;

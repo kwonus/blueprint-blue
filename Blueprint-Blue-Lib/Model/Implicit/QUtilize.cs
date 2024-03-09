@@ -10,16 +10,14 @@ namespace Blueprint.Blue
         public List<QFilter> Filters { get; private set; }
         public QSettings Settings { get; private set; }
         public QFind? Expression { get; private set; }
-        public bool Partial { get; private set; }
 
-        private QUtilize(QContext env, string text, string invocation, bool partial) : base(env, text, "use")
+        private QUtilize(QContext env, string text, string invocation, string? label = null, UInt64? id = null) : base(env, text, "use")
         {
             this.Filters = new();
             this.Settings = new QSettings(env.GlobalSettings);
-            this.Id = null;
-            this.Label = null;
+            this.Id = id;
+            this.Label = label;
             this.Generic = invocation.Trim();
-            this.Partial = partial;
 
             // TO DO: (YAML?)
             /*
@@ -29,81 +27,34 @@ namespace Blueprint.Blue
              */
         }
 
-        private QUtilize(QContext env, string text, uint id, bool partial) : base(env, text, "use")
-        {
-            this.Filters = new();
-            this.Settings = new QSettings(env.GlobalSettings);
-
-            this.Id = id;
-            this.Label = null;
-            this.Generic = id.ToString();
-            this.Partial = partial;
-
-            // TO DO: (YAML?)
-            /*
-             * Filters need to be read in from the History file
-             * Settings need to be read in from the History file
-             * Expression needs to be read in from the History file
-             */
-        }
-
-        public static QUtilize? Create(QContext env, string text, Parsed[] args)
+        public static QUtilize? Create(QContext env, string text, Parsed arg)
         {
             if (string.IsNullOrWhiteSpace(text))
                 return null;
 
-            bool partial = true;
-            string generic = args.Length >= 1 && args[0].rule.ToLower().StartsWith("utilization_") == true && args[0].children.Length == 1 ? args[0].children[0].text : string.Empty;
-            if (generic.Length >= 2 && (generic[0] == '#' || generic[0] == '$'))
+            bool numerics = arg.rule.Equals("id", StringComparison.InvariantCultureIgnoreCase);
+            bool labelled = arg.rule.Equals("label", StringComparison.InvariantCultureIgnoreCase);
+
+            if (labelled)
             {
-                generic = generic.Substring(1);
-                partial = generic[0] == '#';
+                var invocation = new QUtilize(env, text, arg.text, label:arg.text);
+                return invocation;
             }
-
-            if (!string.IsNullOrWhiteSpace(generic))
+            if (numerics)
             {
-                bool numerics = args.Length >= 1 && args[0].children.Length == 1 && args[0].children[0].rule.ToLower().StartsWith("historic_") == true;
-                bool labelled = args.Length >= 1 && args[0].children.Length == 1 && args[0].children[0].rule.ToLower().StartsWith("label_") == true;
-
-                if (labelled)
+                uint id = 0;
+                try
                 {
-                    var invocation = QUtilize.Create(env, text, generic, args, partial);
-                    return invocation;
+                    id = uint.Parse(arg.text);
                 }
-                if (numerics)
+                catch
                 {
-                    uint id = 0;
-                    try
-                    {
-                        id = uint.Parse(generic);
-                    }
-                    catch
-                    {
-                        return null;
-                    }
-                    var invocation = QUtilize.Create(env, text, id, args, partial);
-                    return invocation;
+                    return null;
                 }
+                var invocation = new QUtilize(env, text, arg.text, id: id);
+                return invocation;
             }
             return null;
-        }
-
-        private static QUtilize? Create(QContext env, string text, string label, Parsed[] args, bool partial)
-        {
-            if (string.IsNullOrWhiteSpace(text))
-                return null;
-
-            var invocation = new QUtilize(env, text, label, partial);
-
-            return invocation;
-        }
-        private static QUtilize? Create(QContext env, string text, uint id, Parsed[] args, bool partial)
-        {
-            if (string.IsNullOrWhiteSpace(text) || (id == 0))
-                return null;
-
-            var invocation = new QUtilize(env, text, id, partial);
-            return invocation;
         }
 
         /* CRUFT: Something like this should be in QInvoke, which is now an explicit command.
