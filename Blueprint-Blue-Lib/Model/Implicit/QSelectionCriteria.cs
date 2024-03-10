@@ -84,7 +84,7 @@ namespace Blueprint.Blue
             }
             else if (possibleMacro)
             {
-                if (filter.rule.StartsWith("hashtag") && (filter.children.Length == 1))
+                if (filter.rule.StartsWith("hashtag_") && (filter.children.Length == 1))
                 {
                     // this is a partial utilization [macro or history]
                     var invocation = QUtilize.Create(this.Context, filter.text, filter.children[0]);
@@ -111,7 +111,7 @@ namespace Blueprint.Blue
                 }
                 else if (possibleMacro)
                 {
-                    if (variable.rule.StartsWith("hashtag") && (variable.children.Length == 1))
+                    if (variable.rule.StartsWith("hashtag_") && (variable.children.Length == 1))
                     {
                         // this is a partial utilization [macro or history]
                         var invocation = QUtilize.Create(this.Context, variable.text, variable.children[0]);

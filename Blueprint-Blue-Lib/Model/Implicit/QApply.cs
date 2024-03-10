@@ -13,7 +13,7 @@ namespace Blueprint.Model.Implicit
         }
         public static QApply? Create(QContext env, string text, Parsed arg)
         {
-            if (arg.children.Length == 1 && arg.children[0].rule == "label")
+            if (arg.children.Length == 1 && arg.children[0].rule == "tag")
             {
                 string label = arg.children[0].text;
                 return new QApply(env, text, label);

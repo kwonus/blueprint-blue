@@ -40,7 +40,7 @@
             { "settings",   new(topic: "#settings",   doc: "Control"  ) }, // settings is an alias for control
             { "history",    new(topic: "#history",    doc: "History"  ) },
             { "macro",      new(topic: "#macro",      doc: "Macro"    ) },
-            { "label",      new(topic: "#label",      doc: "Macro"    ) }, // label is an alias for macro
+            { "tag",        new(topic: "#label",      doc: "Macro"    ) }, // tag is an alias for macro
             { "output",     new(topic: "#output",     doc: "Output"   ) },
             { "system",     new(topic: "#system",     doc: "System"   ) }
         };

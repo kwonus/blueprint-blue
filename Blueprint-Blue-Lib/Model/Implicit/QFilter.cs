@@ -18,7 +18,8 @@ namespace Blueprint.Blue
         {
             if (filter.rule.Equals("filter", StringComparison.InvariantCultureIgnoreCase))
             {
-                return new QFilter(filter.text);
+                if (filter.children.Length == 1)
+                    return new QFilter(filter.children[0].text);
             }
             return null;
         } 

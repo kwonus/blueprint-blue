@@ -33,7 +33,7 @@ namespace Blueprint.Blue
                 return null;
 
             bool numerics = arg.rule.Equals("id", StringComparison.InvariantCultureIgnoreCase);
-            bool labelled = arg.rule.Equals("label", StringComparison.InvariantCultureIgnoreCase);
+            bool labelled = arg.rule.Equals("tag", StringComparison.InvariantCultureIgnoreCase);
 
             if (labelled)
             {
@@ -56,33 +56,5 @@ namespace Blueprint.Blue
             }
             return null;
         }
-
-        /* CRUFT: Something like this should be in QInvoke, which is now an explicit command.
-        public static QUtilizize? CreateExplicit(QContext env, string text, Parsed[] args, bool partial = true)
-        {
-            if (string.IsNullOrWhiteSpace(text))
-                return null;
-
-            string generic = args.Length >= 1 && args[0].rule.ToLower() == "use" && args[0].children.Length == 1 ? args[0].children[0].text : string.Empty;
-
-            if (!string.IsNullOrWhiteSpace(generic))
-            {
-                bool numerics = args.Length >= 1 && args[0].children.Length == 1 && args[0].children[0].rule.ToLower() == "historic";
-                bool labelled = args.Length >= 1 && args[0].children.Length == 1 && args[0].children[0].rule.ToLower() == "label";
-
-                if (numerics || labelled)
-                {
-                    var invocation = new QUtilizize(env, text, generic);
-
-                    // TO DO:
-                    // load settings from context
-                    // load expression from context
-
-                    return invocation;
-                }
-            }
-            return null;
-        }
-        */
     }
 }

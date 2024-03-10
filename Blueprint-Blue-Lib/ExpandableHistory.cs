@@ -8,16 +8,16 @@
     public class ExpandableHistory: ExpandableInvocation
     {
         public UInt64 Id;
-        public ExpandableHistory(): base(MacroComponents.Ignore)
+        public ExpandableHistory(): base()
         {
             this.Id = 0;
         }
 
-        public ExpandableHistory(string rawText, QSelectionCriteria statement, UInt64 id, MacroComponents parts) : base(rawText, statement, parts)
+        public ExpandableHistory(string rawText, QSelectionCriteria statement, UInt64 id) : base(rawText, statement)
         {
             this.Id = id;
         }
-        public ExpandableHistory(string rawText, QUtilize invocation, MacroComponents parts) : base(rawText, invocation, parts)
+        public ExpandableHistory(string rawText, QUtilize invocation) : base(rawText, invocation)
         {
             this.Id = invocation.Id ?? 0;
         }

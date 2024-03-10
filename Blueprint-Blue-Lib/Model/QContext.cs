@@ -182,7 +182,7 @@
                     expd = line.Substring(7);
                 }
             }
-            var estmt = new ExpandableInvocation(MacroComponents.Ignore); // { Expansion = expd, Statement = stmt, Time = Int64.Parse(time) };
+            var estmt = new ExpandableInvocation(); // { Expansion = expd, Statement = stmt, Time = Int64.Parse(time) };
 
             return estmt;
         }

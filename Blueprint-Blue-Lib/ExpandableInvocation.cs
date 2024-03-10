@@ -6,71 +6,47 @@
     using System.Text.Json.Serialization;
     using YamlDotNet.Serialization;
 
-    public enum MacroComponents
-    {
-        Ignore = 0,
-        SettingsOnly = 1,
-        ScopingOnly = 2,
-        ExpressionOnly = 4,
-        FullMacro = 7,
-    }
     public class ExpandableInvocation
     {
         public long Time                    { get; protected set; }
         public string? Expression           { get; protected set; }
         public string Statement             { get; protected set; }
 
-        public List<string>? Filters        { get; protected set; }
-        public QSettings Settings           { get; protected set; }
+        public List<string> Filters        { get; protected set; }
+        public Dictionary<string, string> Settings { get; protected set; }
 
-        [JsonIgnore]
-        [YamlIgnore]
-        public MacroComponents Parts        { get; protected set; }
 
-        public ExpandableInvocation(MacroComponents parts)
+        public ExpandableInvocation()
         {
             this.Statement = string.Empty;
             this.Time = 0;
             this.Expression = null;
-            this.Filters = null;
-            this.Settings = new QSettings();
-            this.Parts = parts;
+            this.Filters = new();
+            this.Settings = new();
         }
 
-        public ExpandableInvocation(string rawText, QSelectionCriteria statement, MacroComponents parts)
+        public ExpandableInvocation(string rawText, QSelectionCriteria statement)
         {
             this.Statement = rawText;
             this.Time = DateTimeOffset.Now.ToFileTime();
             this.Expression = statement.SearchExpression != null ? statement.SearchExpression.Expression : null;
-            this.Settings = new QSettings(statement.Settings);
-            this.Parts = parts;
+            this.Filters = new();
+            this.Settings = statement.Settings.AsMap();
             if (statement.SearchExpression != null && statement.SearchExpression.Scope.Count > 0 )
             {
-                this.Filters = new();
                 foreach (var filter in statement.SearchExpression.Scope.Values)
                 {
                     this.Filters.Add(((QFilter)filter).Filter);
                 }
             }
         }
-        public ExpandableInvocation(string rawText, QUtilize invocation, MacroComponents parts)
+        public ExpandableInvocation(string rawText, QUtilize invocation)
         {
             this.Statement = rawText;
             this.Time = 0;
             this.Expression = null;
-            this.Filters = null;
-            this.Settings = invocation.Settings;
-            this.Parts = parts;
-
-            // TODO:
-            // we need to read info from the in-memory macro-list or history-list
-        }
-        public static bool ExpandInvocation(ref QUtilize invocation)
-        {
-            // TODO:
-            // 1) we need to read info from the in-memory macro-list or history-list
-            // 2) we need to pass Expression and Filters to the pinshot parser for re-instantiations
-            return false;
+            this.Filters = new();
+            this.Settings = invocation.Settings.AsMap();
         }
 
         public DateTime GetDateTime()
@@ -215,7 +191,10 @@
             }
             markdown.AppendLine();
 
-            this.Settings.AsMarkdown(showDefaults: true, showExtendedSettings: false);
+            QSettings settings = new QSettings(this.Settings);
+            string variables = settings.AsMarkdown(showDefaults: true, showExtendedSettings: false);
+
+            markdown.AppendLine(variables);
 
             return markdown.ToString();
         }

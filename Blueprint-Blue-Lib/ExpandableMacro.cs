@@ -9,16 +9,16 @@
     public class ExpandableMacro: ExpandableInvocation
     {
         public string Label { get; private set; }
-        public ExpandableMacro() : base(MacroComponents.Ignore)
+        public ExpandableMacro() : base()
         {
             this.Label = string.Empty;
         }
 
-        public ExpandableMacro(string rawText, QSelectionCriteria statement, string label, MacroComponents parts) : base(rawText, statement, parts)
+        public ExpandableMacro(string rawText, QSelectionCriteria statement, string label) : base(rawText, statement)
         {
             this.Label = label;
         }
-        public ExpandableMacro(string rawText, QUtilize invocation, MacroComponents parts) : base(rawText, invocation, parts)
+        public ExpandableMacro(string rawText, QUtilize invocation) : base(rawText, invocation)
         {
             this.Label = invocation.Label ?? string.Empty;
         }

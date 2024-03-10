@@ -185,18 +185,19 @@
             {
                 UInt32 revision = Pinshot_RustFFI.get_library_revision();
                 string version = revision.ToString("X4");
-                string[] keys = new string[] { QSpan.Name, QLexicalDomain.Name, QLexicalDisplay.Name, QFormat.Name, QSimilarity.Name, "version" };
-                string[] vals = new string[6];
+                string[] keys = new string[] { QSpan.Name, QFormat.Name, QLexicalDomain.Name, QLexicalDisplay.Name, QSimilarityWord.Name, QSimilarityLemma.Name, "grammar.revision" };
+                string[] vals = new string[keys.Length];
                 for (int i = 0; i < vals.Length; i++)
                 {
                     switch (i)
                     {
                         case 0: vals[i] = this.Command.Context.GlobalSettings.Span.ToString(); break;
-                        case 1: vals[i] = this.Command.Context.GlobalSettings.Lexicon.ToString(); break;
-                        case 2: vals[i] = this.Command.Context.GlobalSettings.Display.ToString(); break;
-                        case 3: vals[i] = this.Command.Context.GlobalSettings.Format.ToString(); break;
-                        case 4: vals[i] = this.Command.Context.GlobalSettings.Similarity.ToString(); break;
-                        case 5: vals[i] = version[0] + "." + version[1] + "." + version.Substring(2); break;
+                        case 1: vals[i] = this.Command.Context.GlobalSettings.Format.ToString(); break;
+                        case 2: vals[i] = this.Command.Context.GlobalSettings.Lexicon.Domain.ToString(); break;
+                        case 3: vals[i] = this.Command.Context.GlobalSettings.Lexicon.Render.ToString(); break;
+                        case 4: vals[i] = this.Command.Context.GlobalSettings.Similarity.Word.ToString(); break;
+                        case 5: vals[i] = this.Command.Context.GlobalSettings.Similarity.Lemma.ToString(); break;
+                        case 6: vals[i] = version[0] + "." + version[1] + "." + version.Substring(2); break;
                     }
                 }
                 for (int i = 0; i < vals.Length; i++)
