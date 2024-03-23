@@ -12,22 +12,18 @@ namespace Blueprint.Blue
         {
             foreach (var filter in filters)
             {
-                if (!this.Scope.ContainsKey(filter.Filter))
-                    this.Scope[filter.Filter] = filter;
+                var results = ScopingFilter.Create(filter.Filter);
+                if (results != null)
+                {
+                    foreach (ScopingFilter result in results)
+                    {
+                        if (!this.Scope.ContainsKey(result.Book))
+                            this.Scope[result.Book] = result;
+                        else
+                            this.Scope[result.Book].Ammend(result);
+                    }
+                }  
             }
-        }
-        public static void AddFilters(Dictionary<string, SearchFilter> baseline, IEnumerable<QFilter> filters)
-        {
-            foreach (var filter in filters)
-            {
-                if (!baseline.ContainsKey(filter.Filter))
-                    baseline[filter.Filter] = filter;
-            }
-        }
-        public static void AddFilter(Dictionary<string, SearchFilter> baseline, QFilter filter)
-        {
-            if (!baseline.ContainsKey(filter.Filter))
-                baseline[filter.Filter] = filter;
         }
         private QFind(IDiagnostic diagnostics, QSelectionCriteria selection, string text, Parsed? expression, bool useExplicitSettings): base(selection.Settings, selection.Results)
         {

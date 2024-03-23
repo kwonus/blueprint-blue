@@ -6,11 +6,11 @@ namespace Blueprint.Blue
     using System.Data;
     using static System.Net.Mime.MediaTypeNames;
 
-    public class QFilter: SearchFilter
+    public class QFilter
     {
         public string Filter { get; private set; }
 
-        private QFilter(string filter): base()
+        private QFilter(string filter)
         {
             this.Filter = filter;
         }

@@ -12,7 +12,7 @@
         public string? Expression           { get; protected set; }
         public string Statement             { get; protected set; }
 
-        public List<string> Filters        { get; protected set; }
+        public List<string> Filters         { get; protected set; }
         public Dictionary<string, string> Settings { get; protected set; }
 
 
@@ -34,10 +34,13 @@
             this.Settings = statement.Settings.AsMap();
             if (statement.SearchExpression != null && statement.SearchExpression.Scope.Count > 0 )
             {
+                // TODO: TO DO
+                /*
                 foreach (var filter in statement.SearchExpression.Scope.Values)
                 {
                     this.Filters.Add(((QFilter)filter).Filter);
                 }
+                */
             }
         }
         public ExpandableInvocation(string rawText, QUtilize invocation)
