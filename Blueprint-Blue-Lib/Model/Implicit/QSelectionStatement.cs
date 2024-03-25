@@ -25,9 +25,7 @@
 
             if (this.SelectionCriteria.SearchExpression != null)
             {
-                bool executed = this.SelectionCriteria.Scope.Count == 0
-                    ? this.Search(this.SelectionCriteria.SearchExpression)
-                    : this.SearchWithScope(this.SelectionCriteria.SearchExpression);
+                bool executed = this.Search(this.SelectionCriteria.SearchExpression);
 
                 var exp = this.SelectionCriteria.SearchExpression;
                 {
@@ -48,27 +46,14 @@
 
             if (result)
             {
-                search.AddScope(0);
-                foreach (var book in search.Books.Values)
+                for (byte b = 1; b <= 66; b++)
                 {
-                    result = book.Search(search) || result;
-                }
-            }
-            return result;
-        }
-        private bool SearchWithScope(QFind search)
-        {
-            bool result = search.Fragments.Count > 0;
-
-            if (result)
-            {
-                foreach (var filter in search.Scope.Values)
-                {
-                    search.AddScope(filter);
-                }
-                foreach (var book in search.Books.Values)
-                {
-                    result = result || book.Search(search);
+                    if ((search.Scope.Count == 0) || search.Scope.InScope(b))
+                    {
+                        QueryBook qbook = new(b);
+                        search.Books[b] = qbook;
+                        result = qbook.Search(search) || result;
+                    }
                 }
             }
             return result;
