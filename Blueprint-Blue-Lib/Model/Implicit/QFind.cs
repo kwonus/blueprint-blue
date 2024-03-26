@@ -50,8 +50,6 @@ namespace Blueprint.Blue
                     this.Quoted = ordered;
 
                     string fulltext = text.Trim();
-                    var beginQuote = fulltext.StartsWith("\"");
-                    var endQuote = fulltext.StartsWith("\"");
 
                     foreach (Parsed gchild in child.children)
                     {
@@ -97,10 +95,12 @@ namespace Blueprint.Blue
                 this.IsValid = true;
             }
             this.Expression = string.Empty; // fall through here, makes *expression* invalid (even though selection might be valid)
+
+            this.IsValid = this.IsValid || (this.Scope.Count > 0);
         }
         public static QFind? Create(IDiagnostic diagnostics, QSelectionCriteria selection, string text, Parsed? expression, bool useExplicitSettings)
         {
-            // TODO: Consider that this could be a fiull or demoted/partial macro and process accordingly
+            // TODO: Consider that this could be a full or demoted/partial macro and process accordingly
             //
             QFind? search = new QFind(diagnostics, selection, text, expression, useExplicitSettings);
             return search.IsValid ? search : null;

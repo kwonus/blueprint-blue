@@ -31,17 +31,11 @@
             this.Time = DateTimeOffset.Now.ToFileTime();
             this.Expression = statement.SearchExpression != null ? statement.SearchExpression.Expression : null;
             this.Filters = new();
-            this.Settings = statement.Settings.AsMap();
-            if (statement.SearchExpression != null && statement.SearchExpression.Scope.Count > 0 )
+            foreach (QFilter filter in statement.Scope)
             {
-                // TODO: TO DO
-                /*
-                foreach (var filter in statement.SearchExpression.Scope.Values)
-                {
-                    this.Filters.Add(((QFilter)filter).Filter);
-                }
-                */
+                this.Filters.Add(filter.Filter);
             }
+            this.Settings = statement.Settings.AsMap();
         }
         public ExpandableInvocation(string rawText, QUtilize invocation)
         {

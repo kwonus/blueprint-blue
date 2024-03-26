@@ -6,6 +6,16 @@
     using System.Text.Json.Serialization;
     using Blueprint.Model.Implicit;
     using AVSearch.Model.Results;
+    using System.Text.RegularExpressions;
+
+    public enum SelectionResultType
+    {
+        InvalidStatement = -1,
+        NoResults = 0,
+        SearchResults = 1,
+        ScopeOnlyResults = 2,
+        SingletonSuccess = 3,
+    }
 
     public class QSelectionStatement
     {
@@ -19,32 +29,22 @@
         public QApply?  MacroDirective  { get; internal set; }
 
         public QSelectionCriteria SelectionCriteria { get; internal set; }
+        public SelectionResultType Status { get; internal set; }
 
-        public (bool ok, QueryResult query) Execute()
+        public (SelectionResultType ok, QueryResult query) Execute()
         {
-
             if (this.SelectionCriteria.SearchExpression != null)
             {
-                bool executed = this.Search(this.SelectionCriteria.SearchExpression);
-
-                var exp = this.SelectionCriteria.SearchExpression;
-                {
-                    for (byte b = 1; b <= 66; b++)
-                        if (exp.Books.ContainsKey(b) && (exp.Books[b].Chapters.Count == 0))
-                            exp.Books.Remove(b);
-                }
+                SelectionResultType executed = this.Search(this.SelectionCriteria.SearchExpression);
                 return (executed, this.Results);
             }
-            else  // TO DO: account for selection criteria w/o a FindExpression
-            {
-                return (false, new QueryResult());
-            }
+            return (SelectionResultType.InvalidStatement, this.Results);
         }
-        private bool Search(QFind search)
+        private SelectionResultType Search(QFind search)
         {
-            bool result = search.Fragments.Count > 0;
+            SelectionResultType result = search.Fragments.Count > 0 ? SelectionResultType.NoResults : SelectionResultType.InvalidStatement;
 
-            if (result)
+            if (result == SelectionResultType.NoResults)
             {
                 for (byte b = 1; b <= 66; b++)
                 {
@@ -52,10 +52,17 @@
                     {
                         QueryBook qbook = new(b);
                         search.Books[b] = qbook;
-                        result = qbook.Search(search) || result;
+                        if (qbook.Search(search) && result == SelectionResultType.NoResults)
+                            result = SelectionResultType.SearchResults;
                     }
                 }
             }
+            else if (search.Scope.Count > 0)
+            {
+                result = SelectionResultType.ScopeOnlyResults;
+            }
+            this.Status = result;
+
             return result;
         }
 
@@ -65,6 +72,7 @@
             this.ExportDirective = null;
             this.MacroDirective = null;
             this.SelectionCriteria = null;
+            this.Status = SelectionResultType.NoResults;
         }
 
         public static QSelectionStatement? Create(QContext context, Parsed stmt, QStatement diagnostics)
