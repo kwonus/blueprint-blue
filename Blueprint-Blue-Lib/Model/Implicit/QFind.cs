@@ -10,9 +10,9 @@ namespace Blueprint.Blue
 
         public void AddFilters(IEnumerable<QFilter> filters)
         {
-            foreach (var filter in filters)
+            foreach (QFilter filter in filters)
             {
-                var results = ScopingFilter.Create(filter.Filter);
+                var results = ScopingFilter.Create(filter.Textual, filter.Ranges);
                 if (results != null)
                 {
                     foreach (ScopingFilter result in results)

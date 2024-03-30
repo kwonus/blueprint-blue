@@ -41,9 +41,11 @@
             {
                 case "span":             return this.Span.ToString();
                 case "lexicon":          return this.Lexicon.ToString();
-                case "lexicon.search":   
+                case "lexicon.search":
+                case "search.lexicon":
                 case "search":           return this.Lexicon.Domain.ToString();
-                case "lexicon.render":   
+                case "lexicon.render":
+                case "render.lexicon":
                 case "render":           return this.Lexicon.Render.ToString();
                 case "format":           return this.Format.ToString();
                 case "similarity":       return this.Similarity.ToString();
@@ -67,9 +69,11 @@
             {
                 case "span":             this.Span    = new QSpan(assignment.Value);                                                               return true;  
                 case "lexicon":          this.Lexicon = new QLexicon(assignment.Value);                                                            return true;
-                case "lexicon.search":   
+                case "lexicon.search":
+                case "search.lexicon":
                 case "search":           this.Lexicon = new QLexicon(search: assignment.Value, render:this.Lexicon.Render.Value.ToString());       return true;
-                case "lexicon.render":   
+                case "lexicon.render":
+                case "render.lexicon":
                 case "render":           this.Lexicon = new QLexicon(search:this.Lexicon.Domain.Value.ToString(), render:assignment.Value);        return true;
                 case "format":           this.Format = new QFormat(assignment.Value);                                                              return true;
                 case "similarity":       this.Similarity = new QSimilarity(assignment.Value);                                                      return true;
@@ -86,9 +90,11 @@
             {
                 case "span":             this.Span    = new QSpan(setting.Value);                                                                break;  
                 case "lexicon":          this.Lexicon = new QLexicon(setting.Value);                                                             break;
-                case "lexicon.search":   
+                case "lexicon.search":
+                case "search.lexicon":
                 case "search":           this.Lexicon = new QLexicon(search: setting.Value, render:this.Lexicon.Render.Value.ToString());        break;
-                case "lexicon.render":   
+                case "lexicon.render":
+                case "render.lexicon":
                 case "render":           this.Lexicon = new QLexicon(search:this.Lexicon.Domain.Value.ToString(), render: setting.Value);        break;
                 case "format":           this.Format = new QFormat(setting.Value);                                                               break;
                 case "similarity":       this.Similarity = new QSimilarity(setting.Value);                                                       break;
@@ -106,9 +112,11 @@
             {
                 case "span":             this.Span    = new QSpan();                                                                    break;  
                 case "lexicon":          this.Lexicon = new QLexicon();                                                                 break;
-                case "lexicon.search":   
+                case "lexicon.search":
+                case "search.lexicon":
                 case "search":           this.Lexicon = new QLexicon(search:QLexicalDomain.DEFAULT, render:this.Lexicon.Render.Value);  break;
-                case "lexicon.render":   
+                case "lexicon.render":
+                case "render.lexicon":
                 case "render":           this.Lexicon = new QLexicon(search:this.Lexicon.Domain.Value, render:QLexicalDisplay.DEFAULT); break;
                 case "format":           this.Format = new QFormat();                                                                   break;
                 case "similarity":       this.Similarity = new QSimilarity();                                                           break;
@@ -168,8 +176,10 @@
                         {
                             case "span":            span = val;   break;
                             case "lexicon.search":
+                            case "search.lexicon":
                             case "search":          search = val; break;
                             case "lexicon.render":
+                            case "render.lexicon":
                             case "render":          render = val; break;
                             case "format":          format = val; break;
                             case "similarity.word":

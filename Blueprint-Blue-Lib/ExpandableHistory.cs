@@ -34,13 +34,13 @@
                     var deserializer = new DeserializerBuilder().WithNamingConvention(PascalCaseNamingConvention.Instance).Build();
                     history = deserializer.Deserialize<Dictionary<long, ExpandableHistory>>(input);
                 }
-                return history;
+                return (history != null) ? history : new();
             }
             catch
             {
                 ;
             }
-            return new Dictionary<long, ExpandableHistory>();
+            return new();
         }
         public new string AsMarkdown()
         {

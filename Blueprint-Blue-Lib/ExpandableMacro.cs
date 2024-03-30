@@ -37,7 +37,8 @@
                             var input = new StringReader(text);
                             var deserializer = new DeserializerBuilder().WithNamingConvention(PascalCaseNamingConvention.Instance).Build();
                             var macro = deserializer.Deserialize<ExpandableMacro>(input);
-                            macros.Add(macro.Label, macro);
+                            if (macro != null)
+                                macros.Add(macro.Label, macro);
                         }
                         catch { }
                     }

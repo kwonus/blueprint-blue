@@ -76,7 +76,7 @@ namespace Blueprint.Blue
         }
         private void FilterFactory(Parsed filter, bool possibleMacro)
         {
-            QFilter? instance = QFilter.Create(filter);
+            QFilter? instance = QFilter.Create(filter, this.Context);
 
             if (instance != null)
             {

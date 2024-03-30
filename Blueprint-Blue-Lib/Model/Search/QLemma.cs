@@ -14,7 +14,7 @@ namespace Blueprint.Blue
          private bool AddLemmata(UInt16[] lemmata, ISettings settings)
          {
             this.Lemmata = new();
-            if (lemmata != null)
+            if (lemmata != null && lemmata.Length > 0)
             {
                 foreach (UInt16 lemma in lemmata)
                 {

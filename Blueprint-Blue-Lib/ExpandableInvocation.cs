@@ -1,6 +1,10 @@
 ﻿namespace Blueprint.Blue
 {
+    using AVSearch.Model.Expressions;
+    using AVXLib;
+    using Pinshot.PEG;
     using System;
+    using System.Diagnostics.Metrics;
     using System.IO;
     using System.Text;
     using System.Text.Json.Serialization;
@@ -8,11 +12,11 @@
 
     public class ExpandableInvocation
     {
-        public long Time                    { get; protected set; }
-        public string? Expression           { get; protected set; }
-        public string Statement             { get; protected set; }
-
-        public List<string> Filters         { get; protected set; }
+        public long Time                 { get; protected set; }
+        public string? Expression        { get; protected set; }
+        public string Statement          { get; protected set; }
+        public HashSet<string> Filters   { get; protected set; } // these are used for display
+        public Dictionary<byte, ScopingFilter> Scope;
         public Dictionary<string, string> Settings { get; protected set; }
 
 
@@ -21,6 +25,7 @@
             this.Statement = string.Empty;
             this.Time = 0;
             this.Expression = null;
+            this.Scope = new();
             this.Filters = new();
             this.Settings = new();
         }
@@ -30,10 +35,26 @@
             this.Statement = rawText;
             this.Time = DateTimeOffset.Now.ToFileTime();
             this.Expression = statement.SearchExpression != null ? statement.SearchExpression.Expression : null;
+            this.Scope = new();
             this.Filters = new();
+
             foreach (QFilter filter in statement.Scope)
             {
-                this.Filters.Add(filter.Filter);
+                if (!this.Filters.Contains(filter.RawText))
+                {
+                    this.Filters.Add(filter.RawText);
+                }
+                IEnumerable<ScopingFilter>? results = ScopingFilter.Create(filter.Textual, filter.Ranges);
+                if (results != null)
+                {
+                    foreach (ScopingFilter result in results)
+                    {
+                        if (!this.Scope.ContainsKey(result.Book))
+                            this.Scope[result.Book] = result;
+                        else
+                            this.Scope[result.Book].Ammend(result);
+                    }
+                }
             }
             this.Settings = statement.Settings.AsMap();
         }
@@ -42,6 +63,7 @@
             this.Statement = rawText;
             this.Time = 0;
             this.Expression = null;
+            this.Scope = new();
             this.Filters = new();
             this.Settings = invocation.Settings.AsMap();
         }

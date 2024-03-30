@@ -395,7 +395,7 @@ namespace Blueprint.Model.Implicit
     }
     public class QFormat: ISetting
     {
-        public static readonly string Name = "typeof(QFormat).Name.Substring(1).ToLower()";
+        public static readonly string Name = typeof(QFormat).Name.Substring(1).ToLower();
         public string SettingName { get => Name; }
         public string FriendlyName { get => "render.format"; }
         public enum QFormatVal
@@ -480,13 +480,18 @@ namespace Blueprint.Model.Implicit
         {
             switch (setting.Trim().ToLower())
             {
-                case "span": return QSpan.DEFAULT.ToString();
+                case "span":            return QSpan.DEFAULT.ToString();
+                case "lexicon":         return QLexicon.DEFAULT.ToString();
                 case "lexicon.search":
-                case "search": return QLexicalDomain.DEFAULT.ToString();
+                case "search.lexicon":
+                case "search":          return QLexicalDomain.DEFAULT.ToString();
                 case "lexicon.render":
-                case "render": return QLexicalDisplay.DEFAULT.ToString();
-                case "format": return QFormat.DEFAULT.ToString();
-                case "similarity": return QSimilarity.DEFAULT.ToString();
+                case "render.lexicon":
+                case "render":          return QLexicalDisplay.DEFAULT.ToString();
+                case "format":          return QFormat.DEFAULT.ToString();
+                case "similarity":      return QSimilarity.DEFAULT.ToString();
+                case "similarity.lemma":return QSimilarityLemma.DEFAULT.ToString();
+                case "similarity.word": return QSimilarityWord.DEFAULT.ToString();
             }
             return string.Empty;
         }
