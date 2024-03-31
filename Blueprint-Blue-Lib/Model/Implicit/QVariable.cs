@@ -502,7 +502,7 @@ namespace Blueprint.Model.Implicit
                 if (arg.children.Length == 2
                 && arg.children[0].rule.EndsWith("_key", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    return new QAssign(env, text, arg.children[0].text, arg.children[1].rule);
+                    return new QAssign(env, text, arg.children[0].text, arg.children[1].text);
                 }
             }
             return null;

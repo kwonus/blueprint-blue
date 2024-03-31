@@ -35,7 +35,7 @@ namespace Blueprint.Blue
             var selection = new QSelectionCriteria(env, results, criteria.text, criteria.rule);
             bool user_supplied_settings = false;
 
-            if (criteria.rule.Equals("selection_criteria", StringComparison.InvariantCultureIgnoreCase) && (criteria.children.Length >= 1))
+            if (criteria.rule.Equals("selection_statement", StringComparison.InvariantCultureIgnoreCase) && (criteria.children.Length >= 1))
             {
                 Parsed? expression = null;
 
@@ -67,6 +67,11 @@ namespace Blueprint.Blue
                                                      break; 
                         }
                     }
+                }
+                if (user_supplied_settings)
+                {
+                    foreach (QAssign assignment in selection.Assignments)
+                        selection.Settings.Assign(assignment);
                 }
                 // SearchExpression(QFind) subsumes expression, settings, and filters in selection object
                 // (they need not be processed in this method when expression is part of imperative)

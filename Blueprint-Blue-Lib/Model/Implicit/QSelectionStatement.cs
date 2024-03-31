@@ -81,9 +81,7 @@
 
             if (stmt.rule.Equals("selection_statement", StringComparison.InvariantCultureIgnoreCase) && (stmt.children.Length >= 1))
             {
-                Parsed criteria = stmt.children[0];
-
-                QSelectionCriteria? seg = QSelectionCriteria.CreateSelectionCriteria(context, selection.Results, criteria);
+                QSelectionCriteria? seg = QSelectionCriteria.CreateSelectionCriteria(context, selection.Results, stmt);
                 if (seg == null)
                     return null;
 
