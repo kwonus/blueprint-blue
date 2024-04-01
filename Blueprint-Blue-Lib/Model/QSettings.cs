@@ -7,21 +7,20 @@
     using AVSearch.Interfaces;
     using Pinshot.Blue;
     using YamlDotNet.Serialization;
-    using AVXLib.Memory;
-    using static System.Net.Mime.MediaTypeNames;
-    using static System.Runtime.InteropServices.JavaScript.JSType;
-    using System.Runtime.Intrinsics.X86;
-    using System.Text.RegularExpressions;
-    using AVXLib.Framework;
-    using System.Diagnostics.CodeAnalysis;
     using System;
-    using System.Reflection;
-    using System.Runtime.InteropServices.Marshalling;
 
-    public class QSettings: ISettings
+    public class QSettings : ISettings
     {
+        public static QFormat.QFormatVal FORMAT  { get; set; } = QFormat.QFormatVal.HTML;
         public string GetAll()
         {
+            if (QSettings.FORMAT == QFormat.QFormatVal.MD)
+                return this.AsMarkdown(showDefaults: true, showExtendedSettings: true);
+            if (QSettings.FORMAT == QFormat.QFormatVal.HTML)
+                return this.AsHtml(showDefaults: true, showExtendedSettings: true);
+
+            // Otherwise, all other formats are treated as text
+            //
             StringBuilder builder = new StringBuilder();
 
             builder.Append("span:             "); builder.AppendLine(this.Span.ToString());
@@ -36,7 +35,14 @@
         }
         public string Get(QGet setting)
         {
-            string key = (setting.Key.Length >= 1 && setting.Key[0] == '@') ? setting.Key.Substring(1) : setting.Key;
+            if (QSettings.FORMAT == QFormat.QFormatVal.MD)
+                return this.AsMarkdown(bold: setting.Key, showDefaults: true, showExtendedSettings: true);
+            if (QSettings.FORMAT == QFormat.QFormatVal.HTML)
+                return this.AsHtml(bold: setting.Key, showDefaults: true, showExtendedSettings: true);
+
+            // Otherwise, all other formats are treated as text
+            //
+            string key = (setting.Key.Length >= 1 && setting.Key[0] == '@') ? setting.Key.Substring(1) : string.Empty;
             switch (key)
             {
                 case "span":             return this.Span.ToString();
@@ -57,10 +63,9 @@
                 case "grammar.revision":        
                 case "revision":         return Pinshot_RustFFI.VERSION;
 
-                case "all":              return this.GetAll();          
+                case "all":
+                default:                 return this.GetAll();          
             }
-
-            return this.GetAll();
         }
         public bool Assign(QAssign assignment)
         {
@@ -99,9 +104,9 @@
                 case "format":           this.Format = new QFormat(setting.Value);                                                               break;
                 case "similarity":       this.Similarity = new QSimilarity(setting.Value);                                                       break;
                 case "similarity.word":
-                case "word":             this.Similarity = new QSimilarity(sword: setting.Value, slemma:this.Similarity.Lemma.Value.ToString()); break;
-                case "similarity.lemma":
-                case "lemma":            this.Similarity = new QSimilarity(sword:this.Similarity.Lemma.Value.ToString(), slemma: setting.Value); break;
+                case "word":             this.Similarity.Word = new QSimilarityWord(setting.Value);                                              break;
+                case "similarity.lemma":                                                                                                         
+                case "lemma":            this.Similarity.Lemma = new QSimilarityLemma(setting.Value);                                            break;
                 default:                 return false;
             }
             return Update();
@@ -480,10 +485,38 @@
 
         private static string GetKeyRepresentation(string key, string? bold)
         {
-            if ((bold == null) || bold.Equals(key, StringComparison.InvariantCultureIgnoreCase))
-                return key;
+            if (key.Length == 0)
+                return string.Empty;
 
-            return "**" + key + "**";
+            StringBuilder builder = new(key.Length);
+            string[] parts = key.Split('.');
+            foreach (string part in parts)
+            {
+                if (builder.Length > 0)
+                {
+                    builder.Append('.');
+                }
+                if (part.Length >= 2)
+                {
+                    builder.Append(part[0].ToString().ToUpper());
+                    builder.Append(part.Substring(1));
+                }
+                else if (parts.Length > 0)
+                {
+                    builder.Append(part.ToUpper());
+                }
+            }
+            string keyrep = builder.ToString();
+            if ((bold == null) || bold.Equals(key, StringComparison.InvariantCultureIgnoreCase))
+                return keyrep;
+
+            switch(FORMAT)
+            {
+                case QFormat.QFormatVal.HTML: return "<b>" + keyrep + "</b>";
+                case QFormat.QFormatVal.MD:   return "**"  + keyrep + "**";
+            }
+
+            return keyrep;
         }
         public string AsMarkdown(bool showDefaults = true, bool showExtendedSettings = false, HashSet<string>? exclude = null, HashSet<string>? include = null, string? bold = null)
         {
@@ -518,7 +551,11 @@
                 {
                     if (showDefaults || (this.Lexicon.Domain.Value == QLexicalDomain.DEFAULT))
                     {
-                        val = this.Lexicon.Domain.ToString();
+                        val = this.Lexicon.Domain.ToString().ToUpper();
+                        if (val == "BOTH")
+                            val = "Both";
+                        else if (val == "DUAL")
+                            val = "Dual";
                         table.Append(string.Format(MarkdownRow[key], key, QSettings.GetKeyRepresentation(val, bold)));
                     }
                 }
@@ -526,7 +563,11 @@
                 {
                     if (showDefaults || (this.Lexicon.Render.Value == QLexicalDisplay.DEFAULT))
                     {
-                        val = this.Lexicon.Render.ToString();
+                        val = this.Lexicon.Render.ToString().ToUpper();
+                        if (val == "BOTH")
+                            val = "Both";
+                        else if (val == "DUAL")
+                            val = "Dual";
                         table.Append(string.Format(MarkdownRow[key], key, QSettings.GetKeyRepresentation(val, bold)));
                     }
                 }
@@ -543,6 +584,10 @@
                     if (showDefaults || (this.Similarity.Word.Value == QSimilarityWord.DEFAULT))
                     {
                         val = this.Similarity.ToString();
+                        if (val == "0")
+                            val = "exact";
+                        else
+                            val = "Dual";
                         table.Append(string.Format(MarkdownRow[key], key, QSettings.GetKeyRepresentation(val, bold)));
                     }
                 }
@@ -557,7 +602,99 @@
                 else if (showExtendedSettings && key.Equals(REVISION))
                 {
                     table.Append(string.Format(MarkdownRow[key], key, QSettings.GetKeyRepresentation(Pinshot_RustFFI.VERSION, bold)));
-                    table.Append(MarkdownRow[key]);
+                }
+            }
+            if (table.Length > 0)
+            {
+                table.Insert(0, header);
+                return table.ToString();
+            }
+            return string.Empty;
+        }
+        public string AsHtml(bool showDefaults = true, bool showExtendedSettings = false, HashSet<string>? exclude = null, HashSet<string>? include = null, string? bold = null)
+        {
+            string val;
+            List<string> rows = new();
+
+            StringBuilder table = new StringBuilder(1024);
+
+            string header = string.Empty;
+            bool isHeader = true;
+            foreach (string key in HtmlRow.Keys)
+            {
+                string keyrep = GetKeyRepresentation(key, bold);
+                string color = (bold != null)
+                    ? key.Equals(bold) ? "white" : "gray"
+                    : "white";
+                if (include != null && !include.Contains(key)) // include means that if key is NOT in include list, then exclude it.
+                    continue;
+                if (exclude != null && exclude.Contains(key))
+                    continue;
+
+                if (isHeader)
+                {
+                    header = HtmlRow[key];
+                    isHeader = false;
+                }
+                else if (key == QSpan.Name)
+                {
+                    if (showDefaults || (this.Span.Value != QSpan.DEFAULT))
+                    {
+                        val = this.Span.ToString();
+                        table.Append(string.Format(HtmlRow[key], color, keyrep, QSettings.GetKeyRepresentation(val, bold)));
+                    }
+                }
+                else if (key == QLexicalDomain.Name)
+                {
+                    if (showDefaults || (this.Lexicon.Domain.Value == QLexicalDomain.DEFAULT))
+                    {
+                        val = this.Lexicon.Domain.ToString().ToUpper();
+                        if (val == "BOTH")
+                            val = "Both";
+                        else if (val == "DUAL")
+                            val = "Dual";
+                        table.Append(string.Format(HtmlRow[key], color, keyrep, QSettings.GetKeyRepresentation(val, bold)));
+                    }
+                }
+                else if (key == QLexicalDisplay.Name)
+                {
+                    if (showDefaults || (this.Lexicon.Render.Value == QLexicalDisplay.DEFAULT))
+                    {
+                        val = this.Lexicon.Render.ToString().ToUpper();
+                        if (val == "BOTH")
+                            val = "Both";
+                        else if (val == "DUAL")
+                            val = "Dual";
+                        table.Append(string.Format(HtmlRow[key], color, keyrep, QSettings.GetKeyRepresentation(val, bold)));
+                    }
+                }
+                else if (key == QFormat.Name)
+                {
+                    if (showDefaults || (this.Format.Value == QFormat.DEFAULT))
+                    {
+                        val = this.Format.ToString();
+                        table.Append(string.Format(HtmlRow[key], color, keyrep, QSettings.GetKeyRepresentation(val, bold)));
+                    }
+                }
+                else if (key == QSimilarityWord.Name)
+                {
+                    if (showDefaults || (this.Similarity.Word.Value == QSimilarityWord.DEFAULT))
+                    {
+                        val = this.Similarity.Word.ToString();
+                        table.Append(string.Format(HtmlRow[key], color, keyrep, QSettings.GetKeyRepresentation(val, bold)));
+                    }
+                }
+                else if (key == QSimilarityLemma.Name)
+                {
+                    if (showDefaults || (this.Similarity.Lemma.Value == QSimilarityLemma.DEFAULT))
+                    {
+                        val = this.Similarity.Lemma.ToString();
+                        table.Append(string.Format(HtmlRow[key], color, keyrep, QSettings.GetKeyRepresentation(val, bold)));
+                    }
+                }
+                else if (showExtendedSettings && key.Equals(REVISION))
+                {
+                    table.Append(string.Format(HtmlRow[key], color, keyrep, QSettings.GetKeyRepresentation(Pinshot_RustFFI.VERSION, bold)));
                 }
             }
             if (table.Length > 0)
@@ -569,16 +706,28 @@
         }
         public const string REVISION = "revision";
         public static Dictionary<string, string> MarkdownRow { get; private set; } = new();
+        public static Dictionary<string, string> HtmlRow { get; private set; } = new();
         static QSettings()
         {
-            QSettings.MarkdownRow.Add("header", "| Setting | Meaning | Value |\n" + "| ---------- | ------------------------------------------------------------ | ------------ |");
-            QSettings.MarkdownRow.Add(QSpan.Name, "| {0}        | proximity distance limit                                     | {1}   |");
-            QSettings.MarkdownRow.Add(QLexicalDomain.Name, "| {0}        | the lexicon to be used for the searching                     | {1}   |");
-            QSettings.MarkdownRow.Add(QLexicalDisplay.Name, "| {0}        | the lexicon to be used for display / rendering | {1}   |");
-            QSettings.MarkdownRow.Add(QFormat.Name, "| {0}        | format of results on output(e.g. for exported results)      | {1}   |");
-            QSettings.MarkdownRow.Add(QSimilarityWord.Name, "| {0}        | fuzzy phonetics matching threshold is between 1 and 99 < br /> 0 or* none *means: do not match on phonetics(use text only) < br /> 100 or* exact*means that an *exact * phonetics match is expected | {1} |");
-            QSettings.MarkdownRow.Add(QSimilarityLemma.Name, "| {0}        | fuzzy phonetics matching threshold is between 1 and 99 < br /> 0 or* none *means: do not match on phonetics(use text only) < br /> 100 or* exact*means that an *exact * phonetics match is expected | {1} |");
-            QSettings.MarkdownRow.Add(REVISION, "| {0}        | revision number of the grammar. This value is read - only.     | {1}   |");
+            QSettings.MarkdownRow.Add("header",             "| Setting | Meaning | Value |\n" + "| ---------- | ------------------------------------------------------------ | ------------ |");
+            QSettings.MarkdownRow.Add(QSpan.Name,           "| {0}     | proximity distance limit                                     | {1}   |");
+            QSettings.MarkdownRow.Add(QLexicalDomain.Name,  "| {0}     | the lexicon to be used for the searching                     | {1}   |");
+            QSettings.MarkdownRow.Add(QLexicalDisplay.Name, "| {0}     | the lexicon to be used for display / rendering | {1}   |");
+            QSettings.MarkdownRow.Add(QFormat.Name,         "| {0}     | format of results on output(e.g. for exported results)      | {1}   |");
+            QSettings.MarkdownRow.Add(QSimilarityWord.Name, "| {0}     | fuzzy phonetics matching threshold is between 1 and 99 < br /> 0 or* none *means: do not match on phonetics(use text only) < br /> 100 or* exact*means that an *exact * phonetics match is expected | {1} |");
+            QSettings.MarkdownRow.Add(QSimilarityLemma.Name,"| {0}     | fuzzy phonetics matching threshold is between 1 and 99 < br /> 0 or* none *means: do not match on phonetics(use text only) < br /> 100 or* exact*means that an *exact * phonetics match is expected | {1} |");
+            QSettings.MarkdownRow.Add(REVISION,             "| {0}     | revision number of the grammar. This value is read - only.     | {1}   |");
+
+            QSettings.HtmlRow.Add("header",                 "<html><body style='background-color:#252526;color:#FFFFFF;font-family:calibri,arial,helvetica;font-size:24px'>" 
+                                                          + "<br/><table border='1' align='center'>"
+                                                          + "<tr style='background-color:#000000;'><th style='text-align:left;'>Setting</th><th style='text-align:left;'>Meaning</th><th style='text-align:left;'>Value</th></tr>");
+            QSettings.HtmlRow.Add(QSpan.Name,               "<tr style='color:{0};'><td>{1}</td><td>proximity distance limit</td><td>{2}</td></tr>");
+            QSettings.HtmlRow.Add(QLexicalDomain.Name,      "<tr style='color:{0};'><td>{1}</td><td>the lexicon to be used for the searching</td><td>{2}</td></tr>");
+            QSettings.HtmlRow.Add(QLexicalDisplay.Name,     "<tr style='color:{0};'><td>{1}</td><td>the lexicon to be used for display / rendering</td><td>{2}</td></tr>");
+            QSettings.HtmlRow.Add(QFormat.Name,             "<tr style='color:{0};'><td>{1}</td><td>format of results on output(e.g. for exported results)</td><td>{2}</td></tr>");
+            QSettings.HtmlRow.Add(QSimilarityWord.Name,     "<tr style='color:{0};'><td>{1}</td><td>fuzzy phonetics matching threshold is between 1 and 99 <br/> 0 or <em>none</em> means: do not match on phonetics(use text only) <br/> 100 or <em>exact</em> means that an exact phonetics match is expected</td><td>{2}</td></tr>");
+            QSettings.HtmlRow.Add(QSimilarityLemma.Name,    "<tr style='color:{0};'><td>{1}</td><td>fuzzy phonetics matching threshold is between 1 and 99 <br/> 0 or <em>none</em> means: do not match on phonetics(use text only) <br/> 100 or <em>exact</em> means that an exact phonetics match is expected</td><td>{2}</td></tr>");
+            QSettings.HtmlRow.Add(REVISION,                 "<tr style='color:{0};'><td>{1}</td><td>revision number of the grammar. This value is read - only.</td><td>{2}</td></tr></table></body></html>");
         }
     }
 }

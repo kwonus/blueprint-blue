@@ -11,7 +11,6 @@ namespace Pinshot.Blue
 
     public static class Pinshot_RustFFI
     {
-        public static string VERSION { get; private set; } = "UNKNOWN";
         [DllImport("pinshot_blue.dll", EntryPoint = "assert_grammar_revision")]
         internal static extern UInt16 assert_grammar_revision(UInt16 revision);
         [DllImport("pinshot_blue.dll", EntryPoint = "get_library_revision")]
@@ -23,19 +22,44 @@ namespace Pinshot.Blue
         [DllImport("pinshot_blue.dll", EntryPoint = "delete_quelle_parse")]
         internal static extern void pinshot_blue_free(IntPtr memory);
 
+        private static UInt16 ExpectedVersion = 0x4331;
         public static (UInt32 expected, bool okay) LibraryVersion
         {
             get
             {
                 UInt16 actual = get_library_revision();
-                Pinshot_RustFFI.VERSION = ((actual & 0xF000) >> 12).ToString() + "." + ((actual & 0x0F00) >> 8).ToString() + "." + (actual & 0x00FF).ToString("X");
-
-                UInt16 expected = 0x4331;
-                UInt16 version = assert_grammar_revision(expected);
+                UInt16 version = assert_grammar_revision(Pinshot_RustFFI.ExpectedVersion);
 
                 Console.WriteLine("Using Quelle Grammar version: " + Pinshot_RustFFI.VERSION);
+                if (actual != Pinshot_RustFFI.ExpectedVersion)
+                    Console.WriteLine("Using Quelle Grammar version: " + Pinshot_RustFFI.VERSION_EXPECTED);
 
-                return (actual, (version != 0) && (actual == expected));
+                return (actual, (version != 0) && (actual == Pinshot_RustFFI.ExpectedVersion));
+            }
+        }
+        private static string _VERSION = "UNKNOWN";
+        public static string VERSION
+        {
+            get
+            {
+                if (Pinshot_RustFFI._VERSION == "UNKNOWN")
+                {
+                    UInt16 actual = get_library_revision();
+                    Pinshot_RustFFI._VERSION = ((actual & 0xF000) >> 12).ToString() + "." + ((actual & 0x0F00) >> 8).ToString() + "." + (actual & 0x00FF).ToString("X");
+
+                    if (actual != Pinshot_RustFFI.ExpectedVersion)
+                    {
+                        Pinshot_RustFFI._VERSION = "actual: " + Pinshot_RustFFI._VERSION + " // " + "expected: " + Pinshot_RustFFI.VERSION_EXPECTED;
+                    }
+                }
+                return Pinshot_RustFFI._VERSION;
+            }
+        }
+        public static string VERSION_EXPECTED
+        {
+            get
+            {
+                return ((ExpectedVersion & 0xF000) >> 12).ToString() + "." + ((ExpectedVersion & 0x0F00) >> 8).ToString() + "." + (ExpectedVersion & 0x00FF).ToString("X");
             }
         }
     }

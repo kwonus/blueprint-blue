@@ -71,8 +71,8 @@ namespace Blueprint.Model.Implicit
     }
     public class QSimilarity: ISetting
     {
-        public QSimilarityWord  Word  { get; private set; }
-        public QSimilarityLemma Lemma { get; private set; }
+        public QSimilarityWord  Word  { get; internal set; }
+        public QSimilarityLemma Lemma { get; internal set; }
 
         public static readonly string Name = typeof(QSimilarity).Name.Substring(1).ToLower();
         public string SettingName { get => Name; }
@@ -117,7 +117,7 @@ namespace Blueprint.Model.Implicit
                 return (byte)DEFAULT.word;
             try
             {
-                result = (byte)ushort.Parse(val);
+                result = val.EndsWith('%') && (val.Length >= 2) ? (byte)UInt16.Parse(val.Substring(0, val.Length-1)) : (byte)UInt16.Parse(val);
                 return result;
             }
             catch
@@ -134,7 +134,7 @@ namespace Blueprint.Model.Implicit
             else if (similarity >= (byte)SIMILARITY.EXACT)
                 result = "exact";
             else
-                result = similarity.ToString();
+                result = similarity.ToString() + '%';
 
             return result;
         }
