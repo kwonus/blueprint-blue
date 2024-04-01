@@ -113,12 +113,10 @@ namespace Blueprint.Model.Implicit
                 return (byte)0;
             if (val.Equals("exact", StringComparison.InvariantCultureIgnoreCase))
                 return (byte)100;
-            if (val.Length != 2)
-                return (byte)DEFAULT.word;
             try
             {
                 result = val.EndsWith('%') && (val.Length >= 2) ? (byte)UInt16.Parse(val.Substring(0, val.Length-1)) : (byte)UInt16.Parse(val);
-                return result;
+                return result >= 0 && result <= 100 ? result : DEFAULT.word;
             }
             catch
             {
