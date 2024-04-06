@@ -74,36 +74,55 @@
             return offset.DateTime;
         }
 
-        public static string YamlSerializer(object obj)
+        public static bool YamlSerializer(Dictionary<Int64, ExpandableHistory> history)
         {
             try
             {
                 YamlDotNet.Serialization.Serializer serializer = new();
 
-                using (var stream = new MemoryStream())
+                using (var stream = new FileStream(QContext.HistoryPath, FileMode.Create))
                 {
-                    // StreamWriter object that writes UTF-8 encoded text to the MemoryStream.
-                    using (var writer = new StreamWriter(stream, Encoding.UTF8, leaveOpen: true))
+                    // StreamWriter object that writes UTF-8 encoded text
+                    using (var writer = new StreamWriter(stream, Encoding.UTF8, leaveOpen: false))
                     {
-                        serializer.Serialize(writer, obj);
+                        serializer.Serialize(writer, history);
                         writer.Flush(); // Make sure all data is written to the MemoryStream.
                     }
-                    stream.Position = 0;
-
-                    // StreamReader object that reads UTF-8 encoded text from the MemoryStream.
-                    using (var reader = new StreamReader(stream, Encoding.UTF8))
-                    {
-                        return reader.ReadToEnd();
-                    }
+                    return true;
                 }
             }
             catch
             {
                 ;
             }
-            return string.Empty;
+            return false;
         }
-        public static bool YamlSerializer(string yaml, object obj)
+        private static char[] newlineDelimiters = new char[] { '\r', '\n' };
+        public static bool HistoryAppendSerializer(string yaml, ExpandableHistory item)
+        {
+            try
+            {
+                using (TextWriter output = new StreamWriter(new FileStream(yaml, FileMode.Append)))
+                {
+                    YamlDotNet.Serialization.Serializer serializer = new();
+                    string history = serializer.Serialize(item);
+                    string[] lines = history.Split(newlineDelimiters, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (string line in lines)
+                    {
+                        output.Write("  "); // index as this is aanother entry in hashmap
+                        output.WriteLine(line);
+                    }
+                    output.Flush(); // Make sure all data is written to the MemoryStream.
+                    return true;
+                }
+            }
+            catch
+            {
+                ;
+            }
+            return false;
+        }
+        public static bool YamlSerializer(string yaml, ExpandableMacro macro)
         {
             try
             {
@@ -114,7 +133,7 @@
                     // StreamWriter object that writes UTF-8 encoded text
                     using (var writer = new StreamWriter(stream, Encoding.UTF8, leaveOpen: false))
                     {
-                        serializer.Serialize(writer, obj);
+                        serializer.Serialize(writer, macro);
                         writer.Flush(); // Make sure all data is written to the MemoryStream.
                     }
                     return true;

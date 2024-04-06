@@ -18,16 +18,14 @@ namespace Blueprint.Blue
                     var command = commands[0];
                     switch (command.rule.Trim().ToLower())
                     {
-                        case "help":       return new QHelp(env,    command.text, command.children);
-                        case "exit":       return new QExit(env,    command.text, command.children);
-                        case "delete":     return new QDeleteLabel(env,  command.text, command.children); // TODO: handle DeleteHistory
-                        case "review":     return new QReview(env,  command.text, command.children);
-                        case "absorb":     return new QAbsorb(env,  command.text, command.children);
-                        case "get":        return new QGet(env,     command.text, command.children);
-                        case "set":        return new QSet(env,     command.text, command.children);
-                        case "clear":      return new QClear(env,   command.text, command.children);
-                        case "history":    return new QHistory(env, command.text, command.children);
-                        case "invoke":     return new QHistory(env, command.text, command.children);
+                        case "help":       return new QHelp(env,      command.text, command.children);
+                        case "exit":       return new QExit(env,      command.text, command.children);
+                        case "delete":     return QDelete.Create(env, command.text, command.children);
+                        case "view":       return QView.Create(env,   command.text, command.children);
+                        case "absorb":     return new QAbsorb(env,    command.text, command.children);
+                        case "get":        return new QGet(env,       command.text, command.children);
+                        case "set":        return new QSet(env,       command.text, command.children);
+                        case "clear":      return new QClear(env,     command.text, command.children);
                     }
                 }
             }

@@ -22,7 +22,7 @@ namespace Pinshot.Blue
         [DllImport("pinshot_blue.dll", EntryPoint = "delete_quelle_parse")]
         internal static extern void pinshot_blue_free(IntPtr memory);
 
-        private static UInt16 ExpectedVersion = 0x4331;
+        private static UInt16 ExpectedVersion = 0x4407;
         public static (UInt32 expected, bool okay) LibraryVersion
         {
             get

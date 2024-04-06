@@ -14,21 +14,24 @@ namespace Blueprint.Blue
         {
             if (args.Length == 1)
             {
+                int x = 0;
                 int len = args[0].children.Length;
-                if ((len >= 2) && (len <= 3)
+                if ((len >= 2) && (len <= 4)
                 && args[0].rule.EndsWith("_set", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    int strlen = args[0].rule.Length - "_set".Length;
-                    string item = args[0].children[0].text;
-                    if (len == 3)
-                        item += ("." + args[0].children[1].text);
+                    bool cmd = args[0].children[0].rule.EndsWith("_cmd");
+                    if (!cmd)
+                        x = 1;
+
+                    string item = cmd ? args[0].children[0].rule.Replace("_cmd", "").Replace('_', '.') : x < len ? args[0].children[x].text.ToLower() : string.Empty;
+
                     this.Key = item;
 
-                    Parsed value = args[0].children[len - 1];
+                    Parsed? value = x+1 < len ? args[0].children[x+1] : null;
 
-                    this.IsValid = !string.IsNullOrWhiteSpace(value.text);
+                    this.IsValid = (value != null) && !(string.IsNullOrWhiteSpace(value.text) || string.IsNullOrWhiteSpace(item));
 
-                    this.Value = this.IsValid ? value.text.Trim() : string.Empty;
+                    this.Value = (value != null) && this.IsValid ? value.text.Trim() : string.Empty;
                     return;
                 }
             }

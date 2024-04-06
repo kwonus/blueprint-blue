@@ -12,7 +12,7 @@ namespace Blueprint.Model.Implicit
     using static Blueprint.Model.Implicit.QLexicon;
     using static global::Blueprint.Model.Implicit.QLexicalDomain;
 
-    internal enum SIMILARITY { NONE = 0, FUZZY_MIN = 33, FUZZY_MAX = 99, EXACT = 100 }
+    internal enum SIMILARITY { OFF = 0, FUZZY_MIN = 33, FUZZY_MAX = 99, COMPLETE = 100 }
 
     public class QSpan: ISetting
     {
@@ -109,10 +109,8 @@ namespace Blueprint.Model.Implicit
         {
             byte result;
 
-            if (val.Equals("none", StringComparison.InvariantCultureIgnoreCase))
+            if (val.Equals("off", StringComparison.InvariantCultureIgnoreCase))
                 return (byte)0;
-            if (val.Equals("exact", StringComparison.InvariantCultureIgnoreCase))
-                return (byte)100;
             try
             {
                 result = val.EndsWith('%') && (val.Length >= 2) ? (byte)UInt16.Parse(val.Substring(0, val.Length-1)) : (byte)UInt16.Parse(val);
@@ -128,9 +126,9 @@ namespace Blueprint.Model.Implicit
             string result;
 
             if (similarity <= (byte)SIMILARITY.FUZZY_MIN)
-                result = "none";
-            else if (similarity >= (byte)SIMILARITY.EXACT)
-                result = "exact";
+                result = "off";
+            else if (similarity >= (byte)SIMILARITY.COMPLETE)
+                result = "100%";
             else
                 result = similarity.ToString() + '%';
 
@@ -154,7 +152,7 @@ namespace Blueprint.Model.Implicit
         public static readonly string Name = "similarity.word";
         public string SettingName { get => Name; }
         public string FriendlyName { get => "word.similarity"; }
-        public static byte DEFAULT { get => (byte)SIMILARITY.NONE; }
+        public static byte DEFAULT { get => (byte)SIMILARITY.OFF; }
         public byte Value { get; private set; }
         public QSimilarityWord()
         {
@@ -162,12 +160,12 @@ namespace Blueprint.Model.Implicit
         }
         public QSimilarityWord(byte val, ISettings? baseline = null)
         {
-            this.Value = val >= (byte)SIMILARITY.FUZZY_MIN && val <= (byte)SIMILARITY.EXACT ? val : baseline != null ? baseline.SearchSimilarity.word : DEFAULT;
+            this.Value = val >= (byte)SIMILARITY.FUZZY_MIN && val <= (byte)SIMILARITY.COMPLETE ? val : baseline != null ? baseline.SearchSimilarity.word : DEFAULT;
         }
         public QSimilarityWord(string val, ISettings? baseline = null)
         {
             var result = QSimilarity.SimilarityFromString(val, baseline);
-            this.Value = result >= (byte)SIMILARITY.FUZZY_MIN && result <= (byte)SIMILARITY.EXACT ? result : baseline != null ? baseline.SearchSimilarity.word : DEFAULT;
+            this.Value = result >= (byte)SIMILARITY.FUZZY_MIN && result <= (byte)SIMILARITY.COMPLETE ? result : baseline != null ? baseline.SearchSimilarity.word : DEFAULT;
         }
         public override string ToString()
         {
@@ -184,7 +182,7 @@ namespace Blueprint.Model.Implicit
         public static readonly string Name = "similarity.lemma";
         public string SettingName { get => Name; }
         public string FriendlyName { get => "lemma.similarity"; }
-        public static byte DEFAULT { get => (byte)SIMILARITY.NONE; }
+        public static byte DEFAULT { get => (byte)SIMILARITY.OFF; }
         public byte Value { get; private set; }
         public QSimilarityLemma()
         {
@@ -192,13 +190,13 @@ namespace Blueprint.Model.Implicit
         }
         public QSimilarityLemma(byte val, ISettings? baseline = null)
         {
-            this.Value = val >= (byte)SIMILARITY.FUZZY_MIN && val <= (byte)SIMILARITY.EXACT ? val : baseline != null ? baseline.SearchSimilarity.word : DEFAULT;
+            this.Value = val >= (byte)SIMILARITY.FUZZY_MIN && val <= (byte)SIMILARITY.COMPLETE ? val : baseline != null ? baseline.SearchSimilarity.word : DEFAULT;
         }
 
         public QSimilarityLemma(string val, ISettings? baseline = null)
         {
             var result = QSimilarity.SimilarityFromString(val, baseline);
-            this.Value = result >= (byte)SIMILARITY.FUZZY_MIN && result <= (byte)SIMILARITY.EXACT ? result : baseline != null ? baseline.SearchSimilarity.word : DEFAULT;
+            this.Value = result >= (byte)SIMILARITY.FUZZY_MIN && result <= (byte)SIMILARITY.COMPLETE ? result : baseline != null ? baseline.SearchSimilarity.word : DEFAULT;
         }
         public override string ToString()
         {

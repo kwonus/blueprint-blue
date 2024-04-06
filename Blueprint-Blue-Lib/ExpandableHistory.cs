@@ -21,26 +21,47 @@
         {
             this.Id = invocation.Id ?? 0;
         }
-        public static Dictionary<long, ExpandableHistory> YamlDeserializer(string yaml)
+        public static Dictionary<long, ExpandableHistory> HistoryDeserializer(string yamlpath)
         {
             try
             {
                 Dictionary<long, ExpandableHistory> history;
 
-                using (StreamReader sr = new StreamReader(yaml))
+                using (StreamReader sr = new StreamReader(yamlpath))
                 {
                     string text = sr.ReadToEnd();
                     var input = new StringReader(text);
                     var deserializer = new DeserializerBuilder().WithNamingConvention(PascalCaseNamingConvention.Instance).Build();
                     history = deserializer.Deserialize<Dictionary<long, ExpandableHistory>>(input);
                 }
-                return (history != null) ? history : new();
+                return history;
             }
             catch
             {
                 ;
             }
             return new();
+        }
+        public static ExpandableHistory? MacroDeserializer(string yamlpath)
+        {
+            try
+            {
+                ExpandableHistory macro;
+
+                using (StreamReader sr = new StreamReader(yamlpath))
+                {
+                    string text = sr.ReadToEnd();
+                    var input = new StringReader(text);
+                    var deserializer = new DeserializerBuilder().WithNamingConvention(PascalCaseNamingConvention.Instance).Build();
+                    macro = deserializer.Deserialize<ExpandableHistory>(input);
+                }
+                return macro;
+            }
+            catch
+            {
+                ;
+            }
+            return null;
         }
         public new string AsMarkdown()
         {

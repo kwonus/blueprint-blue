@@ -624,7 +624,7 @@
             {
                 string keyrep = GetKeyRepresentation(key, bold);
                 string color = (bold != null)
-                    ? key.Equals(bold) ? "white" : "gray"
+                    ? key.Contains(bold, StringComparison.InvariantCultureIgnoreCase) ? "white" : "gray"
                     : "white";
                 if (include != null && !include.Contains(key)) // include means that if key is NOT in include list, then exclude it.
                     continue;
@@ -714,8 +714,8 @@
             QSettings.MarkdownRow.Add(QLexicalDomain.Name,  "| {0}     | the lexicon to be used for the searching                     | {1}   |");
             QSettings.MarkdownRow.Add(QLexicalDisplay.Name, "| {0}     | the lexicon to be used for display / rendering | {1}   |");
             QSettings.MarkdownRow.Add(QFormat.Name,         "| {0}     | format of results on output(e.g. for exported results)      | {1}   |");
-            QSettings.MarkdownRow.Add(QSimilarityWord.Name, "| {0}     | fuzzy phonetics matching threshold is between 1 and 99 < br /> 0 or* none *means: do not match on phonetics(use text only) < br /> 100 or* exact*means that an *exact * phonetics match is expected | {1} |");
-            QSettings.MarkdownRow.Add(QSimilarityLemma.Name,"| {0}     | fuzzy phonetics matching threshold is between 1 and 99 < br /> 0 or* none *means: do not match on phonetics(use text only) < br /> 100 or* exact*means that an *exact * phonetics match is expected | {1} |");
+            QSettings.MarkdownRow.Add(QSimilarityWord.Name, "| {0}     | phonetics matching threshold is between 33% and 100% < br />*off* means that phonetics matching is disabled | {1} |");
+            QSettings.MarkdownRow.Add(QSimilarityLemma.Name, "| {0}     | phonetics matching threshold is between 33% and 100% < br />*off* means that phonetics matching is disabled | {1} |");
             QSettings.MarkdownRow.Add(REVISION,             "| {0}     | revision number of the grammar. This value is read - only.     | {1}   |");
 
             QSettings.HtmlRow.Add("header",                 "<html><body style='background-color:#252526;color:#FFFFFF;font-family:calibri,arial,helvetica;font-size:24px'>" 
@@ -725,8 +725,8 @@
             QSettings.HtmlRow.Add(QLexicalDomain.Name,      "<tr style='color:{0};'><td>{1}</td><td>the lexicon to be used for the searching</td><td>{2}</td></tr>");
             QSettings.HtmlRow.Add(QLexicalDisplay.Name,     "<tr style='color:{0};'><td>{1}</td><td>the lexicon to be used for display / rendering</td><td>{2}</td></tr>");
             QSettings.HtmlRow.Add(QFormat.Name,             "<tr style='color:{0};'><td>{1}</td><td>format of results on output(e.g. for exported results)</td><td>{2}</td></tr>");
-            QSettings.HtmlRow.Add(QSimilarityWord.Name,     "<tr style='color:{0};'><td>{1}</td><td>fuzzy phonetics matching threshold is between 1 and 99 <br/> 0 or <em>none</em> means: do not match on phonetics(use text only) <br/> 100 or <em>exact</em> means that an exact phonetics match is expected</td><td>{2}</td></tr>");
-            QSettings.HtmlRow.Add(QSimilarityLemma.Name,    "<tr style='color:{0};'><td>{1}</td><td>fuzzy phonetics matching threshold is between 1 and 99 <br/> 0 or <em>none</em> means: do not match on phonetics(use text only) <br/> 100 or <em>exact</em> means that an exact phonetics match is expected</td><td>{2}</td></tr>");
+            QSettings.HtmlRow.Add(QSimilarityWord.Name,     "<tr style='color:{0};'><td>{1}</td><td>phonetics matching threshold is between 33% and 100% <br/><em>>off</em> means that phonetics matching is disabled</td><td>{2}</td></tr>");
+            QSettings.HtmlRow.Add(QSimilarityLemma.Name,    "<tr style='color:{0};'><td>{1}</td><td>phonetics matching threshold is between 33% and 100% <br/><em>>off</em> means that phonetics matching is disabled</td><td>{2}</td></tr>");
             QSettings.HtmlRow.Add(REVISION,                 "<tr style='color:{0};'><td>{1}</td><td>revision number of the grammar. This value is read - only.</td><td>{2}</td></tr></table></body></html>");
         }
     }

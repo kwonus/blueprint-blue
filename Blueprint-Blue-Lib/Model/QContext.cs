@@ -5,7 +5,10 @@
     using System.IO;
     using Blueprint.FuzzyLex;
     using AVXLib;
-    
+    using System.Runtime.CompilerServices;
+    using System.Reflection.Emit;
+    using YamlDotNet.Core;
+
     public interface IDiagnostic
     {
         void AddError(string message);
@@ -26,6 +29,18 @@
         {
             QContext.Home = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AV-Bible");
             BlueprintLex.Initialize(ObjectTable.AVXObjects);
+
+            QContext.ReadAllHistory();
+            QContext.ReadAllMacros();
+        }
+        public static string SettingsFile
+        {
+            get
+            {
+                if (!Directory.Exists(QContext.Home))
+                    Directory.CreateDirectory(QContext.Home);
+                return Path.Combine(QContext.Home, "settings.yaml").Replace("\\", "/");
+            }
         }
         public static string HistoryPath
         {
@@ -42,7 +57,7 @@
             {
                 if (!Directory.Exists(QContext.Home))
                     Directory.CreateDirectory(QContext.Home);
-                string labels = Path.Combine(QContext.Home, "Labels").Replace("\\", "/");
+                string labels = Path.Combine(QContext.Home, "Macros").Replace("\\", "/");
 
                 if (!Directory.Exists(labels))
                     Directory.CreateDirectory(labels);
@@ -51,8 +66,8 @@
             }
         }
 
-        public Dictionary<long, ExpandableHistory> History { get; private set; }
-        public Dictionary<string, ExpandableMacro> Macros { get; private set; }
+        public static Dictionary<Int64, ExpandableHistory> History { get; private set; }
+        public static Dictionary<string, ExpandableMacro> Macros { get; private set; }
 
         public QContext(QStatement statement)
         {
@@ -72,8 +87,6 @@
             {
                 this.AddError("Unable to load AVX Data. Without this library, other things will break");
             }
-            this.ReadAllHistory();
-            this.ReadAllMacros();
         }
         public void AddError(string message)
         {
@@ -81,11 +94,11 @@
         }
         public ExpandableInvocation? Expand(UInt32 seq)     // e.g. $1
         {
-            return this.GetHistoryEntry(seq);
+            return QContext.GetHistoryEntry(seq);
         }
         public ExpandableInvocation? Expand(string label)   // e.g. $my-macro-def
         {
-            return this.GetMacro(label);
+            return QContext.GetMacro(label);
         }
         public void AddWarning(string message)
         {
@@ -93,64 +106,115 @@
         }
         public void AddHistory(ExpandableHistory item)
         {
-            this.History[item.Time] = item;
-            ExpandableInvocation.YamlSerializer(QContext.HistoryPath, this.History);    // highly inefficient, but ok for v1
+            QContext.History[item.Time] = item;
+            item.Id = (UInt64)(QContext.History.Count + 1);
+            ExpandableInvocation.HistoryAppendSerializer(QContext.HistoryPath, item);    // highly inefficient, but ok for v1
         }
-        public void ReadAllHistory()
+        public static void ReadAllHistory()
         {
             if (File.Exists(QContext.HistoryPath))
             {
-                this.History = ExpandableHistory.YamlDeserializer(QContext.HistoryPath);
+                QContext.History = ExpandableHistory.HistoryDeserializer(QContext.HistoryPath);
             }
             else
             {
-                this.History = new();
+                QContext.History = new();
+            }
+            // Re-number the entries
+            //
+            UInt64 id = 1;
+            foreach (var entry in QContext.History.Values)
+            {
+                entry.Id = id++;
             }
         }
-        public IEnumerable<ExpandableHistory> GetHistory(UInt32 idAfter = 0, UInt32 idBefore = UInt32.MaxValue, DateTime? dateAfter = null, DateTime? dateBefore = null)
+        public static void DeleteHistory(UInt32 ifFrom = 0, UInt32 idUnto = UInt32.MaxValue, DateTime? notBefore = null, DateTime? notAfter = null)
         {
-            var dateAfterOffset  = dateAfter  != null ? new DateTimeOffset(dateAfter.Value)  : DateTimeOffset.MinValue;
-            var dateBeforeOffset = dateBefore != null ? new DateTimeOffset(dateBefore.Value) : DateTimeOffset.MaxValue;
+            UInt64 id = 1;
+            foreach (var entry in QContext.History.Values)
+            {
+                entry.Id = id++;
+            }
 
-            long dateBeforeLong = dateAfterOffset.ToFileTime();
-            long dateAfterLong  = dateBeforeOffset.ToFileTime();
+            var notBeforeOffset = notBefore != null ? new DateTimeOffset(notBefore.Value) : DateTimeOffset.MinValue;
+            var notAfterOffset = notAfter != null ? new DateTimeOffset(notAfter.Value) : DateTimeOffset.MaxValue;
 
-            foreach (var entry in this.History)
-            { 
-                if((entry.Value.Id >= idAfter && entry.Value.Id <= idBefore)
-                && (entry.Value.Time >= dateBeforeLong && entry.Value.Time <= dateAfterLong))
+            long notBeforeLong = notBeforeOffset.ToFileTime();
+            long notAfterLong = notAfterOffset.ToFileTime();
+
+            var old = QContext.History;
+            QContext.History = new();
+            foreach (ExpandableHistory entry in old.Values)
+            {
+                if ((entry.Id >= ifFrom && entry.Id <= idUnto)
+                && (entry.Time >= notBeforeLong && entry.Time <= notAfterLong))
                 {
-                    yield return entry.Value;
+                    continue;
+                }
+                QContext.History[(int)entry.Id] = entry;
+            }
+            // Re-number the entries
+            //
+            id = 1;
+            foreach (var entry in QContext.History.Values)
+            {
+                entry.Id = id++;
+            }
+            ExpandableInvocation.YamlSerializer(QContext.History);
+        }
+
+        public static IEnumerable<ExpandableHistory> GetHistory(UInt32 ifFrom = 0, UInt32 idUnto = UInt32.MaxValue, DateTime? notBefore = null, DateTime? notAfter = null)
+        {
+            UInt64 id = 1;
+            foreach (var entry in QContext.History.Values)
+            {
+                entry.Id = id++;
+            }
+
+            var notBeforeOffset  = notBefore  != null ? new DateTimeOffset(notBefore.Value)  : DateTimeOffset.MinValue;
+            var notAfterOffset = notAfter != null ? new DateTimeOffset(notAfter.Value) : DateTimeOffset.MaxValue;
+
+            long notBeforeLong  = notBeforeOffset.ToFileTime();
+            long notAfterLong = notAfterOffset.ToFileTime();
+
+            foreach (var entry in QContext.History.Values)
+            { 
+                if((entry.Id >= ifFrom && entry.Id <= idUnto)
+                && (entry.Time >= notBeforeLong && entry.Time <= notAfterLong))
+                {
+                    yield return entry;
                 }
             }
         }
-        public ExpandableInvocation? GetHistoryEntry(UInt32 sequence)
+        public static ExpandableInvocation? GetHistoryEntry(UInt64 sequence)
         {
             if (sequence > 0 && sequence < UInt32.MaxValue)
             {
-                var history = this.GetHistory(idAfter: sequence, idBefore: sequence);
-
-                ExpandableInvocation? found = null;
-                int cnt = 0;
-                foreach (var candidate in history)
+                foreach (var candidate in QContext.History.Values)
                 {
-                    //found = candidate.entry;
-                    if (++cnt > 2)
-                        break;
+                    if (candidate.Id == sequence)
+                        return candidate;
                 }
-                if (cnt == 1)
-                    return found;
             }
             return null;
         }
-        public void ReadAllMacros()
+        public static void AppendHistory(ExpandableHistory history)
+        {
+            if (history.Id > UInt64.MinValue && history.Id < UInt64.MaxValue)
+            {
+                var yaml = QContext.HistoryPath;
+                history.Id = (UInt64)(QContext.History.Count + 1);
+                ExpandableInvocation.HistoryAppendSerializer(yaml, history);
+            }
+        }
+        public static void ReadAllMacros()
         {
             if (Directory.Exists(QContext.MacroPath))
             {
-                this.Macros = ExpandableMacro.YamlDeserializer(QContext.MacroPath);
+                QContext.Macros = ExpandableMacro.YamlDeserializer(QContext.MacroPath);
             }
         }
-        public void AddMacro(ExpandableMacro macro)
+        public static void AddMacro(ExpandableMacro macro)
         {
             if (!string.IsNullOrEmpty(macro.Label))
             {
@@ -158,35 +222,117 @@
                 ExpandableInvocation.YamlSerializer(yaml, macro);
             }
         }
-        public ExpandableInvocation GetMacro(string label)
+        public static ExpandableInvocation? GetMacro(string label)
         {
-            var macro = Path.Combine(QContext.MacroPath, label + ".yaml");
-
-            var lines = File.ReadLines(QContext.HistoryPath);
-
-            string time = string.Empty;
-            string stmt = string.Empty;
-            string expd = string.Empty;
-            foreach (string line in lines)
+            string macro = Path.Combine(QContext.MacroPath, label + ".yaml");
+            return ExpandableHistory.MacroDeserializer(macro);
+        }
+        private static string GetMacroFile(string label)
+        {
+            return Path.Combine(QContext.MacroPath, label + ".yaml");
+        }
+        private static bool IsMatch(ExpandableMacro macro, long notBefore, long notAfter, string? wildcard = null)
+        {
+            if (macro.Time >= notBefore && macro.Time <= notAfter)
             {
-                if (line.StartsWith("\ttime: "))
+                if (wildcard == null)
                 {
-                    time = line.Substring(7);
+                    return true;
                 }
-                else if (line.StartsWith("\tstmt: "))
+                string[] parts = ('<' + wildcard + '>').Split('*');
+                bool match = true;
+                if (parts.Length >= 2)
                 {
-                    stmt = line.Substring(7);
-                }
-                else if (line.StartsWith("\texpd: "))
-                {
-                    expd = line.Substring(7);
+                    foreach (string part in parts)
+                    {
+                        if (string.IsNullOrWhiteSpace(part))
+                            continue;
+                        if (part.StartsWith('<'))
+                            match = macro.Label.StartsWith(part.Substring(1), StringComparison.InvariantCultureIgnoreCase);
+                        if (part.EndsWith('>'))
+                            match = macro.Label.StartsWith(part.Substring(0, part.Length - 1), StringComparison.InvariantCultureIgnoreCase);
+                        else
+                            match = macro.Label.Contains(part, StringComparison.InvariantCultureIgnoreCase);
+                        if (!match)
+                            break;
+                    }
+                    return match;
                 }
             }
-            var estmt = new ExpandableInvocation(); // { Expansion = expd, Statement = stmt, Time = Int64.Parse(time) };
-
-            return estmt;
+            return false;
         }
-        public IEnumerable<ExpandableMacro> GetMacros(string? spec, DateTime? notBefore = null, DateTime? notAfter = null)
+        private static void DeleteMacro(ExpandableMacro macro, long notBefore, long notAfter, string? wildcard = null)
+        {
+            try
+            {
+                if (macro.Time >= notBefore && macro.Time <= notAfter)
+                {
+                    if (wildcard == null)
+                    {
+                        File.Delete(GetMacroFile(macro.Label));
+                        return;
+                    }
+                    string[] parts = ('<' + wildcard + '>').Split('*');
+                    bool match = true;
+                    if (parts.Length >= 2)
+                    {
+                        foreach (string part in parts)
+                        {
+                            if (string.IsNullOrWhiteSpace(part))
+                                continue;
+                            if (part.StartsWith('<'))
+                                match = macro.Label.StartsWith(part.Substring(1), StringComparison.InvariantCultureIgnoreCase);
+                            if (part.EndsWith('>'))
+                                match = macro.Label.StartsWith(part.Substring(0, part.Length-1), StringComparison.InvariantCultureIgnoreCase);
+                            else
+                                match = macro.Label.Contains(part, StringComparison.InvariantCultureIgnoreCase);
+                            if (!match)
+                                break;
+                        }
+                        if (match)
+                            File.Delete(GetMacroFile(macro.Label));
+                    }
+                }
+            }
+            catch { ; }
+
+        }
+        public static void DeleteMacros(string? spec, DateTime? notBefore = null, DateTime? notAfter = null)
+        {
+            DateTimeOffset notBeforeOffset = notBefore != null ? new DateTimeOffset(notBefore.Value) : DateTimeOffset.MinValue;
+            DateTimeOffset notAfterOffset  = notAfter  != null ? new DateTimeOffset(notAfter.Value)  : DateTimeOffset.MaxValue;
+
+            long notBeforeLong = notBeforeOffset.ToFileTime();
+            long notAfterLong  = notAfterOffset.ToFileTime();
+
+            if ((spec != null) && !spec.Contains('*'))
+            {
+                string norm = spec.Trim().ToLower();
+                if (QContext.Macros.ContainsKey(norm))
+                {
+                    DeleteMacro(QContext.Macros[norm], notBeforeLong, notAfterLong, spec);
+                    QContext.Macros.Remove(norm);
+                    return;
+                }
+            }
+            foreach (ExpandableMacro entry in QContext.Macros.Values)
+            {
+                if (entry.Time >= notBeforeLong && entry.Time <= notAfterLong)
+                {
+                    if (string.IsNullOrWhiteSpace(spec))
+                    {
+                        continue;
+                    }
+                    DeleteMacro(entry, notBeforeLong, notAfterLong, spec);
+                }
+                else
+                {
+                    DeleteMacro(entry, notBeforeLong, notAfterLong, spec);
+                }
+            }
+            QContext.ReadAllMacros();
+        }
+        public static IEnumerable<ExpandableMacro> GetMacros(string? spec, DateTime? notBefore = null, DateTime? notAfter = null)
         {
             var notBeforeOffset = notBefore != null ? new DateTimeOffset(notBefore.Value) : DateTimeOffset.MinValue;
             var notAfterOffset = notAfter != null ? new DateTimeOffset(notAfter.Value) : DateTimeOffset.MaxValue;
@@ -194,39 +340,29 @@
             var notBeforeLong = notBeforeOffset.ToFileTime();
             var notAfterLong = notAfterOffset.ToFileTime();
 
-            foreach (var entry in this.Macros)
+            if ((spec != null) && !spec.Contains('*'))
             {
-                if (entry.Value.Time >= notBeforeLong && entry.Value.Time <= notAfterLong)
+                string norm = spec.Trim().ToLower();
+                if (QContext.Macros.ContainsKey(norm))
+                {
+                    ExpandableMacro candidate = QContext.Macros[norm];
+                    if (QContext.IsMatch(candidate, notBeforeLong, notAfterLong))
+                    {
+                        yield return candidate;
+                    }
+                }
+            }
+            else foreach (var entry in QContext.Macros.Values)
+            {
+                if (entry.Time >= notBeforeLong && entry.Time <= notAfterLong)
                 {
                     if (string.IsNullOrWhiteSpace(spec))
                     {
-                        yield return entry.Value;
+                        yield return entry;
                     }
-                    else if (!spec.Contains('*'))
+                    else if (QContext.IsMatch(entry, notBeforeLong, notAfterLong, spec))
                     {
-                        if (entry.Value.Label.Equals(spec, StringComparison.InvariantCultureIgnoreCase))
-                            yield return entry.Value;
-                    }
-                    else
-                    {
-                        // TO DO: use QWildcard and do match tests
-                        /*
-                        bool matches = true;
-
-                        for (int i = 0; i < pieces.Length; i++)
-                        {
-                            if (contains[i])
-                                matches = entry.Value.Label.Contains(spec, StringComparison.InvariantCultureIgnoreCase);
-                            else if (beginswith[i])
-                                matches = entry.Value.Label.StartsWith(spec, StringComparison.InvariantCultureIgnoreCase);
-                            else if (endswith[i])
-                                matches = entry.Value.Label.EndsWith(spec, StringComparison.InvariantCultureIgnoreCase);
-                            if (!matches)
-                                break;
-                        }
-                        if (matches)
-                            yield return entry.Value;
-                        */
+                        yield return entry;
                     }
                 }
             }
