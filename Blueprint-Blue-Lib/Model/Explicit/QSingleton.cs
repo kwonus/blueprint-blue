@@ -20,12 +20,16 @@ namespace Blueprint.Blue
                     {
                         case "help":       return new QHelp(env,      command.text, command.children);
                         case "exit":       return new QExit(env,      command.text, command.children);
-                        case "delete":     return QDelete.Create(env, command.text, command.children);
-                        case "view":       return QView.Create(env,   command.text, command.children);
                         case "absorb":     return new QAbsorb(env,    command.text, command.children);
                         case "get":        return new QGet(env,       command.text, command.children);
                         case "set":        return new QSet(env,       command.text, command.children);
                         case "clear":      return new QClear(env,     command.text, command.children);
+
+                        case "delete_bulk":return QBulk.Create(env, command.text, command);
+                        case "delete":     return QDelete.Create(env, command.text, command.children);
+
+                        case "view_bulk":  return QBulk.Create(env, command.text, command);
+                        case "view":       return QView.Create(env, command.text, command.children);
                     }
                 }
             }
