@@ -6,25 +6,27 @@ namespace Blueprint.Blue
     {
         public string Label { get; private set; } // macro
 
-        public QViewMacro(QContext env, string text, Parsed[] args) : base(env, text)
+        public QViewMacro(QContext env, string text, Parsed arg) : base(env, text)
         {
-            this.Label = string.Empty;
-            this.ParseLabel(args);
+            this.Label = this.ParseLabel(arg);
         }
-        private void ParseLabel(Parsed[] args)
+        private string ParseLabel(Parsed arg)
         {
-            foreach (Parsed arg in args)
+            if (arg.rule == "tag")
             {
-                if (arg.rule == "tag")
-                {
-                    this.Label = arg.text;
-                    break;
-                }
+                return arg.text;
             }
+            return string.Empty;
         }
         public override (bool ok, string message) Execute()
         {
-            return (false, "Operation has not been implemented yet.");
+            string label = this.Label.Trim().ToLower();
+            if (QContext.Macros.ContainsKey(label))
+            {
+                string html = QContext.Macros[label].AsHtml();
+                return (true, html);
+            }
+            return (false, "Entry not found in history.");
         }
     }
 }

@@ -163,7 +163,7 @@
             ExpandableInvocation.YamlSerializer(QContext.History);
         }
 
-        public static IEnumerable<ExpandableHistory> GetHistory(UInt32 ifFrom = 0, UInt32 idUnto = UInt32.MaxValue, DateTime? notBefore = null, DateTime? notAfter = null)
+        public static IEnumerable<ExpandableInvocation> GetHistory(UInt32 ifFrom = 0, UInt32 idUnto = UInt32.MaxValue, DateTime? notBefore = null, DateTime? notAfter = null)
         {
             UInt64 id = 1;
             foreach (var entry in QContext.History.Values)
@@ -332,7 +332,7 @@
             }
             QContext.ReadAllMacros();
         }
-        public static IEnumerable<ExpandableMacro> GetMacros(string? spec, DateTime? notBefore = null, DateTime? notAfter = null)
+        public static IEnumerable<ExpandableInvocation> GetMacros(string? spec, DateTime? notBefore = null, DateTime? notAfter = null)
         {
             var notBeforeOffset = notBefore != null ? new DateTimeOffset(notBefore.Value) : DateTimeOffset.MinValue;
             var notAfterOffset = notAfter != null ? new DateTimeOffset(notAfter.Value) : DateTimeOffset.MaxValue;

@@ -4,6 +4,8 @@
     using YamlDotNet.Serialization;
     using System.Text;
     using System.IO;
+    using Blueprint.Model.Implicit;
+    using Pinshot.Blue;
 
     public class ExpandableHistory: ExpandableInvocation
     {
@@ -63,12 +65,7 @@
             }
             return null;
         }
-        public new string AsMarkdown()
-        {
-            StringBuilder markdown = new(1024);
-            markdown.AppendLine("####" + this.Id.ToString());
-            markdown.Append(base.AsMarkdown());
-            return markdown.ToString();
-        }
+        public override string KeyName  { get => "id"; }
+        public override string KeyValue { get => this.Id.ToString(); }
     }
 }

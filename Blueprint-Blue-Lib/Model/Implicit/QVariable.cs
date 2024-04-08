@@ -12,13 +12,12 @@ namespace Blueprint.Model.Implicit
     using static Blueprint.Model.Implicit.QLexicon;
     using static global::Blueprint.Model.Implicit.QLexicalDomain;
 
-    internal enum SIMILARITY { OFF = 0, FUZZY_MIN = 33, FUZZY_MAX = 99, COMPLETE = 100 }
+    internal enum SIMILARITY { NONE = 0, FUZZY_MIN = 33, FUZZY_MAX = 99, EXACT = 100 }
 
     public class QSpan: ISetting
     {
         public static readonly string Name = typeof(QSpan).Name.Substring(1).ToLower();
         public string SettingName { get => Name; }
-        public string FriendlyName { get => "search.span"; }
         public const ushort VERSE = 0;    // zero means verse-scope
         public const ushort DEFAULT = VERSE;
 
@@ -127,7 +126,7 @@ namespace Blueprint.Model.Implicit
 
             if (similarity <= (byte)SIMILARITY.FUZZY_MIN)
                 result = "off";
-            else if (similarity >= (byte)SIMILARITY.COMPLETE)
+            else if (similarity >= (byte)SIMILARITY.EXACT)
                 result = "100%";
             else
                 result = similarity.ToString() + '%';
@@ -151,8 +150,7 @@ namespace Blueprint.Model.Implicit
     {
         public static readonly string Name = "similarity.word";
         public string SettingName { get => Name; }
-        public string FriendlyName { get => "word.similarity"; }
-        public static byte DEFAULT { get => (byte)SIMILARITY.OFF; }
+        public static byte DEFAULT { get => (byte)SIMILARITY.NONE; }
         public byte Value { get; private set; }
         public QSimilarityWord()
         {
@@ -160,12 +158,12 @@ namespace Blueprint.Model.Implicit
         }
         public QSimilarityWord(byte val, ISettings? baseline = null)
         {
-            this.Value = val >= (byte)SIMILARITY.FUZZY_MIN && val <= (byte)SIMILARITY.COMPLETE ? val : baseline != null ? baseline.SearchSimilarity.word : DEFAULT;
+            this.Value = val >= (byte)SIMILARITY.FUZZY_MIN && val <= (byte)SIMILARITY.EXACT ? val : baseline != null ? baseline.SearchSimilarity.word : DEFAULT;
         }
         public QSimilarityWord(string val, ISettings? baseline = null)
         {
             var result = QSimilarity.SimilarityFromString(val, baseline);
-            this.Value = result >= (byte)SIMILARITY.FUZZY_MIN && result <= (byte)SIMILARITY.COMPLETE ? result : baseline != null ? baseline.SearchSimilarity.word : DEFAULT;
+            this.Value = result >= (byte)SIMILARITY.FUZZY_MIN && result <= (byte)SIMILARITY.EXACT ? result : baseline != null ? baseline.SearchSimilarity.word : DEFAULT;
         }
         public override string ToString()
         {
@@ -181,8 +179,7 @@ namespace Blueprint.Model.Implicit
     {
         public static readonly string Name = "similarity.lemma";
         public string SettingName { get => Name; }
-        public string FriendlyName { get => "lemma.similarity"; }
-        public static byte DEFAULT { get => (byte)SIMILARITY.OFF; }
+        public static byte DEFAULT { get => (byte)SIMILARITY.NONE; }
         public byte Value { get; private set; }
         public QSimilarityLemma()
         {
@@ -190,13 +187,13 @@ namespace Blueprint.Model.Implicit
         }
         public QSimilarityLemma(byte val, ISettings? baseline = null)
         {
-            this.Value = val >= (byte)SIMILARITY.FUZZY_MIN && val <= (byte)SIMILARITY.COMPLETE ? val : baseline != null ? baseline.SearchSimilarity.word : DEFAULT;
+            this.Value = val >= (byte)SIMILARITY.FUZZY_MIN && val <= (byte)SIMILARITY.EXACT ? val : baseline != null ? baseline.SearchSimilarity.word : DEFAULT;
         }
 
         public QSimilarityLemma(string val, ISettings? baseline = null)
         {
             var result = QSimilarity.SimilarityFromString(val, baseline);
-            this.Value = result >= (byte)SIMILARITY.FUZZY_MIN && result <= (byte)SIMILARITY.COMPLETE ? result : baseline != null ? baseline.SearchSimilarity.word : DEFAULT;
+            this.Value = result >= (byte)SIMILARITY.FUZZY_MIN && result <= (byte)SIMILARITY.EXACT ? result : baseline != null ? baseline.SearchSimilarity.word : DEFAULT;
         }
         public override string ToString()
         {
@@ -288,7 +285,6 @@ namespace Blueprint.Model.Implicit
     {
         public static readonly string Name = "lexicon.search";
         public string SettingName { get => Name; }
-        public string FriendlyName { get => "search.lexicon"; }
         public const QLexicon.QLexiconVal DEFAULT = QLexicon.QLexiconVal.BOTH;
         public QLexicon.QLexiconVal Value { get; set; }
         public QLexicalDomain()
@@ -340,7 +336,6 @@ namespace Blueprint.Model.Implicit
     {
         public static readonly string Name = "lexicon.render";
         public string SettingName { get => Name; }
-        public string FriendlyName { get => "render.lexicon"; }
 
         public const QLexiconVal DEFAULT = QLexiconVal.AV;
         public QLexiconVal Value { get; set; }
@@ -393,7 +388,6 @@ namespace Blueprint.Model.Implicit
     {
         public static readonly string Name = typeof(QFormat).Name.Substring(1).ToLower();
         public string SettingName { get => Name; }
-        public string FriendlyName { get => "render.format"; }
         public enum QFormatVal
         {
             JSON = ISettings.Formatting_JSON,

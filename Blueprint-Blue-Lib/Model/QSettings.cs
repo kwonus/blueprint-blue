@@ -239,31 +239,6 @@
             this.BackingStore = null;
             this.ResetDefaults(); // silence the compiler by doing this explicitly:
         }
-        public static string ConvertInternalKeyToFriendlyName(string key)
-        {
-            switch (key)
-            {
-                case "span":  return "search.span";
-
-                case "lexicon.search":
-                case "search": return "search.lexicon";
-
-                case "lexicon.render":
-                case "render": return "render.lexicon";
-
-                case "format": return "render.format";
-
-                case "similarity.word":
-                case "word": return "word.similarity";
-
-                case "similarity.lemma":
-                case "lemma": return "lemma.similarity";
-
-                case "version":
-                case "revision": return "grammar.revision";
-            }
-            return key;
-        }
         public QSettings(Dictionary<string, string> map): this()
         {
             string  search = QLexicalDomain.DEFAULT.ToString();
@@ -355,7 +330,6 @@
             bool isHeader = true;
             foreach (string key in MarkdownRow.Keys)
             {
-                string friendlyName = ConvertInternalKeyToFriendlyName(key);
                 if (isHeader)
                 {
                     isHeader = false;
@@ -364,47 +338,47 @@
                 {
                     if (showDefaults || (this.Span.Value != QSpan.DEFAULT))
                     {
-                        map[friendlyName] = this.Span.Value.ToString();
+                        map[key] = this.Span.Value.ToString();
                     }
                 }
                 else if (key == QLexicalDomain.Name)
                 {
                     if (showDefaults || (this.Lexicon.Domain.Value == QLexicalDomain.DEFAULT))
                     {
-                        map[friendlyName] = this.Lexicon.Domain.Value.ToString();
+                        map[key] = this.Lexicon.Domain.Value.ToString();
                     }
                 }
                 else if (key == QLexicalDisplay.Name)
                 {
                     if (showDefaults || (this.Lexicon.Render.Value == QLexicalDisplay.DEFAULT))
                     {
-                        map[friendlyName] = this.Lexicon.Domain.Value.ToString();
+                        map[key] = this.Lexicon.Domain.Value.ToString();
                     }
                 }
                 else if (key == QFormat.Name)
                 {
                     if (showDefaults || (this.Format.Value == QFormat.DEFAULT))
                     {
-                        map[friendlyName] = this.Format.Value.ToString();
+                        map[key] = this.Format.Value.ToString();
                     }
                 }
                 else if (key == QSimilarityWord.Name)
                 {
                     if (showDefaults || (this.Similarity.Word.Value == QSimilarityWord.DEFAULT))
                     {
-                        map[friendlyName] = this.Similarity.Word.Value.ToString();
+                        map[key] = this.Similarity.Word.Value.ToString();
                     }
                 }
                 else if (key == QSimilarityLemma.Name)
                 {
                     if (showDefaults || (this.Similarity.Lemma.Value == QSimilarityLemma.DEFAULT))
                     {
-                        map[friendlyName] = this.Similarity.Lemma.Value.ToString();
+                        map[key] = this.Similarity.Lemma.Value.ToString();
                     }
                 }
                 else if (showExtendedSettings && key.Equals(REVISION))
                 {
-                    map[friendlyName] = Pinshot_RustFFI.VERSION;
+                    map[key] = Pinshot_RustFFI.VERSION;
                 }
             }
             return map;

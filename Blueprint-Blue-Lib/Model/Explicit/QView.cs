@@ -13,8 +13,8 @@ namespace Blueprint.Blue
             {
                 switch (args[1].rule)
                 {
-                    case "tag": return new QViewMacro(env, text, args[0].children);
-                    case "id":  return new QViewHistory(env, text, args[0].children);
+                    case "tag": return new QViewMacro(env, text, args[1]);
+                    case "id":  return new QViewHistory(env, text, args[1]);
                 }
             }
             return new QView(env, text);  // this is a fail-safe error condition. The parse should NEVER lead us to here.

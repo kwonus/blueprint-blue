@@ -5,32 +5,33 @@ namespace Blueprint.Blue
     {
         public UInt64 Id { get; protected set; }
 
-        public QViewHistory(QContext env, string text, Parsed[] args) : base(env, text)
+        public QViewHistory(QContext env, string text, Parsed arg) : base(env, text)
         {
-            this.Id = 0;
-            this.ParseId(args);
+            this.Id = this.ParseId(arg);
         }
-        private void ParseId(Parsed[] args)
+        private UInt64 ParseId(Parsed arg)
         {
-            foreach (Parsed arg in args)
+            if (arg.rule == "id")
             {
-                if (arg.rule == "id")
+                try
                 {
-                    try
-                    {
-                        this.Id = UInt64.Parse(arg.text);
-                    }
-                    catch
-                    {
-                        this.Id = 0;
-                    }
-                    break;
+                    return UInt64.Parse(arg.text);
+                }
+                catch
+                {
+                    ;
                 }
             }
+            return 0;
         }
         public override (bool ok, string message) Execute()
         {
-            return (false, "Operation has not been implemented yet.");
+            foreach (ExpandableHistory item in from entry in QContext.History.Values where entry.Id == this.Id select entry)
+            {
+                string html = item.AsHtml();
+                return (true, html);
+            }
+            return (false, "Entry not found in history.");
         }
     }
 }

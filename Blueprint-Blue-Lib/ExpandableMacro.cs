@@ -46,12 +46,7 @@
             }
             return macros;
         }
-        public new string AsMarkdown()
-        {
-            StringBuilder markdown = new(1024);
-            markdown.AppendLine("####" + this.Label);
-            markdown.Append(base.AsMarkdown());
-            return markdown.ToString();
-        }
+        public override string KeyName  { get => "tag"; }
+        public override string KeyValue { get => this.Label; }
     }
 }
