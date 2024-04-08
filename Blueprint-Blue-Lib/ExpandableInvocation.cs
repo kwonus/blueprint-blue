@@ -313,7 +313,7 @@
             table.AppendLine(string.Format(AsHtmlTableEntry, QSimilarityWord.Name, this.Settings[QSimilarityWord.Name]));
             table.AppendLine(string.Format(AsHtmlTableEntry, QSimilarityLemma.Name, this.Settings[QSimilarityLemma.Name]));
         }
-        private const uint BulkTableHtmlColumnCount = 8;
+        private const uint BulkTableHtmlColumnCount = 9;
         private static void AddBulkHeaderColumn(StringBuilder table, string name, uint position) // position is 1-based, not 0-based.
         {
             if (position == 1)

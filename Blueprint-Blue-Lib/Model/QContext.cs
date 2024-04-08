@@ -163,7 +163,7 @@
             ExpandableInvocation.YamlSerializer(QContext.History);
         }
 
-        public static IEnumerable<ExpandableInvocation> GetHistory(UInt32 ifFrom = 0, UInt32 idUnto = UInt32.MaxValue, DateTime? notBefore = null, DateTime? notAfter = null)
+        public static IEnumerable<ExpandableInvocation> GetHistory(UInt64 idFrom = 0, UInt64 idUnto = UInt64.MaxValue, DateTime? notBefore = null, DateTime? notAfter = null)
         {
             UInt64 id = 1;
             foreach (var entry in QContext.History.Values)
@@ -179,7 +179,7 @@
 
             foreach (var entry in QContext.History.Values)
             { 
-                if((entry.Id >= ifFrom && entry.Id <= idUnto)
+                if((entry.Id >= idFrom && entry.Id <= idUnto)
                 && (entry.Time >= notBeforeLong && entry.Time <= notAfterLong))
                 {
                     yield return entry;

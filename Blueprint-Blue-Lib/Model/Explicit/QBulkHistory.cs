@@ -48,7 +48,15 @@ namespace Blueprint.Blue
         }
         public override (bool ok, string message) Execute()
         {
-            return (false, "Operation has not been implemented yet.");
+            IEnumerable<ExpandableInvocation> history
+                = (this.From != null && this.Unto != null) ? QContext.GetHistory(idFrom: this.From.Value, idUnto: this.Unto.Value)
+                : (this.From != null)                      ? QContext.GetHistory(idFrom: this.From.Value)
+                : (this.Unto != null)                      ? QContext.GetHistory(idUnto: this.Unto.Value)
+                : QContext.GetHistory(notBefore: this.Since, notAfter: this.Until);
+
+            string html = ExpandableHistory.AsBulkHtml(history, "id");
+
+            return (true, html);
         }
     }
 }
