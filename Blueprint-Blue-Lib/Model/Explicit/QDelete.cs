@@ -1,11 +1,12 @@
 namespace Blueprint.Blue
 {
+    using AVSearch.Interfaces;
     using Pinshot.PEG;
 
     public class QDelete : QSingleton, ICommand
     {
-        public DateTime? Since { get; protected set; }
-        public DateTime? Until { get; protected set; }
+        public UInt32? Since { get; protected set; }
+        public UInt32? Until { get; protected set; }
         protected QDelete(QContext env, string text) : base(env, text, "delete")
         {
             this.Since = null;
@@ -54,14 +55,14 @@ namespace Blueprint.Blue
                 {
                     if (GetYMD(arg.children[0].text, out y, out m, out d))
                     {
-                        this.Since = new DateTime(y, m, d);
+                        this.Since = (UInt32)((y * 100 * 100) + (m * 100) + d);
                     }
                 }
                 else if (this.Until == null && arg.rule == "date_until" && arg.children.Length == 1)
                 {
                     if (GetYMD(arg.children[0].text, out y, out m, out d))
                     {
-                        this.Until = new DateTime(y, m, d);
+                        this.Until = (UInt32)((y * 100 * 100) + (m * 100) + d);
                     }
                 }
             }

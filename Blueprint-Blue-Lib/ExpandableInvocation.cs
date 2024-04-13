@@ -1,8 +1,10 @@
 ﻿namespace Blueprint.Blue
 {
+    using AVSearch.Interfaces;
     using AVSearch.Model.Expressions;
     using AVXLib;
     using Blueprint.Model.Implicit;
+    using BlueprintBlue.Model;
     using Pinshot.Blue;
     using Pinshot.PEG;
     using System;
@@ -15,20 +17,68 @@
 
     public class ExpandableInvocation
     {
-        public long Time                 { get; protected set; }
-        public string? Expression        { get; protected set; }
+        private string unused;
+        public virtual string Tag
+        {
+            get
+            {
+                return string.Empty;
+            }
+            protected set
+            { 
+                ;
+            }
+        }
+        public string Created            { get; protected set; }
+        public virtual UInt32 GetDateNumeric() // 16 Feb 2024
+        {
+            if (this.Created.Length == 11)
+            {
+                string month = this.Created.Substring(3, 3);
+                for (UInt32 m = 1; m <= 12; m++)
+                {
+                    if (QID.Months[m].Equals(month, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        UInt32 numeric = 0;
+                        try
+                        {
+                            numeric = (UInt32.Parse(this.Created.Substring(7)) * 100 * 100)
+                                    + (m * 100)
+                                    + UInt32.Parse(this.Created.Substring(0, 2));
+                            return numeric;
+                        }
+                        catch
+                        {
+                            return 0;
+                        }
+                    }
+                }
+            }
+            return 0;
+        }
+        public ParsedExpression? Expression   { get; protected set; }
         public string Statement          { get; protected set; }
         public HashSet<string> Filters   { get; protected set; } // these are used for display
         public Dictionary<byte, ScopingFilter> Scope;
         public Dictionary<string, string> Settings { get; protected set; }
 
-        public virtual string KeyName  { get => "key"; }
-        public virtual string KeyValue { get => string.Empty; }
+        public static ExpandableInvocation? Deserialize(QUtilize utilization)
+        {
+            if (utilization.TagType == TagType.Macro)
+            {
+                return ExpandableMacro.Deserialize(utilization.Tag);
+            }
+            if (utilization.TagType == TagType.History)
+            {
+                return ExpandableHistory.Deserialize(utilization.Tag);
+            }
+            return null;
+        }
 
         public ExpandableInvocation()
         {
             this.Statement = string.Empty;
-            this.Time = 0;
+            this.Created = string.Empty;
             this.Expression = null;
             this.Scope = new();
             this.Filters = new();
@@ -38,7 +88,7 @@
         public ExpandableInvocation(string rawText, QSelectionCriteria statement)
         {
             this.Statement = rawText;
-            this.Time = DateTimeOffset.Now.ToFileTime();
+            this.Created = QID.Today();
             this.Expression = statement.SearchExpression != null ? statement.SearchExpression.Expression : null;
             this.Scope = new();
             this.Filters = new();
@@ -66,17 +116,11 @@
         public ExpandableInvocation(string rawText, QUtilize invocation)
         {
             this.Statement = rawText;
-            this.Time = 0;
+            this.Created = QID.Today();
             this.Expression = null;
             this.Scope = new();
             this.Filters = new();
             this.Settings = invocation.Settings.AsMap();
-        }
-
-        public DateTime GetDateTime()
-        {
-            DateTimeOffset offset = DateTimeOffset.FromFileTime(this.Time);
-            return offset.DateTime;
         }
 
         public static bool YamlSerializer(Dictionary<Int64, ExpandableHistory> history)
@@ -103,53 +147,7 @@
             return false;
         }
         private static char[] newlineDelimiters = new char[] { '\r', '\n' };
-        public static bool HistoryAppendSerializer(string yaml, ExpandableHistory item)
-        {
-            try
-            {
-                using (TextWriter output = new StreamWriter(new FileStream(yaml, FileMode.Append)))
-                {
-                    YamlDotNet.Serialization.Serializer serializer = new();
-                    string history = serializer.Serialize(item);
-                    string[] lines = history.Split(newlineDelimiters, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (string line in lines)
-                    {
-                        output.Write("  "); // index as this is aanother entry in hashmap
-                        output.WriteLine(line);
-                    }
-                    output.Flush(); // Make sure all data is written to the MemoryStream.
-                    return true;
-                }
-            }
-            catch
-            {
-                ;
-            }
-            return false;
-        }
-        public static bool YamlSerializer(string yaml, ExpandableMacro macro)
-        {
-            try
-            {
-                YamlDotNet.Serialization.Serializer serializer = new();
 
-                using (var stream = new FileStream(yaml, FileMode.Create))
-                {
-                    // StreamWriter object that writes UTF-8 encoded text
-                    using (var writer = new StreamWriter(stream, Encoding.UTF8, leaveOpen: false))
-                    {
-                        serializer.Serialize(writer, macro);
-                        writer.Flush(); // Make sure all data is written to the MemoryStream.
-                    }
-                    return true;
-                }
-            }
-            catch
-            {
-                ;
-            }
-            return false;
-        }
         public static bool JsonSerializer(string json, object obj)
         {
             try
@@ -203,20 +201,21 @@
 
         public string AsMarkdownOld()
         {
-            long t = this.Time;
-            string time = DateTimeOffset.FromFileTime(t).DateTime.ToString();
-
             StringBuilder markdown = new StringBuilder(384);
             markdown.AppendLine("| Property | Value |\n" + "| ---------- | ------------ |");
 
             markdown.Append("| Created | ");
-            markdown.Append(time);
+            markdown.Append(this.Created);
             markdown.AppendLine(" |");
 
-            if (!string.IsNullOrWhiteSpace(this.Expression))
+            if (this.Expression != null)
             {
                 markdown.Append("| Expression | ");
+                if (this.Expression.Ordered)
+                    markdown.Append('"');
                 markdown.Append(this.Expression);
+                if (this.Expression.Ordered)
+                    markdown.Append('"');
                 markdown.AppendLine(" |");
             }
             if (this.Filters != null && this.Filters.Count > 0)
@@ -241,8 +240,8 @@
 
             return markdown.ToString();
         }
-        private void KeyAsMarkdownEntry(StringBuilder table) => table.AppendLine(string.Format(AsMarkdownTableEntry, this.KeyName, this.KeyValue));
-        private void TimeAsMarkdownEntry(StringBuilder table) => table.AppendLine(string.Format(AsMarkdownTableEntry, "time", DateTimeOffset.FromFileTime(this.Time).DateTime.ToString()));
+        private void TagAsMarkdownEntry(StringBuilder table) => table.AppendLine(string.Format(AsMarkdownTableEntry, "tag", this.Tag));
+        private void TimeAsMarkdownEntry(StringBuilder table) => table.AppendLine(string.Format(AsMarkdownTableEntry, "date", this.Created));
         private void ExpressionAsMarkdownEntry(StringBuilder table) => table.AppendLine(string.Format(AsMarkdownTableEntry, "expression", this.Expression != null ? this.Expression.ToString() : string.Empty));
         private void FiltersAsMarkdownEntry(StringBuilder table)
         {
@@ -269,8 +268,8 @@
             table.AppendLine(string.Format(AsMarkdownTableEntry, QSimilarityWord.Name, this.Settings[QSimilarityWord.Name]));
             table.AppendLine(string.Format(AsMarkdownTableEntry, QSimilarityLemma.Name, this.Settings[QSimilarityLemma.Name]));
         }
-        private void KeyAsHtmlEntry(StringBuilder table) => table.AppendLine(string.Format(AsHtmlTableEntry, this.KeyName, this.KeyValue));
-        private void TimeAsHtmlEntry(StringBuilder table) => table.AppendLine(string.Format(AsHtmlTableEntry, "time", DateTimeOffset.FromFileTime(this.Time).DateTime.ToString()));
+        private void TagAsHtmlEntry(StringBuilder table) => table.AppendLine(string.Format(AsHtmlTableEntry, "tag", this.Tag));
+        private void TimeAsHtmlEntry(StringBuilder table) => table.AppendLine(string.Format(AsHtmlTableEntry, "date", this.Created));
         private void ExpressionAsHtmlEntry(StringBuilder table) => table.AppendLine(string.Format(AsHtmlTableEntry, "expression", this.Expression != null ? this.Expression.ToString() : string.Empty));
         private void FiltersAsHtmlEntry(StringBuilder table)
         {
@@ -338,13 +337,13 @@
             if (position == BulkTableHtmlColumnCount)
                 table.AppendLine("</tr>\n");
         }
-        public static string AsBulkHtml(IEnumerable<ExpandableInvocation> items, string keyName)
+        public static string AsBulkHtml(IEnumerable<ExpandableInvocation> items)
         {
             StringBuilder table = new StringBuilder(1024);
             table.AppendLine(ExpandableInvocation.AsHtmlTablePreamble);
             uint i = 1;
-            AddBulkHeaderColumn(table, keyName, i++);
-            AddBulkHeaderColumn(table, "Date", i++);
+            AddBulkHeaderColumn(table, "Tag", i++);
+            AddBulkHeaderColumn(table, "Created", i++);
             AddBulkHeaderColumn(table, "Original Statement", i++);
             AddBulkHeaderColumn(table, "Expression", i++);
             AddBulkHeaderColumn(table, "Filters", i++);
@@ -358,10 +357,11 @@
                 if (invocation != null)
                 {
                     i = 1;
-                    AddBulkHeaderColumn(table, invocation.KeyValue, i++);
-                    AddBulkHeaderColumn(table, DateTimeOffset.FromFileTime(invocation.Time).DateTime.ToString(), i++);
+                    AddBulkHeaderColumn(table, invocation.Tag, i++);
+                    AddBulkHeaderColumn(table, invocation.Created, i++);
                     AddBulkHeaderColumn(table, invocation.Statement, i++);
-                    AddBulkHeaderColumn(table, invocation.Expression != null ? invocation.Expression : string.Empty, i++);
+                    string expression = invocation.Expression == null ? string.Empty : invocation.Expression.Ordered ? "\"" + invocation.Expression.Text + "\"" : invocation.Expression.Text;
+                    AddBulkHeaderColumn(table, expression, i++);
                     AddBulkHeaderColumn(table, ExpandableInvocation.FiltersAsHtmlEntry(table, invocation.Filters), i++);
                     AddBulkHeaderColumn(table, invocation.Settings[QSpan.Name], i++);
                     AddBulkHeaderColumn(table, invocation.Settings[QFormat.Name], i++);
@@ -385,7 +385,7 @@
             StringBuilder table = new StringBuilder(1024);
 
             table.Append(AsHtmlTableHeader);
-            KeyAsHtmlEntry(table);
+            TagAsHtmlEntry(table);
             TimeAsHtmlEntry(table);
             ExpressionAsHtmlEntry(table);
             FiltersAsHtmlEntry(table);
@@ -399,7 +399,7 @@
             StringBuilder table = new StringBuilder(1024);
 
             table.Append(AsMarkdownTableHeader);
-            KeyAsMarkdownEntry(table);
+            TagAsMarkdownEntry(table);
             TimeAsMarkdownEntry(table);
             ExpressionAsMarkdownEntry(table);
             FiltersAsMarkdownEntry(table);

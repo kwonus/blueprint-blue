@@ -1,8 +1,50 @@
 namespace Blueprint.Blue
 {
+    using AVSearch.Interfaces;
     using AVSearch.Model.Expressions;
     using Pinshot.PEG;
     using System.Collections.Generic;
+    using System.Linq.Expressions;
+
+    public class ExpressionBlueprint: ParsedExpression
+    {
+        public ExpressionBlueprint()
+        {
+            this.Text = string.Empty;
+            this.Ordered = false;
+            this.Blueprint = null;
+        }
+        public ExpressionBlueprint(Parsed blueprint, string? text = null, bool? ordered = null)
+        {
+            this.Text = text != null ? text : string.Empty;
+            this.Ordered = ordered.HasValue ? ordered.Value : false;
+            this.Blueprint = blueprint;
+
+            if (text == null)
+            {
+                Parsed child = blueprint.children[0];
+                bool quoted = child.rule.Equals("ordered") && (child.children.Length > 0);
+                bool unquoted = child.rule.Equals("unordered") && (child.children.Length > 0);
+
+                if (quoted || unquoted)
+                {
+                    this.Text = child.text;
+                }
+            }
+            if (ordered == null)
+            {
+                Parsed child = blueprint.children[0];
+
+                bool quoted = child.rule.Equals("ordered") && (child.children.Length > 0);
+                bool unquoted = child.rule.Equals("unordered") && (child.children.Length > 0);
+
+                if (quoted || unquoted)
+                {
+                    this.Ordered = quoted;
+                }
+            }
+        }
+    }
 
     public class QFind: SearchExpression, IDiagnostic
     {
@@ -25,28 +67,29 @@ namespace Blueprint.Blue
                 }  
             }
         }
-        private QFind(IDiagnostic diagnostics, QSelectionCriteria selection, string text, Parsed? expression, bool useExplicitSettings): base(selection.Settings, selection.Results)
+        private QFind(IDiagnostic diagnostics, QSelectionCriteria selection, string text, ParsedExpression? expression, bool useExplicitSettings): base(selection.Settings, selection.Results)
         {
             this.IsValid = false;
             this.Diagnostics = diagnostics;
             this.Scope = new();
-            this.Expression = text;
+            this.Expression = null;
             this.Settings = selection.Settings;
             this.AddFilters(selection.Scope);
 
+            Parsed? blueprint = expression != null ? expression.Blueprint : null;
+
             this.Fragments = new();
-            bool validExpression = (expression != null) && (expression.rule == "search" && expression.children.Length == 1) && !string.IsNullOrWhiteSpace(text);
-            if ((expression != null) && validExpression)
+            bool validExpression = (blueprint != null) && (blueprint.rule == "search" && blueprint.children.Length == 1) && !string.IsNullOrWhiteSpace(text);
+            if ((blueprint != null) && validExpression)
             {
-                Parsed child = expression.children[0];
+                Parsed child = blueprint.children[0];
 
                 bool ordered = child.rule.Equals("ordered") && (child.children.Length > 0);
                 bool unordered = child.rule.Equals("unordered") && (child.children.Length > 0);
 
                 if (ordered || unordered)
                 {
-                    this.Expression = string.Empty;
-
+                    this.Expression = expression;
                     this.Quoted = ordered;
 
                     string fulltext = text.Trim();
@@ -74,10 +117,10 @@ namespace Blueprint.Blue
                     return;
                 }
             }
-            validExpression = (expression != null) && (expression.rule.StartsWith("hashtag_") && expression.children.Length == 1) && !string.IsNullOrWhiteSpace(text);
-            if (validExpression && (expression != null))
+            validExpression = (blueprint != null) && (blueprint.rule.StartsWith("hashtag_") && blueprint.children.Length == 1) && !string.IsNullOrWhiteSpace(text);
+            if (validExpression && (blueprint != null))
             {
-                var invocation = QUtilize.Create(selection.Context, expression.text, expression.children[0]);
+                var invocation = QUtilize.Create(selection.Context, blueprint.text, blueprint.children[0]);
                 if (invocation != null)
                 {
                     selection.SearchExpression = invocation.Expression;
@@ -94,11 +137,11 @@ namespace Blueprint.Blue
             {
                 this.IsValid = true;
             }
-            this.Expression = string.Empty; // fall through here, makes *expression* invalid (even though selection might be valid)
+            this.Expression = null; // fall through here, makes *expression* invalid (even though selection might be valid)
 
             this.IsValid = this.IsValid || (this.Scope.Count > 0);
         }
-        public static QFind? Create(IDiagnostic diagnostics, QSelectionCriteria selection, string text, Parsed? expression, bool useExplicitSettings)
+        public static QFind? Create(IDiagnostic diagnostics, QSelectionCriteria selection, string text, ParsedExpression? expression, bool useExplicitSettings)
         {
             // TODO: Consider that this could be a full or demoted/partial macro and process accordingly
             //

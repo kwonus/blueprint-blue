@@ -7,6 +7,7 @@
     using Blueprint.Model.Implicit;
     using AVSearch.Model.Results;
     using System.Text.RegularExpressions;
+    using AVSearch.Interfaces;
 
     public enum SelectionResultType
     {

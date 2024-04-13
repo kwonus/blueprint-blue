@@ -1,5 +1,6 @@
 ﻿namespace Blueprint.Blue
 {
+    using AVSearch.Interfaces;
     using AVSearch.Model.Expressions;
     using AVSearch.Model.Features;
     using AVSearch.Model.Types;

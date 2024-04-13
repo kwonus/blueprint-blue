@@ -1,10 +1,14 @@
 namespace Blueprint.Blue
 {
+    using AVSearch.Interfaces;
+    using BlueprintBlue.Model;
     using Pinshot.PEG;
+    using System;
+
     public class QBulkHistory : QBulk, ICommand     // QHistory object is the @view command for history
     {
-        public UInt64? From { get; protected set; }
-        public UInt64? Unto { get; protected set; }
+        public QID? From { get; protected set; }
+        public QID? Unto { get; protected set; }
         public QBulkHistory(QContext env, string text, Parsed[] args, BulkAction action) : base(env, text, "history", action)
         {
             this.From = null;
@@ -15,16 +19,13 @@ namespace Blueprint.Blue
         }
         protected void ParseIdRange(Parsed[] args)
         {
-            UInt64 id;
-
             foreach (Parsed arg in args)
             {
                 if (this.From == null && arg.rule == "id_from" && arg.children.Length == 1)
                 {
                     try
                     {
-                        id = UInt64.Parse(arg.children[0].text);
-                        this.From = id;
+                        this.From = new QID(arg.children[0].text);
                     }
                     catch
                     {
@@ -35,8 +36,7 @@ namespace Blueprint.Blue
                 {
                     try
                     {
-                        id = UInt64.Parse(arg.children[0].text);
-                        this.Unto = id;
+                        this.Unto = new QID(arg.children[0].text);
                     }
                     catch
                     {
@@ -48,13 +48,24 @@ namespace Blueprint.Blue
         }
         public override (bool ok, string message) Execute()
         {
-            IEnumerable<ExpandableInvocation> history
-                = (this.From != null && this.Unto != null) ? QContext.GetHistory(idFrom: this.From.Value, idUnto: this.Unto.Value)
-                : (this.From != null)                      ? QContext.GetHistory(idFrom: this.From.Value)
-                : (this.Unto != null)                      ? QContext.GetHistory(idUnto: this.Unto.Value)
-                : QContext.GetHistory(notBefore: this.Since, notAfter: this.Until);
+            IEnumerable<ExpandableInvocation> history;
 
-            string html = ExpandableHistory.AsBulkHtml(history, "id");
+            if (this.From != null || this.Unto != null)
+            {
+                Dictionary<string, QID> range = new();
+                if (this.From != null)
+                    range["from"] = this.From;
+                if (this.Unto != null)
+                    range["to"] = this.Unto;
+
+                history = QContext.GetHistory(range);
+            }
+            else
+            {
+                history = QContext.GetHistory(this.NumericFrom, this.NumericUnto);
+            }
+
+            string html = ExpandableHistory.AsBulkHtml(history);
 
             return (true, html);
         }

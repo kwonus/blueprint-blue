@@ -1,5 +1,6 @@
 namespace Blueprint.Blue
 {
+    using AVSearch.Interfaces;
     using Pinshot.PEG;
 
     public class QBulkMacros : QBulk, ICommand     // QReview object is the @view command for macros

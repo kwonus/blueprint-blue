@@ -1,6 +1,7 @@
 ﻿
 namespace Pinshot.Blue
 {
+    using AVSearch.Interfaces;
     using Blueprint.Blue;
     using Pinshot.PEG;
     using System;
@@ -22,7 +23,7 @@ namespace Pinshot.Blue
         [DllImport("pinshot_blue.dll", EntryPoint = "delete_quelle_parse")]
         internal static extern void pinshot_blue_free(IntPtr memory);
 
-        private static UInt16 ExpectedVersion = 0x4407;
+        private static UInt16 ExpectedVersion = 0x4411;
         public static (UInt32 expected, bool okay) LibraryVersion
         {
             get
@@ -98,6 +99,18 @@ namespace Pinshot.Blue
         {
             ;
         }
+        private void TrimParse(Parsed parse)
+        {
+            parse.text = parse.text.Trim();
+            TrimParses(parse.children);
+        }
+        private void TrimParses(Parsed[] parses)
+        {
+            foreach (Parsed parse in parses)
+            {
+                TrimParse(parse);
+            }
+        }
         public (string json, RootParse? root) Parse(string stmt)
         {
             using (ParsedStatementHandle handle = Pinshot_RustFFI.pinshot_blue_parse(stmt))
@@ -108,6 +121,10 @@ namespace Pinshot.Blue
                     // Deserialization from JSON
                     DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(RootParse));
                     var root = (RootParse?)deserializer.ReadObject(ms);
+                    if (string.IsNullOrEmpty(root.error))
+                    {
+                        TrimParses(root.result);
+                    }
                     return (result, root);
                 }
             }

@@ -1,5 +1,6 @@
 namespace Blueprint.Blue
 {
+    using AVSearch.Interfaces;
     using AVSearch.Model.Expressions;
     using AVXLib;
     using Pinshot.PEG;

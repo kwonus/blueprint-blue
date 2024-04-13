@@ -1,5 +1,6 @@
 namespace Blueprint.Blue
 {
+    using AVSearch.Interfaces;
     using Pinshot.PEG;
 
     public abstract class QSingleton : QCommand, ICommand

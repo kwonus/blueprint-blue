@@ -1,37 +1,37 @@
 namespace Blueprint.Blue
 {
+    using AVSearch.Interfaces;
     using Pinshot.PEG;
     public class QViewHistory : QView, ICommand     // QHistory object is the @view command for history
     {
-        public UInt64 Id { get; protected set; }
-
         public QViewHistory(QContext env, string text, Parsed arg) : base(env, text)
         {
-            this.Id = this.ParseId(arg);
+            this.Tag = this.ParseTag(arg);
         }
-        private UInt64 ParseId(Parsed arg)
+        private string ParseTag(Parsed arg)
         {
-            if (arg.rule == "id")
+            if (arg.rule == "tag")
             {
                 try
                 {
-                    return UInt64.Parse(arg.text);
+                    return arg.text;
                 }
                 catch
                 {
                     ;
                 }
             }
-            return 0;
+            return string.Empty;
         }
         public override (bool ok, string message) Execute()
         {
-            foreach (ExpandableHistory item in from entry in QContext.History.Values where entry.Id == this.Id select entry)
+            ExpandableHistory? item = ExpandableHistory.Deserialize(this.Tag);
+            if (item != null)
             {
                 string html = item.AsHtml();
                 return (true, html);
             }
-            return (false, "Entry not found in history.");
+            return (false, "History tag not found.");
         }
     }
 }

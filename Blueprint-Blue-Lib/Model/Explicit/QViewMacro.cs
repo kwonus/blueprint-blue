@@ -1,14 +1,13 @@
 namespace Blueprint.Blue
 {
+    using AVSearch.Interfaces;
     using Pinshot.PEG;
 
     public class QViewMacro : QView, ICommand     // QReview object is the @view command for macros
     {
-        public string Label { get; private set; } // macro
-
         public QViewMacro(QContext env, string text, Parsed arg) : base(env, text)
         {
-            this.Label = this.ParseLabel(arg);
+            this.Tag = this.ParseLabel(arg);
         }
         private string ParseLabel(Parsed arg)
         {
@@ -20,13 +19,15 @@ namespace Blueprint.Blue
         }
         public override (bool ok, string message) Execute()
         {
-            string label = this.Label.Trim().ToLower();
-            if (QContext.Macros.ContainsKey(label))
+            string label = this.Tag.Trim().ToLower();
+
+            ExpandableMacro? macro = ExpandableMacro.Deserialize(label);
+            if (macro != null)
             {
-                string html = QContext.Macros[label].AsHtml();
+                string html = macro.AsHtml();
                 return (true, html);
             }
-            return (false, "Entry not found in history.");
+            return (false, "Macro tag not found.");
         }
     }
 }

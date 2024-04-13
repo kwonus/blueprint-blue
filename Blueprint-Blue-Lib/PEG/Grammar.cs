@@ -1,5 +1,6 @@
 ﻿namespace Pinshot.PEG
 {
+    using AVSearch.Interfaces;
     using System.IO;
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Json;
@@ -28,23 +29,6 @@
                 ;
             }
             return (new RootParse() { error = "Exception thrown during deserialization", input = "", result = new Parsed[0] }, false);
-        }
-    }
-    [DataContract]
-    public class Parsed
-    {
-        [DataMember]
-        public string rule { set; get; }
-        [DataMember]
-        public string text { set; get; }
-        [DataMember]
-        public Parsed[] children { set; get; }
-
-        public Parsed()
-        {
-            this.rule = string.Empty;
-            this.text = string.Empty;
-            this.children = new Parsed[0];
         }
     }
 

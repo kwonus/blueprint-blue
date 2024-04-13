@@ -1,5 +1,6 @@
 namespace Blueprint.Blue
 {
+    using AVSearch.Interfaces;
     using Pinshot.PEG;
     public enum BulkAction
     {
@@ -9,13 +10,13 @@ namespace Blueprint.Blue
     }
     public class QBulk : QSingleton, ICommand     // QHistory object is the @view command for history
     {
-        public DateTime? Since    { get; protected set; }
-        public DateTime? Until    { get; protected set; }
-        public BulkAction Action  { get; protected set; }
+        public UInt32? NumericFrom { get; protected set; }
+        public UInt32? NumericUnto { get; protected set; }
+        public BulkAction Action   { get; protected set; }
         protected QBulk(QContext env, string text, string cmd, BulkAction action) : base(env, text, cmd)
         {
-            this.Since = null;
-            this.Until = null;
+            this.NumericFrom = null;
+            this.NumericUnto = null;
             this.Action = action;
         }
         public static QBulk Create(QContext env, string text, Parsed arg)
@@ -66,18 +67,18 @@ namespace Blueprint.Blue
 
             foreach (Parsed arg in args)
             {
-                if (this.Since == null && arg.rule == "date_from" && arg.children.Length == 1)
+                if (this.NumericFrom == null && arg.rule == "date_from" && arg.children.Length == 1)
                 {
                     if (GetYMD(arg.children[0].text, out y, out m, out d))
                     {
-                        this.Since = new DateTime(y, m, d);
+                        this.NumericFrom = (UInt32)((y * 100 * 100) + (m * 100) + d);
                     }
                 }
-                else if (this.Until == null && arg.rule == "date_until" && arg.children.Length == 1)
+                else if (this.NumericUnto == null && arg.rule == "date_until" && arg.children.Length == 1)
                 {
                     if (GetYMD(arg.children[0].text, out y, out m, out d))
                     {
-                        this.Until = new DateTime(y, m, d);
+                        this.NumericUnto = (UInt32)((y * 100 * 100) + (m * 100) + d);
                     }
                 }
             }

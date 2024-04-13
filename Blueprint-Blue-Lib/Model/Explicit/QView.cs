@@ -1,8 +1,10 @@
 namespace Blueprint.Blue
 {
+    using AVSearch.Interfaces;
     using Pinshot.PEG;
     public class QView : QSingleton, ICommand     // QHistory object is the @view command for history
     {
+        public string Tag { get; protected set; }
         protected QView(QContext env, string text) : base(env, text, "view")
         {
             ;

@@ -5,10 +5,16 @@
     using System.Security.Cryptography.X509Certificates;
     using System.Text;
     using System.IO;
+    using YamlDotNet.Core;
 
     public class ExpandableMacro: ExpandableInvocation
     {
-        public string Label { get; private set; }
+        private string Label;
+        public override string Tag
+        {
+            get => this.Label;
+            protected set => this.Label = value;
+        }
         public ExpandableMacro() : base()
         {
             this.Label = string.Empty;
@@ -20,33 +26,61 @@
         }
         public ExpandableMacro(string rawText, QUtilize invocation) : base(rawText, invocation)
         {
-            this.Label = invocation.Label ?? string.Empty;
+            this.Label = invocation.Tag ?? string.Empty;
         }
-        public static Dictionary<string, ExpandableMacro> YamlDeserializer(string folder)
+        public static ExpandableMacro? Deserialize(string tag)
         {
-            var macros = new Dictionary<string, ExpandableMacro>();
-            if (Directory.Exists(folder))
+            if (Directory.Exists(QContext.MacroPath))
             {
-                foreach (var yaml in Directory.EnumerateFiles(folder, "*.yaml"))
+                if (Directory.Exists(QContext.MacroPath))
                 {
-                    using (StreamReader sr = new StreamReader(yaml))
+                    var yaml = Path.Combine(QContext.MacroPath, tag + ".yaml");
+
+                    if (File.Exists(yaml))
                     {
-                        try
+                        using (StreamReader sr = new StreamReader(yaml))
                         {
-                            string text = sr.ReadToEnd();
-                            var input = new StringReader(text);
-                            var deserializer = new DeserializerBuilder().WithNamingConvention(PascalCaseNamingConvention.Instance).Build();
-                            var macro = deserializer.Deserialize<ExpandableMacro>(input);
-                            if (macro != null)
-                                macros.Add(macro.Label, macro);
+                            try
+                            {
+                                string text = sr.ReadToEnd();
+                                var input = new StringReader(text);
+                                var deserializer = new DeserializerBuilder()/*.WithNamingConvention(PascalCaseNamingConvention.Instance)*/.Build();
+                                var macro = deserializer.Deserialize<ExpandableMacro>(input);
+                                return macro;
+                            }
+                            catch { }
                         }
-                        catch { }
                     }
                 }
             }
-            return macros;
+            return null;
         }
-        public override string KeyName  { get => "tag"; }
-        public override string KeyValue { get => this.Label; }
+        public bool Serialize()
+        {
+            if (!string.IsNullOrEmpty(this.Tag))
+            {
+                string yaml = Path.Combine(QContext.MacroPath, this.Tag + ".yaml");
+                try
+                {
+                    YamlDotNet.Serialization.Serializer serializer = new();
+
+                    using (var stream = new FileStream(yaml, FileMode.Create))
+                    {
+                        // StreamWriter object that writes UTF-8 encoded text
+                        using (var writer = new StreamWriter(stream, Encoding.UTF8, leaveOpen: false))
+                        {
+                            serializer.Serialize(writer, this);
+                            writer.Flush(); // Make sure all data is written to the MemoryStream.
+                        }
+                        return true;
+                    }
+                }
+                catch
+                {
+                    ;
+                }
+            }
+            return false;
+        }
     }
 }

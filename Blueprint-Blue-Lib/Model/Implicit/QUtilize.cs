@@ -1,24 +1,28 @@
+using AVSearch.Interfaces;
 using Pinshot.PEG;
 
 namespace Blueprint.Blue
 {
+    public enum TagType
+    {
+        UNKNOWN = 0,
+        History = 1,
+        Macro = 2,
+    }
     public class QUtilize : QCommand, ICommand
     {
-        public string Generic { get; private set; } // either
-        public string? Label { get; private set; } // macro
-        public UInt64? Id { get; private set; } // history
+        public string Tag { get; private set; } // macro
         public List<QFilter> Filters { get; private set; }
         public QSettings Settings { get; private set; }
-        public QFind? Expression { get; private set; }
+        public QFind? Expression  { get; private set; }
+        public TagType TagType { get; private set; }
 
-        private QUtilize(QContext env, string text, string invocation, string? label = null, UInt64? id = null) : base(env, text, "use")
+        private QUtilize(QContext env, string text, string invocation, TagType type) : base(env, text, "use")
         {
             this.Filters = new();
             this.Settings = new QSettings(env.GlobalSettings);
-            this.Id = id;
-            this.Label = label;
-            this.Generic = invocation.Trim();
-
+            this.Tag = invocation;
+            this.TagType = type;
             // TO DO: (YAML?)
             /*
              * Filters need to be read in from the macro definition
@@ -37,21 +41,12 @@ namespace Blueprint.Blue
 
             if (labelled)
             {
-                var invocation = new QUtilize(env, text, arg.text, label:arg.text);
+                var invocation = new QUtilize(env, text, arg.text, TagType.Macro);
                 return invocation;
             }
             if (numerics)
             {
-                uint id = 0;
-                try
-                {
-                    id = uint.Parse(arg.text);
-                }
-                catch
-                {
-                    return null;
-                }
-                var invocation = new QUtilize(env, text, arg.text, id: id);
+                var invocation = new QUtilize(env, text, arg.text, TagType.History);
                 return invocation;
             }
             return null;
