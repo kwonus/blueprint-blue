@@ -303,7 +303,7 @@
 
             return filters.ToString();
         }
-        private void SettingsAsHtmlEntry(StringBuilder table)
+        protected void SettingsAsHtmlEntry(StringBuilder table)
         {
             table.AppendLine(string.Format(AsHtmlTableEntry, QSpan.Name, this.Settings[QSpan.Name]));
             table.AppendLine(string.Format(AsHtmlTableEntry, QLexicalDomain.Name, this.Settings[QLexicalDomain.Name]));
@@ -312,8 +312,9 @@
             table.AppendLine(string.Format(AsHtmlTableEntry, QSimilarityWord.Name, this.Settings[QSimilarityWord.Name]));
             table.AppendLine(string.Format(AsHtmlTableEntry, QSimilarityLemma.Name, this.Settings[QSimilarityLemma.Name]));
         }
-        private const uint BulkTableHtmlColumnCount = 9;
-        private static void AddBulkHeaderColumn(StringBuilder table, string name, uint position) // position is 1-based, not 0-based.
+        protected const uint BulkTableHtmlColumnCountForHistory = 10;
+        protected const uint BulkTableHtmlColumnCountForMacros = 9;
+        protected static void AddBulkHeaderColumn(StringBuilder table, string name, uint last, uint position) // position is 1-based, not 0-based.
         {
             if (position == 1)
                 table.Append("<tr style='background-color:#000000;'>");
@@ -322,10 +323,10 @@
             table.Append(name);
             table.Append("</td>");
 
-            if (position == BulkTableHtmlColumnCount)
+            if (position == last)
                 table.AppendLine("</tr>\n");
         }
-        private static void AddBulkValueColumn(StringBuilder table, string value, uint position) // position is 1-based, not 0-based.
+        protected static void AddBulkValueColumn(StringBuilder table, string value, uint last, uint position) // position is 1-based, not 0-based.
         {
             if (position == 1)
                 table.Append("<tr style='color:white;'>");
@@ -334,37 +335,45 @@
             table.Append(value);
             table.Append("</td>");
 
-            if (position == BulkTableHtmlColumnCount)
+            if (position == last)
                 table.AppendLine("</tr>\n");
         }
-        public static string AsBulkHtml(IEnumerable<ExpandableInvocation> items)
+        public static string AsBulkHtml(IEnumerable<ExpandableInvocation> items, Type type)
         {
+            uint cnt = (type == typeof(ExpandableHistory)) ? BulkTableHtmlColumnCountForHistory : BulkTableHtmlColumnCountForMacros;
             StringBuilder table = new StringBuilder(1024);
             table.AppendLine(ExpandableInvocation.AsHtmlTablePreamble);
             uint i = 1;
-            AddBulkHeaderColumn(table, "Tag", i++);
-            AddBulkHeaderColumn(table, "Created", i++);
-            AddBulkHeaderColumn(table, "Original Statement", i++);
-            AddBulkHeaderColumn(table, "Expression", i++);
-            AddBulkHeaderColumn(table, "Filters", i++);
-            AddBulkHeaderColumn(table, "Span", i++);
-            AddBulkHeaderColumn(table, "Format", i++);
-            AddBulkHeaderColumn(table, "Lexicon (search/render)", i++);
-            AddBulkHeaderColumn(table, "Similarity (word/lemma)", i);
+            AddBulkHeaderColumn(table, "Hashtag", cnt, i++);
+            if (type == typeof(ExpandableHistory))
+                AddBulkHeaderColumn(table, "Shorthand", cnt, i++);
+            AddBulkHeaderColumn(table, "Date", cnt, i++);
+            AddBulkHeaderColumn(table, "Original Statement", cnt, i++);
+            AddBulkHeaderColumn(table, "Expression", cnt, i++);
+            AddBulkHeaderColumn(table, "Filters", cnt, i++);
+            AddBulkHeaderColumn(table, "Span", cnt, i++);
+            AddBulkHeaderColumn(table, "Format", cnt, i++);
+            AddBulkHeaderColumn(table, "Lexicon (search/render)", cnt, i++);
+            AddBulkHeaderColumn(table, "Similarity (word/lemma)", cnt, i);
 
             foreach (ExpandableInvocation invocation in items)
             {
                 if (invocation != null)
                 {
                     i = 1;
-                    AddBulkHeaderColumn(table, invocation.Tag, i++);
-                    AddBulkHeaderColumn(table, invocation.Created, i++);
-                    AddBulkHeaderColumn(table, invocation.Statement, i++);
+                    AddBulkValueColumn(table, '#' + invocation.Tag, cnt, i++);
+                    if (type == typeof(ExpandableHistory))
+                    {
+                        string? shorthand = ((ExpandableHistory)invocation).Id.AsTodayOnly() ?? ((ExpandableHistory)invocation).Id.AsCurrentMonthOnly() ?? null;
+                        AddBulkValueColumn(table, shorthand != null ? '#' + shorthand : "-", cnt, i++);
+                    }
+                    AddBulkValueColumn(table, invocation.Created, cnt, i++);
+                    AddBulkValueColumn(table, invocation.Statement, cnt, i++);
                     string expression = invocation.Expression == null ? string.Empty : invocation.Expression.Ordered ? "\"" + invocation.Expression.Text + "\"" : invocation.Expression.Text;
-                    AddBulkHeaderColumn(table, expression, i++);
-                    AddBulkHeaderColumn(table, ExpandableInvocation.FiltersAsHtmlEntry(table, invocation.Filters), i++);
-                    AddBulkHeaderColumn(table, invocation.Settings[QSpan.Name], i++);
-                    AddBulkHeaderColumn(table, invocation.Settings[QFormat.Name], i++);
+                    AddBulkValueColumn(table, expression, cnt, i++);
+                    AddBulkValueColumn(table, ExpandableInvocation.FiltersAsHtmlEntry(table, invocation.Filters), cnt, i++);
+                    AddBulkValueColumn(table, invocation.Settings[QSpan.Name], cnt, i++);
+                    AddBulkValueColumn(table, invocation.Settings[QFormat.Name], cnt, i++);
 
                     string lexRender = invocation.Settings[QLexicalDisplay.Name];
                     string lexSearch = invocation.Settings[QLexicalDomain.Name];
@@ -372,8 +381,8 @@
                     string similarityWord  = invocation.Settings[QSimilarityWord.Name];
                     string similarityLemma = invocation.Settings[QSimilarityLemma.Name];
 
-                    AddBulkHeaderColumn(table, lexSearch + " / " + lexRender, 7);
-                    AddBulkHeaderColumn(table, similarityWord + " / " + similarityLemma, 8);
+                    AddBulkValueColumn(table, lexSearch + " / " + lexRender, cnt, i++);
+                    AddBulkValueColumn(table, similarityWord + " / " + similarityLemma, cnt, i++);
                 }
             }
             table.AppendLine(ExpandableInvocation.AsHtmlTablePostamble);

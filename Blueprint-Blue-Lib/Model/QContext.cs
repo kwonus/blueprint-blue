@@ -1,4 +1,6 @@
-﻿namespace Blueprint.Blue
+﻿using Blueprint.Blue;
+
+namespace Blueprint.Blue
 {
     using System;
     using System.Collections.Generic;
@@ -233,7 +235,7 @@
             UInt32 from = rangeFrom.HasValue ? rangeFrom.Value : 1999_12_31;
             UInt32 unto = rangeUnto.HasValue ? rangeUnto.Value : 2200_01_01;
 
-            foreach (string year in from yyyy in Directory.EnumerateDirectories(folder, "2???") orderby yyyy ascending select yyyy)
+            foreach (string year in from yyyy in Directory.EnumerateDirectories(folder, "2???") orderby yyyy ascending select Path.GetFileName(yyyy))
             {
                 UInt32 y = 0;
                 try
@@ -250,7 +252,7 @@
                     break;
 
                 string YYYY = Path.Combine(folder, year);
-                foreach (string month in from mm in Directory.EnumerateDirectories(YYYY) orderby mm ascending select mm)
+                foreach (string month in from mm in Directory.EnumerateDirectories(YYYY) orderby mm ascending select Path.GetFileName(mm))
                 {
                     string MM = Path.Combine(YYYY, month);
                     UInt32 m = 0;
@@ -267,7 +269,7 @@
                     if (unto < m)
                         goto done;
 
-                    foreach (string day in from dd in Directory.EnumerateDirectories(MM) orderby dd ascending select dd)
+                    foreach (string day in from dd in Directory.EnumerateDirectories(MM) orderby dd ascending select Path.GetFileName(dd))
                     {
                         string DD = Path.Combine(MM, day);
                         UInt32 d = 0;
@@ -284,10 +286,9 @@
                         if (unto < d)
                             goto done;
 
-                        foreach (string sequence in from seq in Directory.EnumerateFiles(DD, "*.yaml") orderby seq ascending select seq)
+                        foreach (string sequence in from seq in Directory.EnumerateFiles(DD, "*.yaml") orderby seq ascending select seq.Replace('\\', '/'))
                         {
-                            string yaml = Path.Combine(MM, sequence);
-                            ExpandableInvocation? invocation = ExpandableHistory.Deserialize(yaml);
+                            ExpandableInvocation? invocation = ExpandableHistory.Deserialize(yaml:sequence);
                             if (invocation != null)
                             {
                                 yield return invocation;
@@ -348,20 +349,14 @@
             }
             return false;
         }
-        private static void DeleteMacro(ExpandableMacro macro, UInt32 notBefore, UInt32 notAfter, string? wildcard = null)
+        public static IEnumerable<ExpandableInvocation> GetMacros(string wildcard)
         {
-            UInt32 numeric = macro.GetDateNumeric();
-
-            try
+            foreach (string yaml in Directory.EnumerateFiles(QContext.MacroPath, "*.yaml"))
             {
-                if (macro.GetDateNumeric() >= notBefore && macro.GetDateNumeric() <= notAfter)
+                ExpandableInvocation? macro = null;
+                try
                 {
-                    if (wildcard == null)
-                    {
-                        File.Delete(GetMacroFile(macro.Tag));
-                        return;
-                    }
-                    string label = macro.Tag;
+                    string label = Path.GetFileNameWithoutExtension(yaml);
                     string[] parts = ('<' + wildcard + '>').Split('*');
                     bool match = true;
                     if (parts.Length >= 2)
@@ -371,39 +366,30 @@
                             if (string.IsNullOrWhiteSpace(part))
                                 continue;
                             if (part.StartsWith('<'))
-                                match = label.StartsWith(part.Substring(1), StringComparison.InvariantCultureIgnoreCase);
-                            if (part.EndsWith('>'))
-                                match = label.StartsWith(part.Substring(0, part.Length-1), StringComparison.InvariantCultureIgnoreCase);
+                                match = (part.Length == 1) || label.StartsWith(part.Substring(1), StringComparison.InvariantCultureIgnoreCase);
+                            else if (part.EndsWith('>'))
+                                match = (part.Length == 1) || label.StartsWith(part.Substring(0, part.Length - 1), StringComparison.InvariantCultureIgnoreCase);
                             else
                                 match = label.Contains(part, StringComparison.InvariantCultureIgnoreCase);
                             if (!match)
                                 break;
                         }
                         if (match)
-                            File.Delete(GetMacroFile(label));
+                        {
+                            macro = ExpandableMacro.Deserialize(label);
+                        }
                     }
                 }
+                catch { ; }
+                if (macro != null)
+                    yield return macro;
             }
-            catch { ; }
         }
-        public static void DeleteMacros(string? spec, UInt32? notBefore = null, UInt32? notAfter = null)
+        public static void DeleteMacros(IEnumerable<ExpandableInvocation> removals)
         {
-            foreach (string yaml in Directory.EnumerateFiles(QContext.MacroPath, "*.yaml"))
+            foreach (ExpandableInvocation macro in removals)
             {
-                if (notBefore != null || notAfter != null)
-                {
-                    ExpandableMacro? macro = ExpandableMacro.Deserialize(yaml);
-
-                    if (macro != null)
-                    {
-                        UInt32 time = macro.GetDateNumeric();
-                        if (notBefore.HasValue && time < notBefore.Value)
-                            continue;
-                        if (notAfter.HasValue && time > notAfter.Value)
-                            continue;
-                    }
-                    else continue;
-                }
+                string yaml = macro.Tag + ".yaml";
                 try
                 {
                     File.Delete(Path.Combine(QContext.MacroPath, yaml));
@@ -414,25 +400,35 @@
                 }
             }
         }
-        public static IEnumerable<ExpandableInvocation> GetMacros(string? spec, UInt32? notBefore = null, UInt32? notAfter = null)
+        public static IEnumerable<ExpandableInvocation> GetMacros(UInt32? notBefore = null, UInt32? notAfter = null)
         {
             foreach (string yaml in Directory.EnumerateFiles(QContext.MacroPath, "*.yaml"))
             {
-                ExpandableMacro? macro = ExpandableMacro.Deserialize(yaml);
+                string label = Path.GetFileNameWithoutExtension(yaml);
+
+                ExpandableInvocation? macro = null;
+                try
+                {
+                    macro = ExpandableMacro.Deserialize(label);
+
+                    if (macro != null)
+                    {
+                        if (notBefore != null || notAfter != null)
+                        {
+                            UInt32 time = macro.GetDateNumeric();
+                            if (notBefore.HasValue && time < notBefore.Value)
+                                continue;
+                            if (notAfter.HasValue && time > notAfter.Value)
+                                continue;
+                        }
+                    }
+                }
+                catch { ; }
 
                 if (macro != null)
                 {
-                    if (notBefore != null || notAfter != null)
-                    {
-                        UInt32 time = macro.GetDateNumeric();
-                        if (notBefore.HasValue && time < notBefore.Value)
-                            continue;
-                        if (notAfter.HasValue && time > notAfter.Value)
-                            continue;
-                    }
-                    else continue;
+                    yield return macro;
                 }
-                yield return macro;
             }
         }
     }

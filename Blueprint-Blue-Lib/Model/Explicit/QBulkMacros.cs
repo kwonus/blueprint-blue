@@ -1,6 +1,7 @@
 namespace Blueprint.Blue
 {
     using AVSearch.Interfaces;
+    using BlueprintBlue.Model;
     using Pinshot.PEG;
 
     public class QBulkMacros : QBulk, ICommand     // QReview object is the @view command for macros
@@ -28,7 +29,20 @@ namespace Blueprint.Blue
         }
         public override (bool ok, string message) Execute()
         {
-            return (false, "Operation has not been implemented yet.");
+            IEnumerable<ExpandableInvocation> macros;
+
+            if (this.Wildcard != null)
+            {
+                macros = QContext.GetMacros(this.Wildcard);
+            }
+            else
+            {
+                macros = QContext.GetMacros(this.NumericFrom, this.NumericUnto);
+            }
+
+            string html = macros != null ? ExpandableInvocation.AsBulkHtml(macros, typeof(ExpandableMacro)) : string.Empty;
+
+            return (true, html);
         }
     }
 }

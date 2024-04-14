@@ -6,6 +6,7 @@
     using System.Text;
     using System.IO;
     using YamlDotNet.Core;
+    using Blueprint.Model.Implicit;
 
     public class ExpandableMacro: ExpandableInvocation
     {

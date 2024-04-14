@@ -65,7 +65,7 @@ namespace Blueprint.Blue
                 history = QContext.GetHistory(this.NumericFrom, this.NumericUnto);
             }
 
-            string html = ExpandableHistory.AsBulkHtml(history);
+            string html = history != null ? ExpandableInvocation.AsBulkHtml(history, typeof(ExpandableHistory)) : string.Empty;
 
             return (true, html);
         }
