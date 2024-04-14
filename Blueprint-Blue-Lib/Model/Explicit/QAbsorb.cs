@@ -8,7 +8,7 @@ namespace Blueprint.Blue
         public string Label   { get; set; } // macro
         public uint   Command { get; set; } // history
         public string Generic { get; set; } // either
-        public QAbsorb(QContext env, string text, Parsed[] args) : base(env, text, "absorb")
+        public QAbsorb(QContext env, string text, Parsed[] args) : base(env, text, "use")
         {
             if (string.IsNullOrWhiteSpace(text))
             {

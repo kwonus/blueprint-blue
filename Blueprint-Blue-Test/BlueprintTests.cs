@@ -249,7 +249,7 @@ namespace Blueprint_Blue_Test
         {
             // A current bug in the grammar does not allow the setting in first position of the statement
             //
-            string stmt = "@absorb goodness";
+            string stmt = "@use goodness";
             var root = QStatement.Parse(stmt);
 
             Assert.IsNotNull(root.fatal);
