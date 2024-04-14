@@ -5,44 +5,39 @@ namespace Blueprint.Blue
 
     public class QAbsorb : QSingleton, ICommand
     {
-        public string Label   { get; set; } // macro
-        public uint   Command { get; set; } // history
-        public string Generic { get; set; } // either
+        public string Tag   { get; private set; } // macro
+        public QContext Environment { get; private set; }
         public QAbsorb(QContext env, string text, Parsed[] args) : base(env, text, "use")
         {
+            this.Tag = string.Empty;
+            this.Environment = env;
             if (string.IsNullOrWhiteSpace(text))
             {
-                this.Generic = string.Empty;
-                this.Label = string.Empty;
-                this.Command = 0;
                 return;
             }
-            this.Generic = args != null && args.Length == 1 ? args[0].text : string.Empty;
-            bool numerics = true;
-            uint accumulator = 0;
-            for (int i = 0; i < this.Generic.Length; i++)
+            if (args.Length == 2 && args[0].rule == "use_cmd")
             {
-                char c = this.Generic[i];
-                numerics = char.IsDigit(c);
-                if (!numerics)
-                    break;
-                accumulator *= 10;
-                accumulator += (uint)(c - '0');
-            }
-            if (numerics)
-            {
-                this.Command = accumulator;
-                this.Label = string.Empty;
-            }
-            else
-            {
-                this.Command = 0;
-                this.Label = this.Generic;
+                this.Tag = args[1].text;
             }
         }
         public override (bool ok, string message) Execute()
         {
-            return (false, "Operation has not been implemented yet.");
+            ExpandableInvocation? expandable = ExpandableHistory.Deserialize(tag: this.Tag);
+            if (expandable == null)
+                expandable = ExpandableMacro.Deserialize(tag: this.Tag);
+            if (expandable != null)
+            {
+                var settings = expandable.Settings;
+                foreach (var setting in expandable.Settings)
+                {
+                    QAssign assignment = QAssign.CreateAssignment(this.Environment, this.Text, setting.Key, setting.Value);
+                    this.Environment.GlobalSettings.Assign(assignment);
+                }
+                this.Environment.GlobalSettings.Update();
+                QGet get = new QGet(this.Environment, this.Text);
+                return get.Execute();
+            }
+            return (false, "Hashtag not found.");
         }
     }
 }

@@ -2,10 +2,16 @@ namespace Blueprint.Blue
 {
     using AVSearch.Interfaces;
     using Pinshot.PEG;
+    using static System.Net.Mime.MediaTypeNames;
 
     public class QGet : QSingleton, ICommand
     {
         public string Key { get; set; }
+        internal QGet(QContext env, string text) : base(env, text, "get")
+        {
+            this.Key = string.Empty;
+        }
+
         public QGet(QContext env, string text, Parsed[] args) : base(env, text, "get")
         {
             switch (args[0].children.Length)
