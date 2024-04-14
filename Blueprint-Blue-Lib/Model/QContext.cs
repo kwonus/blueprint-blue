@@ -144,90 +144,6 @@ namespace Blueprint.Blue
         }
         public const UInt32 DefaultHistoryCount = 25;
 
-        public static IEnumerable<ExpandableInvocation> GetHistory(Dictionary<string, QID> range)
-        {
-            string folder = QContext.HistoryPath;
-            QID test = new(0, 0, 0, 0);
-
-            QID from = range.ContainsKey("from") ? range["from"] : new QID(1999, 12, 31, 0);
-            QID unto = range.ContainsKey("to")   ? range["to"  ] : new QID(2200,  1,  1, 1);
-
-            foreach (string year in from yyyy in Directory.EnumerateDirectories(folder, "2???") orderby yyyy ascending select yyyy)
-            {
-                try
-                {
-                    test.year = UInt16.Parse(year);
-                }
-                catch
-                {
-                    continue;
-                }
-                if (from > test)
-                    continue;
-                if (unto < test)
-                    break;
-
-                string YYYY = Path.Combine(folder, year);
-                foreach (string month in from mm in Directory.EnumerateDirectories(YYYY) orderby mm ascending select mm)
-                {
-                    string MM = Path.Combine(YYYY, month);
-                    try
-                    {
-                        test.month = byte.Parse(month);
-                    }
-                    catch
-                    {
-                        continue;
-                    }
-                    if (from > test)
-                        continue;
-                    if (unto < test)
-                        goto done;
-
-                    foreach (string day in from dd in Directory.EnumerateDirectories(MM) orderby dd ascending select dd)
-                    {
-                        string DD = Path.Combine(MM, day);
-                        try
-                        {
-                            test.day = byte.Parse(day);
-                        }
-                        catch
-                        {
-                            continue;
-                        }
-                        if (from > test)
-                            continue;
-                        if (unto < test)
-                            goto done;
-
-                        foreach (string sequence in from seq in Directory.EnumerateFiles(DD, "*.yaml") orderby seq ascending select seq)
-                        {
-                            try
-                            {
-                                test.sequence = UInt32.Parse(Path.GetFileNameWithoutExtension(sequence));
-                            }
-                            catch
-                            {
-                                continue;
-                            }
-                            if (from > test)
-                                continue;
-                            if (unto < test)
-                                goto done;
-
-                            string yaml = Path.Combine(MM, sequence);
-                            ExpandableInvocation? invocation = ExpandableHistory.Deserialize(yaml);
-                            if (invocation != null)
-                            {
-                                yield return invocation;
-                            }
-                        }
-                    }
-                }
-            }
-        done:
-            ;
-        }
         public static IEnumerable<ExpandableInvocation> GetHistory(UInt32? rangeFrom, UInt32? rangeUnto)
         {
             string folder = QContext.HistoryPath;
@@ -235,18 +151,22 @@ namespace Blueprint.Blue
             UInt32 from = rangeFrom.HasValue ? rangeFrom.Value : 1999_12_31;
             UInt32 unto = rangeUnto.HasValue ? rangeUnto.Value : 2200_01_01;
 
+            UInt32 from_yr = from / (100 * 100);
+
             foreach (string year in from yyyy in Directory.EnumerateDirectories(folder, "2???") orderby yyyy ascending select Path.GetFileName(yyyy))
             {
                 UInt32 y = 0;
+                UInt32 yr = 0;
                 try
                 {
-                    y = (UInt32)(UInt16.Parse(year) * 100 * 100);
+                    yr = (UInt32) UInt16.Parse(year);
+                    y = (UInt32)(yr * 100 * 100);
                 }
                 catch
                 {
                     continue;
                 }
-                if (from > y)
+                if (from_yr > yr)
                     continue;
                 if (unto < y)
                     break;
@@ -256,15 +176,19 @@ namespace Blueprint.Blue
                 {
                     string MM = Path.Combine(YYYY, month);
                     UInt32 m = 0;
+                    UInt32 mo = 0;
+                    UInt32 yr_mo = (yr * 100);
                     try
                     {
-                        m = y + (UInt32)(100 * byte.Parse(month));
+                        mo = (UInt32)byte.Parse(month);
+                        yr_mo += mo;
+                        m = (100 * yr_mo);
                     }
                     catch
                     {
                         continue;
                     }
-                    if (from > m)
+                    if (from / 100 > yr_mo)
                         continue;
                     if (unto < m)
                         goto done;
