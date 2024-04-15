@@ -30,7 +30,7 @@
                     }
                     return;
                 }
-                else if ((args[0].rule == "clear_cmd") && args[1].rule.EndsWith("_var"))
+                else if ((args[0].rule == "clear_cmd") && args[1].rule.Equals("var"))
                 {
                     this.IsValid = true;
 
