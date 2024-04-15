@@ -11,6 +11,7 @@ namespace Blueprint.Model.Implicit
     using YamlDotNet.Serialization;
     using static Blueprint.Model.Implicit.QLexicon;
     using static global::Blueprint.Model.Implicit.QLexicalDomain;
+    using static System.Runtime.InteropServices.JavaScript.JSType;
 
     internal enum SIMILARITY { NONE = 0, FUZZY_MIN = 33, FUZZY_MAX = 99, EXACT = 100 }
 
@@ -269,7 +270,7 @@ namespace Blueprint.Model.Implicit
                 case QLexiconVal.AV:   return "av";
                 case QLexiconVal.AVX:  return "avx";
                 case QLexiconVal.BOTH: return "both";
-                default:               return String.Empty;
+                default:               return string.Empty;
             }
         }
         public override string ToString()
@@ -496,6 +497,10 @@ namespace Blueprint.Model.Implicit
                 }
             }
             return null;
+        }
+        internal static QAssign CreateAssignment(QContext env, string text, string key, string value)
+        {
+            return new QAssign(env, text, key, value);
         }
     }
 }

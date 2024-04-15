@@ -113,6 +113,13 @@
         }
         public bool Clear(QClear clear)
         {
+            if (clear.Key.Equals("all", StringComparison.InvariantCultureIgnoreCase))
+            {
+                this.Span    = new QSpan();
+                this.Lexicon = new QLexicon(search:QLexicalDomain.DEFAULT, render: QLexicalDisplay.DEFAULT);
+                this.Format  = new QFormat();
+                this.Similarity = new QSimilarity(sword:QSimilarityWord.DEFAULT.ToString(), slemma:QSimilarityLemma.DEFAULT.ToString());
+            } else
             switch (clear.Key)
             {
                 case "span":             this.Span    = new QSpan();                                                                    break;  
