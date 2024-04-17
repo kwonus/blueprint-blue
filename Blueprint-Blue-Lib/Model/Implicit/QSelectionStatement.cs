@@ -8,15 +8,24 @@
     using AVSearch.Model.Results;
     using System.Text.RegularExpressions;
     using AVSearch.Interfaces;
+    using static Blueprint.Model.Implicit.QFormat;
 
+    public enum DirectiveResultType
+    {
+        ExportFailed = -2,
+        MacroCreationFailed = -1,
+        NotApplicable = 0,
+        MacroCreated = 1,
+        ExportSuccessful = 2,
+    }
     public enum SelectionResultType
     {
         InvalidStatement = -1,
         NoResults = 0,
-        SearchResults = 1,
-        ScopeOnlyResults = 2,
-        SingletonSuccess = 3,
-    }
+        SingletonSuccess = 1,
+        SearchResults = 2,
+        ScopeOnlyResults = 3,
+     }
 
     public class QSelectionStatement
     {
@@ -26,20 +35,26 @@
 
         public QueryResult Results { get; set; }
 
-        public QExport? ExportDirective { get; internal set; }
-        public QApply?  MacroDirective  { get; internal set; }
+        public ExportDirective? ExportDirective { get; internal set; }
+        public MacroDirective?  MacroDirective  { get; internal set; }
 
         public QSelectionCriteria SelectionCriteria { get; internal set; }
         public SelectionResultType Status { get; internal set; }
 
-        public (SelectionResultType ok, QueryResult query) Execute()
+        public (SelectionResultType ok, DirectiveResultType directive, QueryResult query) Execute()
         {
             if (this.SelectionCriteria.SearchExpression != null)
             {
+                DirectiveResultType directive = DirectiveResultType.NotApplicable;
                 SelectionResultType executed = this.Search(this.SelectionCriteria.SearchExpression);
-                return (executed, this.Results);
+                if ((this.ExportDirective != null) && (executed == SelectionResultType.SearchResults || executed == SelectionResultType.ScopeOnlyResults))
+                {
+                    (DirectiveResultType status, QFormatVal format, FileCreateMode mode) dresults = this.ExportDirective.Export(executed, this);
+                    directive = dresults.status;
+                }
+                return (executed, directive, this.Results);
             }
-            return (SelectionResultType.InvalidStatement, this.Results);
+            return (SelectionResultType.InvalidStatement, DirectiveResultType.NotApplicable, this.Results);
         }
         private SelectionResultType Search(QFind search)
         {
@@ -93,8 +108,8 @@
                     Parsed directive = stmt.children[1];
                     switch (directive.rule)
                     {
-                        case "macro_directive":  selection.MacroDirective  = QApply.Create(context, directive.text, directive); break;
-                        case "export_directive": selection.ExportDirective = QExport.Create(context, directive.text, directive.children); break;
+                        case "macro_directive":  selection.MacroDirective  = MacroDirective.Create(context, directive.text, directive); break;
+                        case "export_directive": selection.ExportDirective = ExportDirective.Create(context, directive.text, directive.children); break;
                     }
                 }
             }

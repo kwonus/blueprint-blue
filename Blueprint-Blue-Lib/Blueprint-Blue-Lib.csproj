@@ -24,4 +24,8 @@
     <ProjectReference Include="..\..\NUPhone\PhonemeEmbeddings\PhonemeEmbeddings.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Model\Directive\" />
+  </ItemGroup>
+
 </Project>
