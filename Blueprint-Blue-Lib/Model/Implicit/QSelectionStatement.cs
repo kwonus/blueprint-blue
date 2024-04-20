@@ -9,14 +9,18 @@
     using System.Text.RegularExpressions;
     using AVSearch.Interfaces;
     using static Blueprint.Model.Implicit.QFormat;
+    using System.Security.Authentication.ExtendedProtection;
+    using System.Text;
 
     public enum DirectiveResultType
     {
-        ExportFailed = -2,
+        ExportFailed = -3,
+        ExportNotReady = -2,
         MacroCreationFailed = -1,
         NotApplicable = 0,
         MacroCreated = 1,
-        ExportSuccessful = 2,
+        ExportReady = 2,
+        ExportSuccessful = 3,
     }
     public enum SelectionResultType
     {
@@ -49,8 +53,7 @@
                 SelectionResultType executed = this.Search(this.SelectionCriteria.SearchExpression);
                 if ((this.ExportDirective != null) && (executed == SelectionResultType.SearchResults || executed == SelectionResultType.ScopeOnlyResults))
                 {
-                    (DirectiveResultType status, QFormatVal format, FileCreateMode mode) dresults = this.ExportDirective.Export(executed, this);
-                    directive = dresults.status;
+                    directive = this.ExportDirective.Retrieve();
                 }
                 return (executed, directive, this.Results);
             }
@@ -103,13 +106,13 @@
 
                 selection.SelectionCriteria = seg;
 
-                if (stmt.children.Length >= 2)
+                if (stmt.children.Length >= 2 && seg != null)
                 {
                     Parsed directive = stmt.children[1];
                     switch (directive.rule)
                     {
                         case "macro_directive":  selection.MacroDirective  = MacroDirective.Create(context, directive.text, directive); break;
-                        case "export_directive": selection.ExportDirective = ExportDirective.Create(context, directive.text, directive.children); break;
+                        case "export_directive": selection.ExportDirective = ExportDirective.Create(context, directive.text, directive.children, seg); break;
                     }
                 }
             }
