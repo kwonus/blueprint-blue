@@ -609,6 +609,7 @@ namespace Blueprint.Blue
 
                     previousPunctuation = word.Punctuation;
                 }
+                writer.WriteLine("</span>"); // EoV
             }
         }
     }
@@ -636,10 +637,6 @@ namespace Blueprint.Blue
                         foreach (byte c in this[b].Keys)
                         {
                             bool nc = true;
-                            if (br)
-                                writer.WriteLine();
-
-                            writer.WriteLine(this.Books[b].name.ToString().ToUpper() + " " + c.ToString());
 
                             if (this.ScopeOnlyExport)
                             {
@@ -697,9 +694,13 @@ namespace Blueprint.Blue
                     if (newline)
                         writer.WriteLine();
 
-                    writer.WriteLine(this.Books[b].name.ToString().ToUpper() + " " + c.ToString());
+                    writer.WriteLine("### " + this.Books[b].name.ToString() + " " + c.ToString());
                 }
-                writer.Write(v.ToString());
+                else
+                {
+                    writer.Write(' ');
+                }
+                writer.Write("**" + v.ToString() + "**");
                 writer.Write(' ');
 
                 byte previousPunctuation = 0;
@@ -720,11 +721,11 @@ namespace Blueprint.Blue
                     ExportDirective.AddPrefixPunctuation(writer, previousPunctuation, word.Punctuation);
 
                     if (italics)
-                        writer.Write('[');
+                        writer.Write('*');
                     writer.Write(entry);
                     ExportDirective.ConditionallyMakePossessive(writer, word.Punctuation, s);
                     if (italics)
-                        writer.Write(']');
+                        writer.Write('*');
 
                     ExportDirective.AddPostfixPunctuation(writer, word.Punctuation);
 
