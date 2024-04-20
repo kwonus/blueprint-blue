@@ -593,9 +593,9 @@ namespace Blueprint.Blue
                     if (italics)
                         writer.Write("<em>");
                     writer.Write("<span id='X");
-                    writer.Write(word.Coordinates.elements.ToString());
+                    writer.Write(word.Coordinates.elements.ToString("X"));
                     writer.Write(" 'class='W");
-                    writer.Write(word.WordKey.ToString());
+                    writer.Write(word.WordKey.ToString("X"));
                     writer.Write("' diff='");
                     writer.Write(word.Modernized ? "true" : "false");
                     writer.Write("'>");
