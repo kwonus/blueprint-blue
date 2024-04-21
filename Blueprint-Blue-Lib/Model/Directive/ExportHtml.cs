@@ -94,7 +94,7 @@ namespace Blueprint.Blue
                 {
                     if (bov)
                     {
-                        writer.WriteLine("<span class='verse' id='V" + (word.Coordinates.elements / 0x100).ToString() + "'><b>" + word.Coordinates.V.ToString() + "</b>");
+                        writer.WriteLine("<span class='verse' id='V" + v.ToString() + "'><b>" + v.ToString() + "</b>");
                         bov = false;
                     }
 
@@ -112,8 +112,8 @@ namespace Blueprint.Blue
 
                     if (italics)
                         writer.Write("<em>");
-                    writer.Write("<span id='X");
-                    writer.Write(word.Coordinates.elements.ToString("X"));
+                    writer.Write("<span class='W");
+                    writer.Write(word.Wc.ToString("X"));
                     writer.Write(" 'class='W");
                     writer.Write(word.WordKey.ToString("X"));
                     writer.Write("' diff='");

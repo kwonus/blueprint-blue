@@ -1,6 +1,7 @@
 namespace Blueprint.Blue
 {
     using AVSearch.Interfaces;
+    using AVSearch.Model.Expressions;
     using AVSearch.Model.Results;
     using AVXLib;
     using AVXLib.Framework;
@@ -25,20 +26,23 @@ namespace Blueprint.Blue
     }
     public record WordFeatures // hijacked from WordRendering class
     {
+        private bool _ignore; // needed for deserialization
         public UInt32 WordKey;
-        public BCVW Coordinates;
+        public byte Wc;
+//      public BCVW Coordinates;
         public PNPOS PnPos;
         public string NuPos;
         public string Text;   // KJV
         public string Modern; // AVX
-        public bool Modernized { get => !this.Text.Equals(this.Modern, StringComparison.InvariantCultureIgnoreCase); }
+        public bool Modernized { get => !this.Text.Equals(this.Modern, StringComparison.InvariantCultureIgnoreCase); set => this._ignore = value; }
         public byte Punctuation;
         public Dictionary<UInt32, string>? Triggers;
 
         public WordFeatures()
         {
             this.WordKey = 0;
-            this.Coordinates = new();
+//          this.Coordinates = new();
+            this.Wc = 0;
             this.Text = string.Empty;
             this.Modern = string.Empty;
             this.Punctuation = 0;
@@ -49,7 +53,8 @@ namespace Blueprint.Blue
         public WordFeatures(AVXLib.Memory.Written writ, Dictionary<UInt32, QueryMatch>? matches = null)
         {
             this.WordKey = writ.WordKey;
-            this.Coordinates = writ.BCVWc;
+//          this.Coordinates = writ.BCVWc;
+            this.Wc = writ.BCVWc.WC;
             this.Text = ObjectTable.AVXObjects.lexicon.GetLexDisplay(writ.WordKey);
             this.Modern = ObjectTable.AVXObjects.lexicon.GetLexModern(writ.WordKey, writ.Lemma);
             this.Punctuation = writ.Punctuation;
@@ -136,56 +141,204 @@ namespace Blueprint.Blue
                 return DirectiveResultType.ExportReady;
             return DirectiveResultType.ExportNotReady;
         }
+        public void Merge(IEnumerable<ScopingFilter> filters)
+        {
+            var results = this.Context != null ? this.Context.Statement.Commands != null ? this.Context.Statement.Commands.Results : null : null;
+            if (this.ScopeOnlyExport)
+            {
+                foreach (ScopingFilter scope in from bk in filters orderby bk.Book select bk)
+                {
+                    byte b = scope.Book;
+
+                    if (this.ContainsKey(b))
+                    {
+                        foreach (byte c in from ch in scope.Chapters orderby ch select ch)
+                        {
+                            if (!this[b].ContainsKey(c))
+                            {
+                                this[b][c] = new();  // non-augmented will never enter into this block
+                            }
+                        }    
+                    }
+                    else
+                    {
+                        this[b] = new();
+                        foreach (byte c in from ch in scope.Chapters orderby ch select ch)
+                        {
+                            this[b][c] = new();  // this is all that we need for non-augmented
+                        }
+                    }
+                    if (UsesAugmentation) // we need to populate HashMap now // instead of deferring 
+                    {
+                        var BOOK = ObjectTable.AVXObjects.Mem.Book.Slice((int)b, 1).Span[0];
+                        var CHAP = ObjectTable.AVXObjects.Mem.Chapter.Slice(BOOK.chapterIdx, BOOK.chapterCnt).Span;
+
+                        foreach (byte c in from ch in this[b].Keys orderby ch select ch)
+                        {
+                            var chapter = CHAP[c-1];
+                            var writ = ObjectTable.AVXObjects.Mem.Written.Slice((int)chapter.writIdx, (int)chapter.writCnt).Span;
+
+                            List<WordFeatures> words = new();
+                            for (int w = 0; w < (int)chapter.writCnt; w++)
+                            {
+                                WordFeatures word = new WordFeatures(writ[w]);
+                                words.Add(word);
+
+                                byte wc = writ[w].BCVWc.WC;
+
+                                if (wc == 1) // 1 means last word in the verse
+                                {
+                                    byte v = writ[w].BCVWc.V;
+                                    this[b][c][v] = words;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else if (results != null && results.Expression != null)
+            {
+                foreach (QueryBook book in from bk in results.Expression.Books where bk.Value.Matches.Count > 0 orderby bk.Key select bk.Value)
+                {
+                    byte b = book.BookNum;
+                    if (!this.ContainsKey(b))
+                        this[b] = new();
+                    var BOOK = ObjectTable.AVXObjects.Mem.Book.Slice((int)b, 1).Span[0];
+                    var CHAP = ObjectTable.AVXObjects.Mem.Chapter.Slice(BOOK.chapterIdx, BOOK.chapterCnt).Span;
+                    var writ = ObjectTable.AVXObjects.Mem.Written.Slice((int)BOOK.writIdx, (int)BOOK.writCnt).Span;
+
+                    foreach (var match in from m in book.Matches.Values orderby m.Start.V select m)
+                    {
+                        byte v;
+                        byte c;
+
+                        for (int n = 1; n <= 2; n++)
+                        {
+                            if (n == 1)
+                            {
+                                v = match.Start.V;
+                                c = match.Start.C;
+                            }
+                            else
+                            {
+                                v = match.Until.V;
+                                c = match.Until.C;
+                            }
+                            if (!this[b].ContainsKey(c))
+                                this[b][c] = new();
+
+                            if (!this[b][c].ContainsKey(v))
+                            {
+                                this[b][c][v] = new();
+
+                                UInt32 w = CHAP[c - 1].writIdx;
+                                for (/**/; writ[(int)w].BCVWc.V < v; w++)
+                                    ;
+                                for (/**/; writ[(int)w].BCVWc.V == v; w++)
+                                {
+                                    WordFeatures word = new(writ[(int)w], book.Matches);
+                                    this[b][c][v].Add(word);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        private static char[] VerseDelims = [ ' ', '|', ':' ];
         private DirectiveResultType Deserialize()    // this is used ONLY for Yaml and Json formats ... note: formats can be dynamically migrated
         {
+            DirectiveResultType result = DirectiveResultType.ExportNotReady;
             if (!UsesAugmentation)
             {
                 return DirectiveResultType.ExportNotReady;
             }
-            if ((this.CreationMode != FileCreateMode.Append))
+            if (Path.Exists(this.FileSpec) && (this.CreationMode == FileCreateMode.CreateNew))
             {
-                return DirectiveResultType.ExportReady;
+                return DirectiveResultType.ExportNotReady;
             }
-            if (Path.Exists(this.FileSpec))
+            string? line = null;
+            result = DirectiveResultType.ExportReady;
+            if (Path.Exists(this.FileSpec) && (this.CreationMode == FileCreateMode.Append))
             {
                 bool? json = this.IsJson();
                 if (json.HasValue)
                 {
-                    ExportJson? entries = null;
+                    if (json.Value)
+                    {
+                        return DirectiveResultType.ExportFailed; // JSON deserialization is not implemented yet.
+                    }
                     try
                     {
-                        using (StreamReader file = File.OpenText(this.FileSpec))
+                        using (TextReader reader = File.OpenText(this.FileSpec))
                         {
                             if (json.Value)
                             {
-                                entries = System.Text.Json.JsonSerializer.Deserialize<ExportJson>(file.BaseStream);
+                                ;// entries = System.Text.Json.JsonSerializer.Deserialize<Dictionary<byte, Dictionary<byte, Dictionary<byte, List<WordFeatures>>>>>(file.BaseStream);
                             }
                             else // yaml
                             {
                                 var deserializer = new DeserializerBuilder();
                                 var builder = deserializer.Build();
 
-                                string text = file.ReadToEnd();
-                                var input = new StringReader(text);
-                                entries = builder.Deserialize<ExportJson>(input);
+                                StringBuilder content = new();
+
+                                string coordinates = string.Empty;
+                                do
+                                {
+                                    line = reader.ReadLine();
+
+                                    if ((line != null) && line.Length > 0 && (line[0] == ' ' || line[0] == '-'))
+                                    {
+                                        content.AppendLine(line);
+                                    }
+                                    else
+                                    {
+                                        if (content.Length > 0)
+                                        {
+                                            string yaml = content.ToString();
+                                            var verse = builder.Deserialize<List<WordFeatures>>(yaml);
+                                            content.Clear();
+
+                                            if (verse.Count > 0)
+                                            {
+                                                byte b = 0;
+                                                byte c = 0;
+                                                byte v = 0;
+                                                // This should work, but BCVWc is broken
+                                                /*
+                                                byte b = verse[0].Coordinates.B;
+                                                byte c = verse[0].Coordinates.C;
+                                                byte v = verse[0].Coordinates.V;
+                                                */
+                                                string[] parts = coordinates.Split(VerseDelims, 3, StringSplitOptions.RemoveEmptyEntries);
+                                                if (parts.Length == 3)
+                                                {
+                                                    b = GetBookNum(parts[0]);
+                                                    c = byte.Parse(parts[1]);
+                                                    v = byte.Parse(parts[2]);
+                                                }
+                                                if (!this.ContainsKey(b))
+                                                    this[b] = new();
+                                                if (!this[b].ContainsKey(c))
+                                                    this[b][c] = new();
+                                                this[b][c][v] = verse;
+                                            }
+                                        }
+                                        coordinates = line != null ? line : string.Empty;
+                                    }
+                                }   while (line != null);
                             }
                         }
-                        if (entries != null)
-                        {
-                            foreach (var key in entries.Keys)
-                            {
-                                this[key] = entries[key];
-                            }
-                            return DirectiveResultType.ExportReady;
-                        }
+                        result = DirectiveResultType.ExportReady;
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        ;
+                        result = DirectiveResultType.ExportFailed;
                     }
                 }
             }
-            return DirectiveResultType.ExportNotReady;
+            return result;
         }
         public abstract DirectiveResultType Update();
 
@@ -202,14 +355,6 @@ namespace Blueprint.Blue
                 }
             }
             throw new Exception("Unable to open file; supplied directory does not exist.");
-        }
-        protected virtual DirectiveResultType RenderViaScope(TextWriter writer) // not-Applicable to yaml or json (this base-method are never called)
-        {
-            return DirectiveResultType.NotApplicable;
-        }
-        protected virtual DirectiveResultType RenderViaSearch(TextWriter writer) // not-Applicable to yaml or json (this base-method are never called)
-        {
-            return DirectiveResultType.NotApplicable;
         }
 
         protected ExportDirective(): base() // for deserialization
@@ -307,6 +452,68 @@ namespace Blueprint.Blue
             else if (dash)
                 writer.Write("--");
         }
+
+        public static byte GetBookNum(string text)
+        {
+            string unspaced = text.Replace(" ", "");
+            var books = ObjectTable.AVXObjects.Mem.Book.Slice(0, 67).Span;
+
+            for (byte b = 1; b <= 66; b++)
+            {
+                string name = books[b].name.ToString();
+                if (name.Equals(text, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return b;
+                }
+                if (name.Replace(" ", "").Equals(unspaced, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return b;
+                }
+            }
+            for (byte b = 1; b <= 66; b++)
+            {
+                string alt = books[b].abbr2.ToString();
+                if (alt.Length == 0)
+                    continue;
+                if (alt.StartsWith(unspaced, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return b;
+                }
+            }
+
+            for (byte b = 1; b <= 66; b++)
+            {
+                string alt = books[b].abbr3.ToString();
+                if (alt.Length == 0)
+                    continue;
+                if (alt.StartsWith(unspaced, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return b;
+                }
+            }
+
+            for (byte b = 1; b <= 66; b++)
+            {
+                string alt = books[b].abbr4.ToString();
+                if (alt.Equals(unspaced, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return b;
+                }
+            }
+
+            for (byte b = 1; b <= 66; b++)
+            {
+                string alt = books[b].abbrAlternates.ToString(); // at this point, we only handle the first alternate if it exists
+                if (alt.Length == 0)
+                    continue;
+                if (alt.Equals(unspaced, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return b;
+                }
+            }
+            return 0;
+        }
+
 
     }
 }
