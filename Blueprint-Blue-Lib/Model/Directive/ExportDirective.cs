@@ -311,7 +311,7 @@ namespace Blueprint.Blue
                                                 byte c = verse[0].Coordinates.C;
                                                 byte v = verse[0].Coordinates.V;
                                                 */
-                                                string[] parts = coordinates.Split(VerseDelims, 3, StringSplitOptions.RemoveEmptyEntries);
+                                                string[] parts = coordinates.Split(VerseDelims, StringSplitOptions.RemoveEmptyEntries);
                                                 if (parts.Length == 3)
                                                 {
                                                     b = GetBookNum(parts[0]);
