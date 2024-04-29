@@ -108,7 +108,7 @@
 
                 if (stmt.children.Length >= 2 && seg != null)
                 {
-                    Parsed directive = stmt.children[1];
+                    Parsed directive = stmt.children[stmt.children.Length-1];
                     switch (directive.rule)
                     {
                         case "macro_directive":  selection.MacroDirective  = MacroDirective.Create(context, directive.text, directive); break;
