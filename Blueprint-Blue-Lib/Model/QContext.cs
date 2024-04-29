@@ -11,6 +11,7 @@ namespace Blueprint.Blue
     using System.Reflection.Emit;
     using YamlDotNet.Core;
     using BlueprintBlue.Model;
+    using System.Text;
 
     public interface IDiagnostic
     {
@@ -27,6 +28,8 @@ namespace Blueprint.Blue
         public UInt16[]?Fields { get; set; }
 
         public QStatement Statement { get; private set; }
+
+        public MemoryStream InternalExportStream { get; internal set; }
 
         static QContext()
         {
@@ -84,6 +87,7 @@ namespace Blueprint.Blue
             {
                 this.AddError("Unable to load AVX Data. Without this library, other things will break");
             }
+            this.InternalExportStream = new();
         }
         public void AddError(string message)
         {

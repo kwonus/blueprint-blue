@@ -7,70 +7,81 @@ namespace Blueprint.Blue
 
     public class ExportText : ExportDirective
     {
-        internal ExportText(QContext env, string text, string spec, QFormatVal format, FileCreateMode mode) : base(env, text, spec, format, mode)
+        internal ExportText(QContext env, string spec, FileCreateMode mode) : base(env, spec, QFormatVal.TEXT, mode)
         {
             ;
         }
         public override DirectiveResultType Update()
         {
             bool br = false;
-            using (TextWriter writer = this.CreateFile())
+            TextWriter? writer = null;
+
+            try
             {
-                try
+                writer = (this.CreationMode == FileCreateMode.Streaming)
+                    ? this.Context != null ? new StreamWriter(this.Context.InternalExportStream) : null
+                    : File.CreateText(this.FileSpec);
+
+                foreach (byte b in this.Keys)
                 {
-                    foreach (byte b in this.Keys)
+                    if (this[b].Count == 0)
+                        continue;
+
+                    var BOOK = ObjectTable.AVXObjects.Mem.Book.Slice((int)b, 1).Span[0];
+                    var CHAP = ObjectTable.AVXObjects.Mem.Chapter.Slice(BOOK.chapterIdx, BOOK.chapterCnt).Span;
+
+                    foreach (byte c in this[b].Keys)
                     {
-                        if (this[b].Count == 0)
-                            continue;
+                        bool nc = true;
+                        if (br)
+                            writer.WriteLine();
 
-                        var BOOK = ObjectTable.AVXObjects.Mem.Book.Slice((int)b, 1).Span[0];
-                        var CHAP = ObjectTable.AVXObjects.Mem.Chapter.Slice(BOOK.chapterIdx, BOOK.chapterCnt).Span;
-
-                        foreach (byte c in this[b].Keys)
+                        if (this.ScopeOnlyExport)
                         {
-                            bool nc = true;
-                            if (br)
-                                writer.WriteLine();
+                            var chapter = CHAP[c - 1];
+                            var writ = ObjectTable.AVXObjects.Mem.Written.Slice((int)chapter.writIdx, (int)chapter.writCnt).Span;
 
-                            if (this.ScopeOnlyExport)
+                            List<WordFeatures> words = new();
+                            for (int w = 0; w < (int)chapter.writCnt; w++)
                             {
-                                var chapter = CHAP[c - 1];
-                                var writ = ObjectTable.AVXObjects.Mem.Written.Slice((int)chapter.writIdx, (int)chapter.writCnt).Span;
+                                WordFeatures word = new WordFeatures(writ[w]);
+                                words.Add(word);
 
-                                List<WordFeatures> words = new();
-                                for (int w = 0; w < (int)chapter.writCnt; w++)
+                                byte wc = writ[w].BCVWc.WC;
+
+                                if (wc == 1)
                                 {
-                                    WordFeatures word = new WordFeatures(writ[w]);
-                                    words.Add(word);
-
-                                    byte wc = writ[w].BCVWc.WC;
-
-                                    if (wc == 1)
-                                    {
-                                        byte v = writ[w].BCVWc.V;
-                                        this[b][c][v] = words;
-                                        RenderVerse(writer, b, c, v, br, nc);
-                                        words.Clear();
-                                        nc = false;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                foreach (byte v in this[b][c].Keys)
-                                {
+                                    byte v = writ[w].BCVWc.V;
+                                    this[b][c][v] = words;
                                     RenderVerse(writer, b, c, v, br, nc);
+                                    words.Clear();
+                                    nc = false;
                                 }
                             }
-                            br = true;
                         }
+                        else
+                        {
+                            foreach (byte v in this[b][c].Keys)
+                            {
+                                RenderVerse(writer, b, c, v, br, nc);
+                            }
+                        }
+                        br = true;
                     }
-                    return DirectiveResultType.ExportSuccessful;
                 }
-                catch
+                if (writer != null && this.CreationMode != FileCreateMode.Streaming)
                 {
-                    ;
+                    writer.Close();
                 }
+                return DirectiveResultType.ExportSuccessful;
+            }
+            catch
+            {
+                ;
+            }
+            if (writer != null)
+            {
+                writer.Close();
             }
             return DirectiveResultType.ExportFailed;
         }

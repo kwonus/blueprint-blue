@@ -20,6 +20,7 @@ namespace Blueprint.Blue
 
     public enum FileCreateMode
     {
+        Streaming = -1,
         CreateNew = 0,
         Overwrite = 1,
         Append = 2
@@ -93,8 +94,8 @@ namespace Blueprint.Blue
         protected QContext? Context { get; set; }
         protected QSettings Settings { get => this.Context != null && this.Context.Statement.Commands != null && this.Context.Statement.Commands.SelectionCriteria != null ? this.Context.Statement.Commands.SelectionCriteria.Settings : new(); }
         protected string FileSpec { get; set; }
-        protected FileCreateMode CreationMode { get; set; }
-        protected QFormatVal ContentFormat { get; set; }
+        public FileCreateMode CreationMode { get; protected set; }
+        public QFormatVal ContentFormat { get; protected set; }
         protected virtual bool UsesAugmentation { get => false; }
         public bool ScopeOnlyExport { get => this.Context != null && this.Context.Statement.Commands != null && this.Context.Statement.Commands.SelectionCriteria != null && this.Context.Statement.Commands.SelectionCriteria.SearchExpression != null
                 ? this.Context.Statement.Commands.SelectionCriteria.SearchExpression.Expression == null
@@ -102,7 +103,6 @@ namespace Blueprint.Blue
 
         public FileCreateMode GetCreationMode() => this.CreationMode;
         public QFormatVal GetContentFormat() => this.ContentFormat;
-
         protected bool? IsJson()
         {
             if (File.Exists(this.FileSpec))
@@ -364,7 +364,7 @@ namespace Blueprint.Blue
             this.CreationMode = FileCreateMode.CreateNew;
             this.ContentFormat = QFormatVal.TEXT;
         }
-        protected ExportDirective(QContext env, string text, string spec, QFormatVal format, FileCreateMode mode): base()
+        protected ExportDirective(QContext env, string spec, QFormatVal format, FileCreateMode mode): base()
         {
             this.Context = env;
             this.FileSpec = spec;
@@ -373,25 +373,40 @@ namespace Blueprint.Blue
         }
         public static ExportDirective? Create(QContext env, string text, Parsed[] args, QSelectionCriteria selection)
         {
-            if (args.Length == 1 && args[0].children.Length == 1 && args[0].children[0].rule.Equals("filename", StringComparison.InvariantCultureIgnoreCase))
+            if (args.Length == 1 && args[0].children.Length == 1)
             {
-                string spec = args[0].children[0].text;
-
-                FileCreateMode mode = FileCreateMode.CreateNew;
-                QFormat format = selection.Settings.Format;
-
-                if (args[0].rule.Equals("overwrite", StringComparison.InvariantCultureIgnoreCase))
-                    mode = FileCreateMode.Overwrite;
-                else if (args[0].rule.Equals("append", StringComparison.InvariantCultureIgnoreCase))
-                    mode = FileCreateMode.Append;
-
-                switch (format.Value)
+                if (args[0].children[0].rule.Equals("filename", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    case QFormatVal.JSON: return new ExportJson(env, text, spec, format.Value, mode);
-                    case QFormatVal.YAML: return new ExportYaml(env, text, spec, format.Value, mode);
-                    case QFormatVal.TEXT: return new ExportText(env, text, spec, format.Value, mode);
-                    case QFormatVal.HTML: return new ExportHtml(env, text, spec, format.Value, mode);
-                    case QFormatVal.MD:   return new ExportMarkdown(env, text, spec, format.Value, mode);
+                    string spec = args[0].children[0].text;
+
+                    FileCreateMode mode = FileCreateMode.CreateNew;
+                    QFormat format = selection.Settings.Format;
+
+                    if (args[0].rule.Equals("overwrite", StringComparison.InvariantCultureIgnoreCase))
+                        mode = FileCreateMode.Overwrite;
+                    else if (args[0].rule.Equals("append", StringComparison.InvariantCultureIgnoreCase))
+                        mode = FileCreateMode.Append;
+
+                    switch (format.Value)
+                    {
+//                      case QFormatVal.JSON: return new ExportJson(env, spec, mode);
+                        case QFormatVal.YAML: return new ExportYaml(env, spec, mode);
+                        case QFormatVal.TEXT: return new ExportText(env, spec, mode);
+                        case QFormatVal.HTML: return new ExportHtml(env, spec, mode);
+                        case QFormatVal.MD:   return new ExportMarkdown(env, spec, mode);
+                    }
+                }
+                else if (args[0].rule.Equals("stream", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    string format = args[0].children[0].rule;
+
+                    switch (format.ToLower())
+                    {
+                        case "yaml":     return new ExportYaml(env, format, FileCreateMode.Streaming);
+                        case "textual":  return new ExportText(env, format, FileCreateMode.Streaming);
+                        case "html":     return new ExportHtml(env, format, FileCreateMode.Streaming);
+                        case "markdown": return new ExportMarkdown(env, format, FileCreateMode.Streaming);
+                    }
                 }
             }
             return null;

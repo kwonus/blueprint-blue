@@ -13,25 +13,13 @@ namespace Blueprint.Blue
         {
             ;
         }
-        internal ExportJson(QContext env, string text, string spec, QFormatVal format, FileCreateMode mode) : base(env, text, spec, format, mode)
+        internal ExportJson(QContext env, string spec, FileCreateMode mode) : base(env, spec, QFormatVal.JSON, mode)
         {
             ;
         }
+        // JSON is no longer suppored
         public override DirectiveResultType Update()
         {
-            try
-            {
-                using (Stream stream = File.Create(this.FileSpec))
-                {
-                    System.Text.Json.JsonSerializer.Serialize<ExportJson>(stream, this);
-                    return DirectiveResultType.ExportSuccessful;
-                }
-            }
-            catch
-            {
-                ;
-            }
-
             return DirectiveResultType.ExportFailed;
         }
     }

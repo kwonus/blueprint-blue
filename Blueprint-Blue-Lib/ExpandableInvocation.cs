@@ -17,7 +17,8 @@
 
     public class ExpandableInvocation
     {
-        private string unused;
+        private string 
+            unused;
         public virtual string Tag
         {
             get
