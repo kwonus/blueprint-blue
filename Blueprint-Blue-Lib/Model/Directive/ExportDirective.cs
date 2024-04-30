@@ -136,6 +136,8 @@ namespace Blueprint.Blue
 
         private DirectiveResultType ValidateTextFile()
         {
+            if (this.CreationMode == FileCreateMode.Streaming)
+                return DirectiveResultType.ExportReady;
             if (Directory.Exists(Path.GetDirectoryName(this.FileSpec))
             && (this.CreationMode != FileCreateMode.CreateNew || !File.Exists(this.FileSpec)))
                 return DirectiveResultType.ExportReady;

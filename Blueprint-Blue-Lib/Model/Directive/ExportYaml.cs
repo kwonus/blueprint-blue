@@ -53,9 +53,11 @@ namespace Blueprint.Blue
                             }
                         }
                     }
-                    if (writer != null && this.CreationMode != FileCreateMode.Streaming)
+                    if (writer != null)
                     {
-                        writer.Close();
+                        writer.Flush();
+                        if (this.CreationMode != FileCreateMode.Streaming)
+                            writer.Close();
                     }
                     return DirectiveResultType.ExportSuccessful;
                 }
