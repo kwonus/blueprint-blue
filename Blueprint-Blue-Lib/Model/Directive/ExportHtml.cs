@@ -19,7 +19,7 @@ namespace Blueprint.Blue
 
             try
             { 
-                writer = (this.CreationMode == FileCreateMode.Streaming)
+                writer = this.IsStreamingMode()
                     ? this.Context != null ? new StreamWriter(this.Context.InternalExportStream) : null
                     : File.CreateText(this.FileSpec);
 
@@ -72,7 +72,7 @@ namespace Blueprint.Blue
                 if (writer != null)
                 {
                     writer.Flush();
-                    if (this.CreationMode != FileCreateMode.Streaming)
+                    if (!this.IsStreamingMode())
                         writer.Close();
                 }
                 return DirectiveResultType.ExportSuccessful;
@@ -126,7 +126,7 @@ namespace Blueprint.Blue
 
                     if (italics)
                         writer.Write("<em>");
-                    writer.Write("<span class='W");
+                    writer.Write("<span wc='W");
                     writer.Write(word.Wc.ToString("X"));
                     writer.Write(" 'class='W");
                     writer.Write(word.WordKey.ToString("X"));

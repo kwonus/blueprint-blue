@@ -20,6 +20,7 @@ namespace Blueprint.Blue
 
     public enum FileCreateMode
     {
+        StreamingWithContext = -2,
         Streaming = -1,
         CreateNew = 0,
         Overwrite = 1,
@@ -128,7 +129,14 @@ namespace Blueprint.Blue
             }
             return null;
         }
-
+        protected bool IsStreamingMode()
+        {
+            return (this.CreationMode == FileCreateMode.Streaming) || (this.CreationMode == FileCreateMode.StreamingWithContext);
+        }
+        protected bool IsContextIncluded()
+        {
+            return (this.CreationMode == FileCreateMode.StreamingWithContext);
+        }
         public DirectiveResultType Retrieve()
         {
             return UsesAugmentation ? Deserialize() : ValidateTextFile();
@@ -136,12 +144,19 @@ namespace Blueprint.Blue
 
         private DirectiveResultType ValidateTextFile()
         {
-            if (this.CreationMode == FileCreateMode.Streaming)
+            if (this.IsStreamingMode())
                 return DirectiveResultType.ExportReady;
             if (Directory.Exists(Path.GetDirectoryName(this.FileSpec))
             && (this.CreationMode != FileCreateMode.CreateNew || !File.Exists(this.FileSpec)))
                 return DirectiveResultType.ExportReady;
             return DirectiveResultType.ExportNotReady;
+        }
+        private IEnumerable<byte> GetAllVerses(byte verseCnt)
+        {
+            for (byte v = 1; v <= verseCnt; v++)
+            {
+                yield return v;
+            }
         }
         public void Merge(IEnumerable<ScopingFilter> filters)
         {
@@ -209,37 +224,67 @@ namespace Blueprint.Blue
                     var CHAP = ObjectTable.AVXObjects.Mem.Chapter.Slice(BOOK.chapterIdx, BOOK.chapterCnt).Span;
                     var writ = ObjectTable.AVXObjects.Mem.Written.Slice((int)BOOK.writIdx, (int)BOOK.writCnt).Span;
 
-                    foreach (var match in from m in book.Matches.Values orderby m.Start.V select m)
+                    var filterList = filters.ToList();
+
+                    bool validatedContext = this.IsContextIncluded() && (filterList.Count == 1) && (filterList[0].Book == b) && (filterList[0].Chapters.Count == 1);
+                    if (validatedContext)
                     {
-                        byte v;
-                        byte c;
+                        byte c = filterList[0].Chapters.First();
+                        var chap = CHAP[c-1];
+                        byte verseCnt = chap.verseCnt;
 
-                        for (int n = 1; n <= 2; n++)
+                        var chapter = CHAP[c-1];
+
+                        List<WordFeatures> words = new();
+                        for (int w = chapter.writIdx; w < (int)chapter.writCnt; w++)
                         {
-                            if (n == 1)
-                            {
-                                v = match.Start.V;
-                                c = match.Start.C;
-                            }
-                            else
-                            {
-                                v = match.Until.V;
-                                c = match.Until.C;
-                            }
-                            if (!this[b].ContainsKey(c))
-                                this[b][c] = new();
+                            WordFeatures word = new WordFeatures(writ[w], book.Matches);
+                            words.Add(word);
 
-                            if (!this[b][c].ContainsKey(v))
-                            {
-                                this[b][c][v] = new();
+                            byte wc = writ[w].BCVWc.WC;
 
-                                UInt32 w = CHAP[c - 1].writIdx;
-                                for (/**/; writ[(int)w].BCVWc.V < v; w++)
-                                    ;
-                                for (/**/; writ[(int)w].BCVWc.V == v; w++)
+                            if (wc == 1) // 1 means last word in the verse
+                            {
+                                byte v = writ[w].BCVWc.V;
+                                this[b][c][v] = words;
+                            }
+                        }
+
+                    }
+                    else if (!this.IsContextIncluded())
+                    {
+                        foreach (var match in from m in book.Matches.Values orderby m.Start.V select m)
+                        {
+                            byte v;
+                            byte c;
+
+                            for (int n = 1; n <= 2; n++)
+                            {
+                                if (n == 1)
                                 {
-                                    WordFeatures word = new(writ[(int)w], book.Matches);
-                                    this[b][c][v].Add(word);
+                                    v = match.Start.V;
+                                    c = match.Start.C;
+                                }
+                                else
+                                {
+                                    v = match.Until.V;
+                                    c = match.Until.C;
+                                }
+                                if (!this[b].ContainsKey(c))
+                                    this[b][c] = new();
+
+                                if (!this[b][c].ContainsKey(v))
+                                {
+                                    this[b][c][v] = new();
+
+                                    UInt32 w = CHAP[c - 1].writIdx;
+                                    for (/**/; writ[(int)w].BCVWc.V < v; w++)
+                                        ;
+                                    for (/**/; writ[(int)w].BCVWc.V == v; w++)
+                                    {
+                                        WordFeatures word = new(writ[(int)w], book.Matches);
+                                        this[b][c][v].Add(word);
+                                    }
                                 }
                             }
                         }
@@ -398,16 +443,20 @@ namespace Blueprint.Blue
                         case QFormatVal.MD:   return new ExportMarkdown(env, spec, mode);
                     }
                 }
-                else if (args[0].rule.Equals("stream", StringComparison.InvariantCultureIgnoreCase))
+                else if (args[0].rule.StartsWith("stream", StringComparison.InvariantCultureIgnoreCase))
                 {
                     string format = args[0].children[0].rule;
 
-                    switch (format.ToLower())
+                    FileCreateMode mode = args[0].rule.Equals("stream", StringComparison.InvariantCultureIgnoreCase)
+                        ? FileCreateMode.Streaming
+                        : FileCreateMode.StreamingWithContext;
+
+                        switch (format.ToLower())
                     {
-                        case "yaml":     return new ExportYaml(env, format, FileCreateMode.Streaming);
-                        case "textual":  return new ExportText(env, format, FileCreateMode.Streaming);
-                        case "html":     return new ExportHtml(env, format, FileCreateMode.Streaming);
-                        case "markdown": return new ExportMarkdown(env, format, FileCreateMode.Streaming);
+                        case "yaml":     return new ExportYaml(env, format, mode);
+                        case "textual":  return new ExportText(env, format, mode);
+                        case "html":     return new ExportHtml(env, format, mode);
+                        case "markdown": return new ExportMarkdown(env, format, mode);
                     }
                 }
             }

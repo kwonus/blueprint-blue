@@ -76,7 +76,7 @@
                     }
                 }
             }
-            else if (search.Scope.Count > 0)
+            if (search.Scope.Count > 0 && result == SelectionResultType.NoResults)
             {
                 result = SelectionResultType.ScopeOnlyResults;
             }

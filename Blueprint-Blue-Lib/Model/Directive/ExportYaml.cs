@@ -22,7 +22,7 @@ namespace Blueprint.Blue
             TextWriter? writer = null;
             try
             {
-                writer = (this.CreationMode == FileCreateMode.Streaming)
+                writer = this.IsStreamingMode()
                     ? this.Context != null ? new StreamWriter(this.Context.InternalExportStream) : null
                     : File.CreateText(this.FileSpec);
 
@@ -56,7 +56,7 @@ namespace Blueprint.Blue
                     if (writer != null)
                     {
                         writer.Flush();
-                        if (this.CreationMode != FileCreateMode.Streaming)
+                        if (!this.IsStreamingMode())
                             writer.Close();
                     }
                     return DirectiveResultType.ExportSuccessful;
