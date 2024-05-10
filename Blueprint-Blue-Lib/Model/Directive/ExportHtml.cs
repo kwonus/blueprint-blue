@@ -37,7 +37,7 @@ namespace Blueprint.Blue
 
                         if (this.ScopeOnlyExport)
                         {
-                            var chapter = CHAP[c - 1];
+                            var chapter = CHAP[c-1];
                             var writ = ObjectTable.AVXObjects.Mem.Written.Slice((int)chapter.writIdx, (int)chapter.writCnt).Span;
 
                             List<WordFeatures> words = new();
@@ -60,9 +60,11 @@ namespace Blueprint.Blue
                         }
                         else
                         {
+                            nc = true;
                             foreach (byte v in this[b][c].Keys)
                             {
                                 RenderVerse(writer, b, c, v, br, nc);
+                                nc = false;
                             }
                         }
                         writer.WriteLine("</span>"); // EoC

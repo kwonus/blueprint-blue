@@ -13,7 +13,6 @@ namespace Blueprint.Blue
         }
         public override DirectiveResultType Update()
         {
-            bool br = false;
             TextWriter? writer = null;
 
             try
@@ -33,8 +32,6 @@ namespace Blueprint.Blue
                     foreach (byte c in this[b].Keys)
                     {
                         bool nc = true;
-                        if (br)
-                            writer.WriteLine();
 
                         if (this.ScopeOnlyExport)
                         {
@@ -53,7 +50,7 @@ namespace Blueprint.Blue
                                 {
                                     byte v = writ[w].BCVWc.V;
                                     this[b][c][v] = words;
-                                    RenderVerse(writer, b, c, v, br, nc);
+                                    RenderVerse(writer, b, c, v, nc);
                                     words.Clear();
                                     nc = false;
                                 }
@@ -61,12 +58,13 @@ namespace Blueprint.Blue
                         }
                         else
                         {
+                            nc = true;
                             foreach (byte v in this[b][c].Keys)
                             {
-                                RenderVerse(writer, b, c, v, br, nc);
+                                RenderVerse(writer, b, c, v, nc);
+                                nc = false;
                             }
                         }
-                        br = true;
                     }
                 }
                 if (writer != null)
@@ -87,18 +85,14 @@ namespace Blueprint.Blue
             }
             return DirectiveResultType.ExportFailed;
         }
-        private void RenderVerse(TextWriter writer, byte b, byte c, byte v, bool newline, bool newchapter)
+        private void RenderVerse(TextWriter writer, byte b, byte c, byte v, bool newchapter)
         {
             if (this.ContainsKey(b) && this[b].ContainsKey(c) && this[b][c].ContainsKey(v) && this[b][c][v].Count > 0)
             {
                 List<WordFeatures> words = this[b][c][v];
                 if (newchapter)
-                {
-                    if (newline)
-                        writer.WriteLine();
-
                     writer.WriteLine(this.Books[b].name.ToString().ToUpper() + " " + c.ToString());
-                }
+                
                 writer.Write(v.ToString());
                 writer.Write(' ');
 
@@ -130,6 +124,7 @@ namespace Blueprint.Blue
 
                     previousPunctuation = word.Punctuation;
                 }
+                writer.WriteLine();
             }
         }
     }

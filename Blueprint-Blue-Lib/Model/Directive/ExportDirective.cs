@@ -65,7 +65,7 @@ namespace Blueprint.Blue
 
             if (matches != null && matches.Count > 0)
             {
-                var spans = matches.Where(tag => writ.BCVWc >= tag.Value.Start && writ.BCVWc <= tag.Value.Until);
+                var spans = matches.Where(tag => writ.BCVWc >= tag.Value.Start && writ.BCVWc <= tag.Value.Until).ToArray();
 
                 foreach (var span in spans)
                 {
@@ -230,13 +230,14 @@ namespace Blueprint.Blue
                     if (validatedContext)
                     {
                         byte c = filterList[0].Chapters.First();
-                        var chap = CHAP[c-1];
-                        byte verseCnt = chap.verseCnt;
+                        this[b][c] = new();
 
                         var chapter = CHAP[c-1];
+                        byte verseCnt = chapter.verseCnt;
 
                         List<WordFeatures> words = new();
-                        for (int w = chapter.writIdx; w < (int)chapter.writCnt; w++)
+                        int max = (int)chapter.writIdx + (int)chapter.writCnt - 1;
+                        for (int w = chapter.writIdx; w <= max; w++)
                         {
                             WordFeatures word = new WordFeatures(writ[w], book.Matches);
                             words.Add(word);
@@ -246,10 +247,10 @@ namespace Blueprint.Blue
                             if (wc == 1) // 1 means last word in the verse
                             {
                                 byte v = writ[w].BCVWc.V;
-                                this[b][c][v] = words;
+                                this[b][c][v] = words.ToList(); // clone instead of assign
+                                words = new();
                             }
                         }
-
                     }
                     else if (!this.IsContextIncluded())
                     {
