@@ -29,9 +29,8 @@ namespace Blueprint.Blue
     public record WordFeatures // hijacked from WordRendering class
     {
         private bool _ignore; // needed for deserialization
+        public BCVW Coordinates;
         public UInt32 WordKey;
-        public byte Wc;
-//      public BCVW Coordinates;
         public PNPOS PnPos;
         public string NuPos;
         public string Text;   // KJV
@@ -42,9 +41,9 @@ namespace Blueprint.Blue
 
         public WordFeatures()
         {
+            this._ignore = false;
             this.WordKey = 0;
-//          this.Coordinates = new();
-            this.Wc = 0;
+            this.Coordinates = new();
             this.Text = string.Empty;
             this.Modern = string.Empty;
             this.Punctuation = 0;
@@ -55,8 +54,7 @@ namespace Blueprint.Blue
         public WordFeatures(AVXLib.Memory.Written writ, Dictionary<UInt32, QueryMatch>? matches = null)
         {
             this.WordKey = writ.WordKey;
-//          this.Coordinates = writ.BCVWc;
-            this.Wc = writ.BCVWc.WC;
+            this.Coordinates = writ.BCVWc;
             this.Text = ObjectTable.AVXObjects.lexicon.GetLexDisplay(writ.WordKey);
             this.Modern = ObjectTable.AVXObjects.lexicon.GetLexModern(writ.WordKey, writ.Lemma);
             this.Punctuation = writ.Punctuation;

@@ -129,7 +129,7 @@ namespace Blueprint.Blue
                     if (italics)
                         writer.Write("<em>");
                     writer.Write("<span wc='W");
-                    writer.Write(word.Wc.ToString("X"));
+                    writer.Write(word.Coordinates.WC.ToString("X"));
                     writer.Write(" 'class='W");
                     writer.Write(word.WordKey.ToString("X"));
                     writer.Write("' diff='");

@@ -22,7 +22,7 @@ namespace Blueprint.Blue
     public class QContext: IDiagnostic
     {
         public QSettings GlobalSettings { get; internal set; }
-        public static string Home { get; private set; }
+        public static string Home { get; set; }
         public uint InvocationCount     { get; internal set; }
 
         public UInt16[]?Fields { get; set; }

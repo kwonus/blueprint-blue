@@ -33,23 +33,16 @@ namespace Blueprint.Blue
 
                     foreach (byte b in from bk in this.Keys orderby bk select bk)
                     {
-                        string name = "- " + book[b].abbr4.ToString() + " ";
+                        //string name = "# " + book[b].abbr4.ToString() + " ";
                         foreach (byte c in from ch in this[b].Keys orderby ch select ch)
                         {
-                            string chap = name + c.ToString() + "|";
+                            //string chap = name + c.ToString() + " ";
                             foreach (byte v in from vs in this[b][c].Keys orderby vs select vs)
                             {
-                                string coord = chap + v.ToString() + ":";
-                                writer.WriteLine(coord);
+                                //string coord = chap + v.ToString() + ":";
 
                                 string yaml = builder.Serialize(this[b][c][v]);
-
-                                string[] lines = yaml.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                                foreach (string line in lines)
-                                {
-                                    writer.Write("  ");
-                                    writer.WriteLine(line);
-                                }
+                                writer.WriteLine(yaml);
                             }
                         }
                     }
