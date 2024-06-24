@@ -50,7 +50,9 @@
             if (this.SelectionCriteria.SearchExpression != null)
             {
                 DirectiveResultType directive = DirectiveResultType.NotApplicable;
-                SelectionResultType executed = this.Search(this.SelectionCriteria.SearchExpression);
+                SelectionResultType executed = this.SelectionCriteria.SearchExpression.Expression != null
+                    ? this.Search(this.SelectionCriteria.SearchExpression)
+                    : this.Show(this.SelectionCriteria.SearchExpression);
                 if ((this.ExportDirective != null) && (executed == SelectionResultType.SearchResults || executed == SelectionResultType.ScopeOnlyResults))
                 {
                     directive = this.ExportDirective.Retrieve();
@@ -84,7 +86,23 @@
 
             return result;
         }
+        private SelectionResultType Show(QFind search) // this executes a selection that has no search criteria
+        {
+            SelectionResultType result = search.Fragments.Count > 0 ? SelectionResultType.NoResults : SelectionResultType.InvalidStatement;
 
+            for (byte b = 1; b <= 66; b++)
+            {
+                if (search.Scope.InScope(b))
+                {
+                    QueryBook qbook = new(b);
+                    search.Books[b] = qbook;
+                    if (qbook.Show(search) && result == SelectionResultType.NoResults)
+                        return SelectionResultType.SearchResults;
+                }
+            }
+
+            return SelectionResultType.NoResults;
+        }
         private QSelectionStatement(QContext env, string stmtText)
         {
             this.Context = env;

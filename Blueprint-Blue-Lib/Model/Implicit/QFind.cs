@@ -80,6 +80,7 @@ namespace Blueprint.Blue
 
             this.Fragments = new();
             bool validExpression = (blueprint != null) && (blueprint.rule == "search" && blueprint.children.Length == 1) && !string.IsNullOrWhiteSpace(text);
+
             if ((blueprint != null) && validExpression)
             {
                 Parsed child = blueprint.children[0];

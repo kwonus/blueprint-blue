@@ -71,8 +71,8 @@ namespace Blueprint.Model.Implicit
     }
     public class QSimilarity: ISetting
     {
-        public QSimilarityWord  Word  { get; internal set; }
-        public QSimilarityLemma Lemma { get; internal set; }
+        public QSimilarityWord  Word  { get; set; }
+        public QSimilarityLemma Lemma { get; set; }
 
         public static readonly string Name = typeof(QSimilarity).Name.Substring(1).ToLower();
         public string SettingName { get => Name; }
@@ -219,8 +219,8 @@ namespace Blueprint.Model.Implicit
         }
         public static readonly (QLexiconVal search, QLexiconVal display) DEFAULT = (QLexicalDomain.DEFAULT, QLexicalDisplay.DEFAULT);
 
-        public QLexicalDomain  Domain { get; private set; } // search domain
-        public QLexicalDisplay Render { get; private set; } // render/display
+        public QLexicalDomain  Domain { get; set; } // search domain
+        public QLexicalDisplay Render { get; set; } // render/display
 
         [YamlIgnore ]
         public (QLexiconVal search, QLexiconVal render) Value { get => (this.Domain.Value, this.Render.Value); }
