@@ -31,6 +31,7 @@
             }
         }
         public string Created            { get; protected set; }
+        public Int64 TimeStamp           { get; protected set; }
         public virtual UInt32 GetDateNumeric() // 16 Feb 2024
         {
             if (this.Created.Length == 11)
@@ -79,7 +80,8 @@
         public ExpandableInvocation()
         {
             this.Statement = string.Empty;
-            this.Created = string.Empty;
+            this.Created = QID.Today();
+            this.TimeStamp = DateTime.Now.ToFileTime();
             this.Expression = null;
             this.Scope = new();
             this.Filters = new();
@@ -90,6 +92,7 @@
         {
             this.Statement = rawText;
             this.Created = QID.Today();
+            this.TimeStamp = DateTime.Now.ToFileTime();
             this.Expression = statement.SearchExpression != null ? statement.SearchExpression.Expression : null;
             this.Scope = new();
             this.Filters = new();
@@ -118,6 +121,7 @@
         {
             this.Statement = rawText;
             this.Created = QID.Today();
+            this.TimeStamp = DateTime.Now.ToFileTime();
             this.Expression = null;
             this.Scope = new();
             this.Filters = new();
@@ -443,6 +447,105 @@
                                                         + "<tr style='background-color:#000000;'><th style='text-align:left;'>Property</th><th style='text-align:left;'>Value</th></tr>";
             ExpandableInvocation.AsHtmlTableEntry       = "<tr style='color:white;'><td>{0}</td><td>{1}</td></tr>\"";
             ExpandableInvocation.AsHtmlTablePostamble   = "</table></body></html>";
+        }
+
+        public Int64 OverrideTimestamp(Int64 timestamp)
+        {
+            this.TimeStamp = timestamp;
+            return this.TimeStamp;
+        }
+
+        public static (Dictionary<Int64, ExpandableHistory> history, Dictionary<Int64, ExpandableMacro> macros) MigrationAssets()
+        {
+            DateTime t1 = DateTime.Now;
+
+            IEnumerable<ExpandableInvocation> ihistory = QContext.GetHistory(null, null);
+            IEnumerable<ExpandableInvocation> imacros = QContext.GetMacros(null, null);
+
+            Dictionary<Int64, ExpandableHistory> history = new();
+            Dictionary<Int64, ExpandableMacro> macros = new();
+
+            if (ihistory != null)
+            {
+                foreach (ExpandableHistory invocation in
+                    from item in ihistory
+                    orderby
+                        item.TimeStamp,
+                        ((ExpandableHistory)item).Id.year,
+                        ((ExpandableHistory)item).Id.month,
+                        ((ExpandableHistory)item).Id.day,
+                        ((ExpandableHistory)item).Id.sequence
+                    select (ExpandableHistory)item)
+                {
+                    Int64 stamp = invocation.TimeStamp;
+                    DateTime stamp_date = DateTime.FromFileTime(stamp);
+                    DateTime t2 = DateTime.Now;
+
+                    bool tooRecent = false;
+                    if (stamp_date.Year == t1.Year && stamp_date.Month == t1.Month && stamp_date.Day == t1.Day)
+                        tooRecent = true;
+                    if (stamp_date.Year == t2.Year && stamp_date.Month == t2.Month && stamp_date.Day == t2.Day)
+                        tooRecent = true;
+
+                    // We fix keys (earlier versions of the yaml did not have a timestamp; default is DateTime.Now)
+                    if (tooRecent)
+                    {
+                        string file = System.IO.Path.Combine(QContext.HistoryPath, invocation.Id.year.ToString(), invocation.Id.month.ToString(), invocation.Id.day.ToString(), invocation.Id.sequence.ToString() + ".yaml");
+
+                        FileInfo info = new(file);
+                        invocation.OverrideTimestamp(info.CreationTime.ToFileTime());
+                    }
+                    Int64 key = invocation.TimeStamp;
+                    while (!history.ContainsKey(key))
+                    {
+                        key = invocation.OverrideTimestamp(invocation.TimeStamp + 1);
+                    }
+                    history[key] = invocation;
+                }
+            }
+            if (imacros != null)
+            {
+                foreach (ExpandableMacro invocation in
+                    from item in imacros
+                    orderby
+                        item.TimeStamp
+                    select (ExpandableMacro)item)
+                {
+                    Int64 stamp = invocation.TimeStamp;
+                    DateTime stamp_date = DateTime.FromFileTime(stamp);
+                    DateTime t2 = DateTime.Now;
+
+                    bool tooRecent = false;
+                    if (stamp_date.Year == t1.Year && stamp_date.Month == t1.Month && stamp_date.Day == t1.Day)
+                        tooRecent = true;
+                    if (stamp_date.Year == t2.Year && stamp_date.Month == t2.Month && stamp_date.Day == t2.Day)
+                        tooRecent = true;
+
+                    // We fix keys (earlier versions of the yaml did not have a timestamp; default is DateTime.Now)
+                    if (tooRecent)
+                    {
+                        string file = System.IO.Path.Combine(QContext.HistoryPath, invocation.Tag + ".yaml");
+
+                        FileInfo info = new(file);
+                        invocation.OverrideTimestamp(info.CreationTime.ToFileTime());
+                    }
+                    Int64 key = invocation.TimeStamp;
+                    while (!history.ContainsKey(key))
+                    {
+                        key = invocation.OverrideTimestamp(invocation.TimeStamp + 1);
+                    }
+                    macros[key] = invocation;
+                }
+            }
+            return (history, macros);
+        }
+        public static Dictionary<Int64, ExpandableHistory> MergeHistory(Dictionary<Int64, ExpandableHistory> baseline, Dictionary<Int64, ExpandableHistory> augmentation)
+        {
+            return baseline;
+        }
+        public static Dictionary<Int64, ExpandableMacro> MergeMacros(Dictionary<Int64, ExpandableMacro> baseline, Dictionary<Int64, ExpandableMacro> augmentation)
+        {
+            return baseline;
         }
     }
 }
