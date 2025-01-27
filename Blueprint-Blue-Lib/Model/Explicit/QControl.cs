@@ -3,9 +3,9 @@ namespace Blueprint.Blue
     using AVSearch.Interfaces;
     using Pinshot.PEG;
 
-    public class QExit : QSingleton, ICommand
+    public class QControl : QSingleton, ICommand
     {
-        public QExit(QContext env, string text, Parsed[] args) : base(env, text, "exit")
+        public QControl(QContext env, string text, Parsed[] args) : base(env, text, "exit")
         {
             ;
         }
