@@ -11,13 +11,29 @@
     using System.Diagnostics.Metrics;
     using System.IO;
     using System.Linq.Expressions;
+    using System.Reflection.Metadata;
     using System.Text;
     using System.Text.Json.Serialization;
     using YamlDotNet.Serialization;
 
+    using YYYY = UInt32;
+    using MM = byte;
+    using DD = byte;
+    using SEQ = UInt32;
+    using System.Runtime.ExceptionServices;
+    using System.Runtime.InteropServices;
+
+    public class MigratableHistory: Dictionary<YYYY, Dictionary<MM, Dictionary<DD, Dictionary<SEQ, ExpandableHistory>>>>
+    {
+        public MigratableHistory() : base()
+        {
+            ;
+        }
+    }
+
     public class ExpandableInvocation
     {
-        private string 
+        private string
             unused;
         public virtual string Tag
         {
@@ -26,12 +42,12 @@
                 return string.Empty;
             }
             protected set
-            { 
+            {
                 ;
             }
         }
-        public string Created            { get; protected set; }
-        public Int64 TimeStamp           { get; protected set; }
+        public string Created { get; protected set; }
+        public Int64 TimeStamp { get; protected set; }
         public virtual UInt32 GetDateNumeric() // 16 Feb 2024
         {
             if (this.Created.Length == 11)
@@ -58,9 +74,9 @@
             }
             return 0;
         }
-        public ParsedExpression? Expression   { get; protected set; }
-        public string Statement          { get; protected set; }
-        public HashSet<string> Filters   { get; protected set; } // these are used for display
+        public ParsedExpression? Expression { get; protected set; }
+        public string Statement { get; protected set; }
+        public HashSet<string> Filters { get; protected set; } // these are used for display
         public Dictionary<byte, ScopingFilter> Scope;
         public Dictionary<string, string> Settings { get; protected set; }
 
@@ -383,7 +399,7 @@
                     string lexRender = invocation.Settings[QLexicalDisplay.Name];
                     string lexSearch = invocation.Settings[QLexicalDomain.Name];
 
-                    string similarityWord  = invocation.Settings[QSimilarityWord.Name];
+                    string similarityWord = invocation.Settings[QSimilarityWord.Name];
                     string similarityLemma = invocation.Settings[QSimilarityLemma.Name];
 
                     AddBulkValueColumn(table, lexSearch + " / " + lexRender, cnt, i++);
@@ -421,12 +437,12 @@
 
             return table.ToString();
         }
-        protected static string AsMarkdownTableHeader  { get; private set; }
-        protected static string AsMarkdownTableEntry   { get; private set; }
-        protected static string AsHtmlTablePreamble    { get; private set; }
-        protected static string AsHtmlTableHeader      { get; private set; }
-        protected static string AsHtmlTableEntry       { get; private set; }
-        protected static string AsHtmlTablePostamble   { get; private set; }
+        protected static string AsMarkdownTableHeader { get; private set; }
+        protected static string AsMarkdownTableEntry { get; private set; }
+        protected static string AsHtmlTablePreamble { get; private set; }
+        protected static string AsHtmlTableHeader { get; private set; }
+        protected static string AsHtmlTableEntry { get; private set; }
+        protected static string AsHtmlTablePostamble { get; private set; }
 
         /*
         UInt64  Id
@@ -439,14 +455,14 @@
         static ExpandableInvocation()
         {
             ExpandableInvocation.AsMarkdownTableHeader = "| Property | Value |\n" + "| ---------- | ------------ |";
-            ExpandableInvocation.AsMarkdownTableEntry  = "| {0}     | {1}   |";
+            ExpandableInvocation.AsMarkdownTableEntry = "| {0}     | {1}   |";
 
-            ExpandableInvocation.AsHtmlTablePreamble    = "<html><body style='background-color:#252526;color:#FFFFFF;font-family:calibri,arial,helvetica;font-size:24px'>"
+            ExpandableInvocation.AsHtmlTablePreamble = "<html><body style='background-color:#252526;color:#FFFFFF;font-family:calibri,arial,helvetica;font-size:24px'>"
                                                         + "<br/><table border='1' align='center'>";
-            ExpandableInvocation.AsHtmlTableHeader      = ExpandableInvocation.AsHtmlTablePreamble
+            ExpandableInvocation.AsHtmlTableHeader = ExpandableInvocation.AsHtmlTablePreamble
                                                         + "<tr style='background-color:#000000;'><th style='text-align:left;'>Property</th><th style='text-align:left;'>Value</th></tr>";
-            ExpandableInvocation.AsHtmlTableEntry       = "<tr style='color:white;'><td>{0}</td><td>{1}</td></tr>\"";
-            ExpandableInvocation.AsHtmlTablePostamble   = "</table></body></html>";
+            ExpandableInvocation.AsHtmlTableEntry = "<tr style='color:white;'><td>{0}</td><td>{1}</td></tr>\"";
+            ExpandableInvocation.AsHtmlTablePostamble = "</table></body></html>";
         }
 
         public Int64 OverrideTimestamp(Int64 timestamp)
@@ -455,15 +471,12 @@
             return this.TimeStamp;
         }
 
-        public static (Dictionary<Int64, ExpandableHistory> history, Dictionary<Int64, ExpandableMacro> macros) MigrationAssets()
+        public static MigratableHistory MigrationHistory()
         {
             DateTime t1 = DateTime.Now;
 
             IEnumerable<ExpandableInvocation> ihistory = QContext.GetHistory(null, null);
-            IEnumerable<ExpandableInvocation> imacros = QContext.GetMacros(null, null);
-
-            Dictionary<Int64, ExpandableHistory> history = new();
-            Dictionary<Int64, ExpandableMacro> macros = new();
+            MigratableHistory history = new();
 
             if (ihistory != null)
             {
@@ -496,20 +509,137 @@
                         invocation.OverrideTimestamp(info.CreationTime.ToFileTime());
                     }
                     Int64 key = invocation.TimeStamp;
-                    while (!history.ContainsKey(key))
-                    {
-                        key = invocation.OverrideTimestamp(invocation.TimeStamp + 1);
-                    }
-                    history[key] = invocation;
+                    history[invocation.Id.year][invocation.Id.month][invocation.Id.day][invocation.Id.sequence] = invocation;
                 }
             }
+            return history;
+        }
+        public static UInt32 AugmentHistory(Dictionary<YYYY, Dictionary<MM, Dictionary<DD, Dictionary<SEQ, ExpandableHistory>>>> augmentation)
+        {
+            MigratableHistory baseline = MigrationHistory();
+
+            // First delete all exact dups that are in the augmentation
+            foreach (YYYY y in baseline.Keys)
+            {
+                if (augmentation.ContainsKey(y))
+                {
+                    foreach (MM m in baseline[y].Keys)
+                    {
+                        if (augmentation[y].ContainsKey(m))
+                        {
+                            foreach (DD d in baseline[y][m].Keys)
+                            {
+                                if (augmentation[y][m].ContainsKey(d))
+                                {
+                                    // write all records for this year/month/day, but adapt sequence number
+                                    foreach (SEQ i in baseline[y][m][d].Keys)
+                                    {
+                                        if (augmentation[y][m][d].ContainsKey(i))
+                                        {
+                                            ExpandableHistory original = baseline[y][m][d][i];
+                                            ExpandableHistory alternate = augmentation[y][m][d][i];
+                                            if (original.Expression == alternate.Expression && original.TimeStamp == alternate.TimeStamp)
+                                                augmentation[y][m][d].Remove(i);
+                                        }
+                                    }
+                                    if (augmentation[y][m][d].Count == 0)
+                                        augmentation[y][m].Remove(d);
+                                }
+                            }
+                            if (augmentation[y][m].Count == 0)
+                                augmentation[y].Remove(m);
+                        }
+                    }
+                    if (augmentation[y].Count == 0)
+                        augmentation.Remove(y);
+                }
+            }
+            UInt32 cnt = 0;
+
+            foreach (YYYY y in augmentation.Keys)
+            {
+                if (baseline.ContainsKey(y))
+                {
+                    foreach (MM m in augmentation[y].Keys)
+                    {
+                        if (baseline[y].ContainsKey(m))
+                        {
+                            foreach (DD d in augmentation[y][m].Keys)
+                            {
+                                if (baseline[y][m].ContainsKey(d))
+                                {
+                                    SEQ maxi = 1;
+                                    foreach (SEQ seq in baseline[y][m][d].Keys)
+                                    {
+                                        if (seq > maxi)
+                                            maxi = seq;
+                                    }
+                                    // write all records for this year/month/day, but adapt sequence number
+                                    foreach (SEQ i in augmentation[y][m][d].Keys)
+                                    {
+                                        ExpandableHistory item = augmentation[y][m][d][i];
+                                        item.Id.sequence = ++maxi;
+                                        // serialize
+                                        cnt++;
+                                    }
+                                }
+                                else
+                                {
+                                    // write all records for this year/month/day as-is
+                                    //
+                                    foreach (SEQ i in augmentation[y][m][d].Keys)
+                                    {
+                                        // serialize
+                                        cnt++;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // write all records for this year/month as-is
+                            //
+                            foreach (DD d in augmentation[y][m].Keys)
+                            {
+                                foreach (SEQ i in augmentation[y][m][d].Keys)
+                                {
+                                    // serialize
+                                    cnt++;
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // write all records for this year as-is
+                    //
+                    foreach (MM m in augmentation[y].Keys)
+                    {
+                        foreach (DD d in augmentation[y][m].Keys)
+                        {
+                            foreach (SEQ i in augmentation[y][m][d].Keys)
+                            {
+                                // serialize
+                                cnt++;
+                            }
+                        }
+                    }
+                }
+            }
+            return cnt;
+        }
+
+        public static Dictionary<string, ExpandableMacro> MigrationMacros()
+        {
+            DateTime t1 = DateTime.Now;
+
+            IEnumerable<ExpandableInvocation> imacros = QContext.GetMacros(null, null);
+            Dictionary<string, ExpandableMacro> macros = new();
+
             if (imacros != null)
             {
-                foreach (ExpandableMacro invocation in
-                    from item in imacros
-                    orderby
-                        item.TimeStamp
-                    select (ExpandableMacro)item)
+                foreach (ExpandableMacro invocation in imacros)
                 {
                     Int64 stamp = invocation.TimeStamp;
                     DateTime stamp_date = DateTime.FromFileTime(stamp);
@@ -529,23 +659,30 @@
                         FileInfo info = new(file);
                         invocation.OverrideTimestamp(info.CreationTime.ToFileTime());
                     }
-                    Int64 key = invocation.TimeStamp;
-                    while (!history.ContainsKey(key))
-                    {
-                        key = invocation.OverrideTimestamp(invocation.TimeStamp + 1);
-                    }
-                    macros[key] = invocation;
+                    macros[invocation.Tag] = invocation;
                 }
             }
-            return (history, macros);
+            return macros;
         }
-        public static Dictionary<Int64, ExpandableHistory> MergeHistory(Dictionary<Int64, ExpandableHistory> baseline, Dictionary<Int64, ExpandableHistory> augmentation)
+        public static UInt32 AugmentMacros(Dictionary<string, ExpandableMacro> augmentation)
         {
-            return baseline;
-        }
-        public static Dictionary<Int64, ExpandableMacro> MergeMacros(Dictionary<Int64, ExpandableMacro> baseline, Dictionary<Int64, ExpandableMacro> augmentation)
-        {
-            return baseline;
+            Dictionary<string, ExpandableMacro> baseline = MigrationMacros();
+
+            UInt32 cnt = 0;
+
+            foreach (string tag in augmentation.Keys)
+            {
+                if (baseline.ContainsKey(tag))
+                {
+                    // skip
+                }
+                else
+                {
+                    // serialize
+                    cnt++;
+                }
+            }
+            return cnt;
         }
     }
 }
