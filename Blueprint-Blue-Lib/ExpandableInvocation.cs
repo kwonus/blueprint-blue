@@ -471,7 +471,7 @@
             return this.TimeStamp;
         }
 
-        public static MigratableHistory MigrationHistory()
+        public static MigratableHistory StructuredHistory()
         {
             DateTime t1 = DateTime.Now;
 
@@ -508,15 +508,32 @@
                         FileInfo info = new(file);
                         invocation.OverrideTimestamp(info.CreationTime.ToFileTime());
                     }
-                    Int64 key = invocation.TimeStamp;
-                    history[invocation.Id.year][invocation.Id.month][invocation.Id.day][invocation.Id.sequence] = invocation;
+                    var history_year = history.ContainsKey(invocation.Id.year) ? history[invocation.Id.year] : null;
+                    if (history_year == null)
+                    {
+                        history_year = new();
+                        history[invocation.Id.year] = history_year;
+                    }
+                    var history_month = history_year.ContainsKey(invocation.Id.month) ? history_year[invocation.Id.month] : null;
+                    if (history_month == null)
+                    {
+                        history_month = new();
+                        history_year[invocation.Id.month] = history_month;
+                    }
+                    var history_day = history_month.ContainsKey(invocation.Id.day) ? history_month[invocation.Id.day] : null;
+                    if (history_day == null)
+                    {
+                        history_day = new();
+                        history_month[invocation.Id.day] = history_day;
+                    }
+                    history_day[invocation.Id.sequence] = invocation;
                 }
             }
             return history;
         }
         public static UInt32 AugmentHistory(Dictionary<YYYY, Dictionary<MM, Dictionary<DD, Dictionary<SEQ, ExpandableHistory>>>> augmentation)
         {
-            MigratableHistory baseline = MigrationHistory();
+            MigratableHistory baseline = StructuredHistory();
 
             // First delete all exact dups that are in the augmentation
             foreach (YYYY y in baseline.Keys)
@@ -579,7 +596,7 @@
                                     {
                                         ExpandableHistory item = augmentation[y][m][d][i];
                                         item.Id.sequence = ++maxi;
-                                        // serialize
+                                        item.Serialize();
                                         cnt++;
                                     }
                                 }
@@ -589,7 +606,8 @@
                                     //
                                     foreach (SEQ i in augmentation[y][m][d].Keys)
                                     {
-                                        // serialize
+                                        ExpandableHistory item = augmentation[y][m][d][i];
+                                        item.Serialize();
                                         cnt++;
                                     }
                                 }
@@ -603,7 +621,8 @@
                             {
                                 foreach (SEQ i in augmentation[y][m][d].Keys)
                                 {
-                                    // serialize
+                                    ExpandableHistory item = augmentation[y][m][d][i];
+                                    item.Serialize();
                                     cnt++;
                                 }
                             }
@@ -620,7 +639,8 @@
                         {
                             foreach (SEQ i in augmentation[y][m][d].Keys)
                             {
-                                // serialize
+                                ExpandableHistory item = augmentation[y][m][d][i];
+                                item.Serialize();
                                 cnt++;
                             }
                         }
@@ -630,7 +650,7 @@
             return cnt;
         }
 
-        public static Dictionary<string, ExpandableMacro> MigrationMacros()
+        public static Dictionary<string, ExpandableMacro> StructuredMacros()
         {
             DateTime t1 = DateTime.Now;
 
@@ -666,19 +686,20 @@
         }
         public static UInt32 AugmentMacros(Dictionary<string, ExpandableMacro> augmentation)
         {
-            Dictionary<string, ExpandableMacro> baseline = MigrationMacros();
+            Dictionary<string, ExpandableMacro> baseline = StructuredMacros();
 
             UInt32 cnt = 0;
 
             foreach (string tag in augmentation.Keys)
             {
-                if (baseline.ContainsKey(tag))
+                if (baseline.ContainsKey(tag))  // we always prefer baseline/existing over augmentation
                 {
-                    // skip
+                    ; // skip
                 }
                 else
                 {
-                    // serialize
+                    ExpandableMacro item = augmentation[tag];
+                    item.Serialize();
                     cnt++;
                 }
             }

@@ -20,7 +20,7 @@ namespace Blueprint.Blue
                     switch (command.rule.Trim().ToLower())
                     {
                         case "help":       return new QHelp(env,      command.text, command.children);
-                        case "exit":       return new QControl(env,      command.text, command.children);
+                        case "control":    return new QControl(env,   command.text, command.children);
                         case "use":        return new QAbsorb(env,    command.text, command.children);
                         case "get":        return new QGet(env,       command.text, command.children);
                         case "set":        return new QSet(env,       command.text, command.children);
