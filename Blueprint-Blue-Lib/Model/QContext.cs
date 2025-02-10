@@ -51,7 +51,12 @@ namespace Blueprint.Blue
             {
                 if (!Directory.Exists(QContext.Home))
                     Directory.CreateDirectory(QContext.Home);
-                return Path.Combine(QContext.Home, "History").Replace("\\", "/");
+                string history = Path.Combine(QContext.Home, "History").Replace("\\", "/");
+
+                if (!Directory.Exists(history))
+                    Directory.CreateDirectory(history);
+
+                return history;
             }
         }
         public static string MacroPath
@@ -66,6 +71,24 @@ namespace Blueprint.Blue
                     Directory.CreateDirectory(labels);
 
                 return labels;
+            }
+        }
+        public static (string folder, string file) BackupHistoryPath
+        {
+            get
+            {
+                if (!Directory.Exists(QContext.Home))
+                    Directory.CreateDirectory(QContext.Home);
+                return (QContext.Home, "Backup-History.yaml");
+            }
+        }
+        public static (string folder, string file) BackupMacrosPath
+        {
+            get
+            {
+                if (!Directory.Exists(QContext.Home))
+                    Directory.CreateDirectory(QContext.Home);
+                return (QContext.Home, "Backup-Macros.yaml");
             }
         }
 

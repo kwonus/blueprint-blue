@@ -163,6 +163,60 @@
             }
             return true;
         }
+        public bool Reload(TextReader reader) // mostly a clone of Reload() below ... used for migration
+        {
+            string search = QLexicalDomain.DEFAULT.ToString();
+            string render = QLexicalDisplay.DEFAULT.ToString();
+            string lemma = QSimilarityLemma.DEFAULT.ToString();
+            string? word = QSimilarityWord.DEFAULT.ToString();
+            string? format = null;
+            string? span = null;
+
+            for (string? line = reader.ReadLine(); line != null; line = reader.ReadLine())
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                var kv = line.Split(':');
+
+                if (kv.Length == 2)
+                {
+                    var key = kv[0].Trim();
+                    var val = kv[1].Trim();
+
+                    switch (key)
+                    {
+                        case "span": span = val; break;
+                        case "lexicon.search":
+                        case "search.lexicon":
+                        case "search": search = val; break;
+                        case "lexicon.render":
+                        case "render.lexicon":
+                        case "render": render = val; break;
+                        case "format": format = val; break;
+                        case "similarity.word":
+                        case "word": word = val; break;
+                        case "similarity.lemma":
+                        case "lemma": lemma = val; break;
+                    }
+                }
+            }
+            this.Lexicon = new QLexicon(search: search, render: render);
+            this.Similarity = new QSimilarity(sword: word, slemma: lemma);
+
+            if (string.IsNullOrWhiteSpace(format))
+                this.Format = new();
+            else
+                this.Format = new(format);
+
+            if (string.IsNullOrWhiteSpace(span))
+                this.Span = new();
+            else
+                this.Span = new(span);
+
+            return true;
+        }
+
         public bool Reload()
         {
             if ((this.BackingStore != null) && File.Exists(this.BackingStore))
