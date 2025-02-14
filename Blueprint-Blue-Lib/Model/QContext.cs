@@ -73,6 +73,15 @@ namespace Blueprint.Blue
                 return labels;
             }
         }
+        public static string GetMicrosoftStoreFolder(string name)
+        {
+            if (!Directory.Exists(QContext.Home))
+                Directory.CreateDirectory(QContext.Home);
+            string folder = Path.Combine(QContext.Home, name);
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+            return folder;
+        }
         public static (string folder, string file) BackupHistoryPath
         {
             get
