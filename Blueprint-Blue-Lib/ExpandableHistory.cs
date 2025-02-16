@@ -80,7 +80,11 @@
         public bool Serialize()
         {
             string yaml = this.Id.AsYamlPath();
-
+            string folder = Path.GetDirectoryName(yaml);
+            if (!Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
+            }
             try
             {
                 YamlDotNet.Serialization.Serializer serializer = new();
