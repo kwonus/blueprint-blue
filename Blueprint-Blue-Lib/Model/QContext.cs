@@ -82,23 +82,47 @@ namespace Blueprint.Blue
                 Directory.CreateDirectory(folder);
             return folder;
         }
-        public static (string folder, string file) BackupHistoryPath
+        public static (string folder, string file, string suffix, string ext) BackupHistoryPath
         {
             get
             {
                 if (!Directory.Exists(QContext.Home))
                     Directory.CreateDirectory(QContext.Home);
-                return (QContext.Home, "Backup-History.yaml");
+                return (QContext.Home, "Backup", "-History", ".yaml");
             }
         }
-        public static (string folder, string file) BackupMacrosPath
+        public static (string folder, string file, string suffix, string ext) BackupMacrosPath
         {
             get
             {
                 if (!Directory.Exists(QContext.Home))
                     Directory.CreateDirectory(QContext.Home);
-                return (QContext.Home, "Backup-Macros.yaml");
+                return (QContext.Home, "Backup", "-Macros", ".yaml");
             }
+        }
+        public static (string folder, string file, string suffix, string ext) MigrationHistoryPath
+        {
+            get
+            {
+                if (!Directory.Exists(QContext.Home))
+                    Directory.CreateDirectory(QContext.Home);
+                return (QContext.Home, "Migration", "-History", ".yaml");
+            }
+        }
+        public static (string folder, string file, string suffix, string ext) MigrationMacrosPath
+        {
+            get
+            {
+                if (!Directory.Exists(QContext.Home))
+                    Directory.CreateDirectory(QContext.Home);
+                return (QContext.Home, "Migration", "-Macros", ".yaml");
+            }
+        }
+
+        public static string Combine((string folder, string file, string suffix, string ext) backup)
+        {
+            string combined = Path.Combine(backup.folder, backup.file + backup.suffix + backup.ext);
+            return combined;
         }
 
         public QContext(QStatement statement)
