@@ -36,7 +36,7 @@ namespace Blueprint.Blue
         }
         public override (bool ok, string message) Execute()
         {
-            string result = this.Context.GlobalSettings.Get(this);
+            string result = this.Context.GlobalSettings.Get(this, Model.Implicit.QFormat.QFormatVal.MD);
             if (!string.IsNullOrEmpty(result))
             {
                 Console.WriteLine(result);

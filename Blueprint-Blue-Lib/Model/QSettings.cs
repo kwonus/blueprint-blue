@@ -33,7 +33,7 @@
 
             return builder.ToString();
         }
-        public string Get(QGet setting)
+        public string Get(QGet setting, QFormat.QFormatVal? format = null)
         {
             if (QSettings.FORMAT == QFormat.QFormatVal.MD)
                 return this.AsMarkdown(bold: setting.Key, showDefaults: true, showExtendedSettings: true);
@@ -518,7 +518,7 @@
             return key + ": " + value;
         }
 
-        private static string GetKeyRepresentation(string key, string? bold)
+        private static string GetKeyRepresentation(string key, string? bold, QFormat.QFormatVal? format = null)
         {
             if (key.Length == 0)
                 return string.Empty;
@@ -579,7 +579,7 @@
                     if (showDefaults || (this.Span.Value != QSpan.DEFAULT))
                     {
                         val = this.Span.ToString();
-                        table.Append(string.Format(MarkdownRow[key], key, QSettings.GetKeyRepresentation(val, bold)));
+                        table.Append(string.Format(MarkdownRow[key], key, QSettings.GetKeyRepresentation(val, bold, QFormat.QFormatVal.MD)));
                     }
                 }
                 else if (key == QLexicalDomain.Name)
@@ -591,7 +591,7 @@
                             val = "Both";
                         else if (val == "DUAL")
                             val = "Dual";
-                        table.Append(string.Format(MarkdownRow[key], key, QSettings.GetKeyRepresentation(val, bold)));
+                        table.Append(string.Format(MarkdownRow[key], key, QSettings.GetKeyRepresentation(val, bold, QFormat.QFormatVal.MD)));
                     }
                 }
                 else if (key == QLexicalDisplay.Name)
@@ -657,7 +657,7 @@
             bool isHeader = true;
             foreach (string key in HtmlRow.Keys)
             {
-                string keyrep = GetKeyRepresentation(key, bold);
+                string keyrep = GetKeyRepresentation(key, bold, QFormat.QFormatVal.HTML);
                 string color = (bold != null)
                     ? key.Contains(bold, StringComparison.InvariantCultureIgnoreCase) ? "white" : "gray"
                     : "white";
@@ -676,7 +676,7 @@
                     if (showDefaults || (this.Span.Value != QSpan.DEFAULT))
                     {
                         val = this.Span.ToString();
-                        table.Append(string.Format(HtmlRow[key], color, keyrep, QSettings.GetKeyRepresentation(val, bold)));
+                        table.Append(string.Format(HtmlRow[key], color, keyrep, QSettings.GetKeyRepresentation(val, bold, QFormat.QFormatVal.HTML)));
                     }
                 }
                 else if (key == QLexicalDomain.Name)
@@ -745,20 +745,20 @@
         static QSettings()
         {
             QSettings.MarkdownRow.Add("header",             "| Setting | Meaning | Value |\n" + "| ---------- | ------------------------------------------------------------ | ------------ |");
-            QSettings.MarkdownRow.Add(QSpan.Name,           "| {0}     | proximity distance limit                                     | {1}   |");
-            QSettings.MarkdownRow.Add(QLexicalDomain.Name,  "| {0}     | the lexicon to be used for the searching                     | {1}   |");
-            QSettings.MarkdownRow.Add(QLexicalDisplay.Name, "| {0}     | the lexicon to be used for display / rendering | {1}   |");
+            QSettings.MarkdownRow.Add(QSpan.Name,           "| {0}     | proximity limit                                     | {1}   |");
+            QSettings.MarkdownRow.Add(QLexicalDomain.Name,  "| {0}     | lexicon to be used for the searching                     | {1}   |");
+            QSettings.MarkdownRow.Add(QLexicalDisplay.Name, "| {0}     | lexicon to be used for display / rendering | {1}   |");
             QSettings.MarkdownRow.Add(QFormat.Name,         "| {0}     | format of results on output(e.g. for exported results)      | {1}   |");
             QSettings.MarkdownRow.Add(QSimilarityWord.Name, "| {0}     | phonetics matching threshold is between 33% and 100% < br />*off* means that phonetics matching is disabled | {1} |");
-            QSettings.MarkdownRow.Add(QSimilarityLemma.Name, "| {0}     | phonetics matching threshold is between 33% and 100% < br />*off* means that phonetics matching is disabled | {1} |");
+            QSettings.MarkdownRow.Add(QSimilarityLemma.Name,"| {0}     | phonetics matching threshold is between 33% and 100% < br />*off* means that phonetics matching is disabled | {1} |");
             QSettings.MarkdownRow.Add(REVISION,             "| {0}     | revision number of the grammar. This value is read - only.     | {1}   |");
 
             QSettings.HtmlRow.Add("header",                 "<html><body style='background-color:#252526;color:#FFFFFF;font-family:calibri,arial,helvetica;font-size:24px'>" 
                                                           + "<br/><table border='1' align='center'>"
                                                           + "<tr style='background-color:#000000;'><th style='text-align:left;'>Setting</th><th style='text-align:left;'>Meaning</th><th style='text-align:left;'>Value</th></tr>");
-            QSettings.HtmlRow.Add(QSpan.Name,               "<tr style='color:{0};'><td>{1}</td><td>proximity distance limit</td><td>{2}</td></tr>");
-            QSettings.HtmlRow.Add(QLexicalDomain.Name,      "<tr style='color:{0};'><td>{1}</td><td>the lexicon to be used for the searching</td><td>{2}</td></tr>");
-            QSettings.HtmlRow.Add(QLexicalDisplay.Name,     "<tr style='color:{0};'><td>{1}</td><td>the lexicon to be used for display / rendering</td><td>{2}</td></tr>");
+            QSettings.HtmlRow.Add(QSpan.Name,               "<tr style='color:{0};'><td>{1}</td><td>proximity limit</td><td>{2}</td></tr>");
+            QSettings.HtmlRow.Add(QLexicalDomain.Name,      "<tr style='color:{0};'><td>{1}</td><td>lexicon to be used for the searching</td><td>{2}</td></tr>");
+            QSettings.HtmlRow.Add(QLexicalDisplay.Name,     "<tr style='color:{0};'><td>{1}</td><td>lexicon to be used for display / rendering</td><td>{2}</td></tr>");
             QSettings.HtmlRow.Add(QFormat.Name,             "<tr style='color:{0};'><td>{1}</td><td>format of results on output(e.g. for exported results)</td><td>{2}</td></tr>");
             QSettings.HtmlRow.Add(QSimilarityWord.Name,     "<tr style='color:{0};'><td>{1}</td><td>phonetics matching threshold is between 33% and 100% <br/><em>>off</em> means that phonetics matching is disabled</td><td>{2}</td></tr>");
             QSettings.HtmlRow.Add(QSimilarityLemma.Name,    "<tr style='color:{0};'><td>{1}</td><td>phonetics matching threshold is between 33% and 100% <br/><em>>off</em> means that phonetics matching is disabled</td><td>{2}</td></tr>");
